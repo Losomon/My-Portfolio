@@ -140,21 +140,8 @@ curl http://localhost:3000/api/messages
 ---
 
 ## 🌍 Deployment
-
-You can deploy backend on:
-
-* Render.com
-* Railway.app
-* Vercel (serverless)
-* Any Node.js hosting
-
-Frontend can be hosted on:
-
-* Vercel
-* Netlify
-* GitHub Pages
-
----
+follow to see :
+my-portfolio-v51e.vercel.app
 
 ## 🔒 Security Notes
 
