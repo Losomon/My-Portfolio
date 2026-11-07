@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Core Palette */
+  --color-deep-plum: #271A3D;
+  --color-electric-violet: #493BE5;
+  --color-warm-cream: #FCFBF8;
+  --color-lavender: #C9C2FF;
+  --color-pale-lavender: #F3EBFF;
+  --color-secondary-text: #635078;
+
+  /* Semantic Mapping */
+  --bg-primary: var(--color-warm-cream);
+  --bg-secondary: var(--color-deep-plum);
+  --text-primary: var(--color-deep-plum);
+  --text-secondary: var(--color-secondary-text);
+  --text-on-dark: var(--color-warm-cream);
+  --accent: var(--color-electric-violet);
+
+  /* Typography Scale */
+  --font-satoshi: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Times New Roman', Times, serif;
+
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+  --text-3xl: clamp(2.5rem, 2rem + 2vw, 4rem);
+  --text-4xl: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+
+  /* Spacing (4px base) */
+  --space-4: 1rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-base: 0.6s;
+}
+
+.section-dark {
+  --bg-primary: var(--color-deep-plum);
+  --text-primary: var(--color-warm-cream);
+  --text-secondary: var(--color-lavender);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-base: 0.01ms !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-satoshi);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  transition: background-color var(--duration-base) var(--ease-out-expo),
+              color var(--duration-base) var(--ease-out-expo);
+}
