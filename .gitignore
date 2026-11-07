@@ -29,7 +29,6 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-node_modules
+# large videos
+/public/videos/video1.mp4
+/public/videos/video2.mp4
