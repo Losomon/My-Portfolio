@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="2440" viewBox="0 0 1600 2440" fill="none" style="max-width:100%;height:auto;display:block">
+  <defs>
+    <linearGradient id="hero" x1="120" y1="260" x2="1460" y2="940" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B102A"/>
+      <stop offset=".58" stop-color="#382467"/>
+      <stop offset="1" stop-color="#6952D8"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="1020" y1="360" x2="1270" y2="840" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3D8AE" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#C9C2FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="film" x1="850" y1="1510" x2="1470" y2="2180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7A5A50"/>
+      <stop offset=".48" stop-color="#30223E"/>
+      <stop offset="1" stop-color="#111019"/>
+    </linearGradient>
+    <pattern id="grain" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="2" r=".7" fill="#FFF" fill-opacity=".12"/>
+      <circle cx="6" cy="6" r=".6" fill="#FFF" fill-opacity=".08"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#160E24" flood-opacity=".18"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="2440" fill="#F4F0E9"/>
+  <text x="104" y="92" fill="#493BE5" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="3">PORTFOLIO / VISUAL DIRECTION</text>
+  <text x="104" y="166" fill="#271A3D" font-family="Georgia,serif" font-size="58" letter-spacing="-2">A portfolio that feels like a little world.</text>
+  <text x="106" y="210" fill="#635078" font-family="Arial,sans-serif" font-size="19">A library-inspired welcome. An editorial work index. A cinematic way into each story.</text>
+  <text x="1490" y="94" text-anchor="end" fill="#635078" font-family="Arial,sans-serif" font-size="14" letter-spacing="2">CONCEPT 01  /  DESKTOP</text>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="264" width="1440" height="682" rx="8" fill="#211630"/>
+    <rect x="80" y="264" width="1440" height="682" rx="8" fill="url(#hero)"/>
+    <rect x="80" y="264" width="1440" height="682" rx="8" fill="url(#grain)" opacity=".55"/>
+  </g>
+  <text x="128" y="312" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">01 / THE ENTRANCE</text>
+  <text x="128" y="354" fill="#FFF9F0" font-family="Georgia,serif" font-size="22">YOUR NAME <tspan fill="#B7A8F5">®</tspan></text>
+  <text x="1055" y="352" fill="#FFF9F0" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">WORK</text>
+  <text x="1155" y="352" fill="#FFF9F0" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">ABOUT</text>
+  <text x="1265" y="352" fill="#FFF9F0" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">CONTACT</text>
+  <path d="M128 376H1472" stroke="#FFF9F0" stroke-opacity=".22"/>
+
+  <ellipse cx="1128" cy="610" rx="280" ry="260" fill="url(#glow)" opacity=".48"/>
+  <rect x="954" y="428" width="362" height="339" rx="180" fill="#20162C" fill-opacity=".44" stroke="#E8DCCB" stroke-opacity=".62" stroke-width="2"/>
+  <path d="M986 657H1285M986 709H1285" stroke="#E2C7A7" stroke-opacity=".8" stroke-width="8"/>
+  <rect x="1008" y="530" width="38" height="125" rx="4" fill="#EACB9D" transform="rotate(-4 1008 530)"/>
+  <rect x="1054" y="502" width="54" height="153" rx="4" fill="#B7A8F5" transform="rotate(3 1054 502)"/>
+  <rect x="1116" y="520" width="34" height="135" rx="4" fill="#E6D8C6" transform="rotate(-2 1116 520)"/>
+  <rect x="1157" y="484" width="61" height="171" rx="4" fill="#7355C7" transform="rotate(4 1157 484)"/>
+  <rect x="1227" y="535" width="42" height="120" rx="4" fill="#D8A77C" transform="rotate(-3 1227 535)"/>
+  <circle cx="1136" cy="414" r="13" fill="#F6DDBA"/>
+  <path d="M1080 432L1136 417L1192 432" stroke="#F6DDBA" stroke-width="3"/>
+  <text x="1136" y="800" text-anchor="middle" fill="#E8DCCB" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">A SHELF OF IDEAS / READY WHEN YOU ARE</text>
+
+  <text x="154" y="526" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="14" letter-spacing="3">SOFTWARE ENGINEER · CREATIVE TECHNOLOGIST</text>
+  <text x="148" y="625" fill="#FFF9F0" font-family="Georgia,serif" font-size="78" letter-spacing="-3">Make room</text>
+  <text x="148" y="708" fill="#FFF9F0" font-family="Georgia,serif" font-size="78" letter-spacing="-3">for <tspan fill="#C9C2FF" font-style="italic">what's next.</tspan></text>
+  <text x="153" y="764" fill="#E8DFF3" font-family="Arial,sans-serif" font-size="18">A quiet, tactile welcome before the work begins.</text>
+  <rect x="150" y="810" width="206" height="54" rx="27" fill="#F4F0E9"/>
+  <text x="253" y="843" text-anchor="middle" fill="#271A3D" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">ENTER THE LIBRARY  ↗</text>
+  <text x="1470" y="906" text-anchor="end" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">SCROLL TO BROWSE  ↓</text>
+
+  <text x="104" y="1024" fill="#493BE5" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">02 / THE WORK INDEX</text>
+  <text x="100" y="1102" fill="#271A3D" font-family="Georgia,serif" font-size="64" letter-spacing="-2">Selected work,</text>
+  <text x="100" y="1168" fill="#271A3D" font-family="Georgia,serif" font-size="64" font-style="italic" letter-spacing="-2">with a story behind it.</text>
+  <text x="1120" y="1111" fill="#635078" font-family="Arial,sans-serif" font-size="17">Thoughtful digital products, built from</text>
+  <text x="1120" y="1140" fill="#635078" font-family="Arial,sans-serif" font-size="17">first sketch to working software.</text>
+  <path d="M100 1214H1500" stroke="#271A3D" stroke-opacity=".25"/>
+
+  <text x="104" y="1280" fill="#635078" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">01</text>
+  <text x="164" y="1284" fill="#271A3D" font-family="Georgia,serif" font-size="37">Stockly</text>
+  <text x="166" y="1320" fill="#635078" font-family="Arial,sans-serif" font-size="14">INVENTORY MANAGEMENT · FULL-STACK</text>
+  <text x="166" y="1367" fill="#493BE5" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1">VIEW CASE STUDY  ↗</text>
+  <g filter="url(#shadow)">
+    <rect x="838" y="1242" width="662" height="268" rx="5" fill="#DCD5F1"/>
+    <rect x="867" y="1270" width="604" height="212" rx="3" fill="#FCFBF8"/>
+    <rect x="867" y="1270" width="604" height="31" fill="#271A3D"/>
+    <circle cx="886" cy="1286" r="4" fill="#C9C2FF"/>
+    <circle cx="901" cy="1286" r="4" fill="#C9C2FF" fill-opacity=".55"/>
+    <rect x="889" y="1321" width="112" height="136" rx="3" fill="#F3EBFF"/>
+    <rect x="1021" y="1321" width="194" height="58" rx="3" fill="#F3EBFF"/>
+    <rect x="1021" y="1391" width="194" height="66" rx="3" fill="#F3EBFF"/>
+    <rect x="1233" y="1321" width="215" height="136" rx="3" fill="#493BE5" fill-opacity=".92"/>
+    <path d="M1050 1351H1185M1050 1365H1146M1050 1421H1174M1050 1435H1122" stroke="#A89AE5" stroke-width="5"/>
+    <path d="M1262 1417L1308 1380L1345 1394L1397 1346" stroke="#D8D0FF" stroke-width="4"/>
+    <circle cx="1397" cy="1346" r="5" fill="#FFF9F0"/>
+    <text x="903" y="1349" fill="#493BE5" font-family="Arial,sans-serif" font-size="10" letter-spacing="1">OVERVIEW</text>
+  </g>
+  <path d="M100 1538H1500" stroke="#271A3D" stroke-opacity=".25"/>
+  <text x="104" y="1600" fill="#635078" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">02</text>
+  <text x="164" y="1604" fill="#271A3D" font-family="Georgia,serif" font-size="37">More ideas in progress</text>
+  <text x="166" y="1640" fill="#635078" font-family="Arial,sans-serif" font-size="14">A clean, considered list leaves room for future projects.</text>
+  <text x="1454" y="1608" text-anchor="end" fill="#493BE5" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1">EXPLORE ALL WORK  ↗</text>
+  <path d="M100 1680H1500" stroke="#271A3D" stroke-opacity=".25"/>
+
+  <g filter="url(#shadow)">
+    <rect x="80" y="1740" width="1440" height="580" rx="8" fill="#17131C"/>
+    <rect x="80" y="1740" width="1440" height="580" rx="8" fill="url(#film)"/>
+    <rect x="80" y="1740" width="1440" height="580" rx="8" fill="url(#grain)" opacity=".5"/>
+  </g>
+  <text x="128" y="1792" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="13" letter-spacing="2">03 / A PROJECT BECOMES A FILM</text>
+  <text x="1470" y="1792" text-anchor="end" fill="#FFF9F0" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">ESC  CLOSE</text>
+  <path d="M128 1817H1472" stroke="#FFF9F0" stroke-opacity=".26"/>
+  <circle cx="1186" cy="2038" r="205" fill="#D6A882" fill-opacity=".13"/>
+  <path d="M847 2113C920 1930 1021 1887 1108 1971C1171 2032 1250 2021 1339 1889C1400 1975 1436 2053 1470 2169H847V2113Z" fill="#1B1722" fill-opacity=".62"/>
+  <path d="M884 2116C994 2059 1044 1975 1108 1971C1171 2032 1250 2021 1339 1889" stroke="#D9B797" stroke-opacity=".56" stroke-width="2"/>
+  <text x="158" y="1936" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="13" letter-spacing="3">SELECTED PROJECT  /  01</text>
+  <text x="150" y="2076" fill="#FFF9F0" font-family="Georgia,serif" font-size="112" letter-spacing="-6">STOCKLY</text>
+  <text x="158" y="2126" fill="#E8DFF3" font-family="Arial,sans-serif" font-size="16">A small-business inventory system, made to feel effortless.</text>
+  <circle cx="161" cy="2201" r="23" stroke="#FFF9F0" stroke-opacity=".8"/>
+  <path d="M157 2191L169 2201L157 2211" stroke="#FFF9F0" stroke-width="2"/>
+  <text x="201" y="2206" fill="#FFF9F0" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">WATCH THE STORY</text>
+  <rect x="1332" y="2163" width="120" height="120" rx="60" fill="#C9C2FF"/>
+  <text x="1392" y="2208" text-anchor="middle" fill="#271A3D" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1">ABOUT</text>
+  <text x="1392" y="2227" text-anchor="middle" fill="#271A3D" font-family="Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1">ME ↗</text>
+  <text x="128" y="2300" fill="#D9D0FF" font-family="Arial,sans-serif" font-size="12" letter-spacing="2">VIDEO-LED CASE STUDY  ·  PERSONAL INTRODUCTION  ·  SUBTITLES ON</text>
+
+  <text x="104" y="2383" fill="#635078" font-family="Arial,sans-serif" font-size="13">DIRECTION: tactile library mood + editorial case-study structure + cinematic transitions</text>
+  <text x="1495" y="2383" text-anchor="end" fill="#493BE5" font-family="Arial,sans-serif" font-size="13" font-weight="700">WARM  /  CURIOUS  /  IN MOTION</text>
+</svg>
