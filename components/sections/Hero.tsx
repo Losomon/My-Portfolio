@@ -1,89 +1,61 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
 import Link from 'next/link';
-import { useGsapContext, useReducedMotion } from '@/lib/gsap';
+import { gsap } from 'gsap';
+import { useGsapContext } from '@/lib/gsap';
 
 export default function Hero() {
-  const heroRef = useGsapContext((ctx) => {
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-    tl.fromTo('.hero-video',
-      { opacity: 0, scale: 1.1 },
-      { opacity: 1, scale: 1, duration: 1.5 }
-    )
-    .fromTo('.hero-label',
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8 },
-      '-=1'
-    )
-    .fromTo('.hero-title-line',
-      { y: '100%', opacity: 0 },
-      { y: '0%', opacity: 1, duration: 1, stagger: 0.15 },
-      '-=0.6'
-    )
-    .fromTo('.hero-ctas',
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8 },
-      '-=0.4'
+  const heroRef = useGsapContext(() => {
+    gsap.fromTo(
+      '.hero-reveal',
+      { y: 28, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, stagger: 0.12, ease: 'power3.out' }
     );
   });
 
-  const reducedMotion = useReducedMotion();
-
   return (
-    <section
-      ref={heroRef}
-      className="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden section-dark"
-      aria-label="Introduction"
-    >
-      <div className="absolute inset-0 z-0">
-        <video
-          className="hero-video w-full h-full object-cover opacity-60"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/images/hero-poster.avif"
-          aria-hidden="true"
-        >
-          <source src="/videos/hero-abstract.webm" type="video/webm" />
-          <source src="/videos/hero-abstract.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#271A3D]/80 via-[#271A3D]/60 to-[#271A3D]/90" />
-      </div>
+    <section ref={heroRef} className="hero-section section-dark" aria-label="Introduction">
+      <div className="hero-grain" aria-hidden="true" />
+      <div className="hero-inner">
+        <div className="hero-copy">
+          <p className="hero-kicker hero-reveal">Software engineer <span>·</span> Creative technologist</p>
+          <h1 className="hero-title hero-reveal">
+            I build digital
+            <br />
+            products with
+            <br />
+            <em>a little more feeling.</em>
+          </h1>
+          <p className="hero-description hero-reveal">
+            Thoughtful engineering for useful, human-centered experiences — from the first idea to the details that make it work.
+          </p>
+          <div className="hero-actions hero-reveal">
+            <Link href="#work" className="button button-light">Explore selected work <span aria-hidden="true">↘</span></Link>
+            <Link href="#about" className="text-link text-link-light">A little about me <span aria-hidden="true">↗</span></Link>
+          </div>
+        </div>
 
-      <div className="relative z-10 container mx-auto px-6 md:px-12 max-w-7xl text-center">
-        <span className="hero-label block text-[var(--color-lavender)] text-sm md:text-base tracking-[0.2em] uppercase mb-6 font-medium">
-          Software Engineer & Creative Technologist
-        </span>
+        <div className="hero-art hero-reveal" aria-hidden="true">
+          <div className="hero-art-orbit hero-art-orbit-one" />
+          <div className="hero-art-orbit hero-art-orbit-two" />
+          <div className="hero-art-object">
+            <div className="hero-art-glow" />
+            <div className="hero-shelf">
+              <span className="book book-one" />
+              <span className="book book-two" />
+              <span className="book book-three" />
+              <span className="book book-four" />
+              <span className="book book-five" />
+              <span className="shelf-line" />
+              <span className="shelf-line shelf-line-lower" />
+            </div>
+          </div>
+          <p className="hero-art-caption">Ideas, made tangible <span>— 01</span></p>
+        </div>
 
-        <h1 className="hero-title font-['Times_New_Roman'] text-[var(--text-4xl)] leading-[1.1] font-normal text-[var(--color-warm-cream)] mb-8">
-          <span className="block overflow-hidden">
-            <span className="hero-title-line inline-block">Engineering digital</span>
-          </span>
-          <span className="block overflow-hidden">
-            <span className="hero-title-line inline-block text-[var(--color-electric-violet)]">experiences.</span>
-          </span>
-          <span className="block overflow-hidden">
-            <span className="hero-title-line inline-block">Creating what comes next.</span>
-          </span>
-        </h1>
-
-        <div className="hero-ctas flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
-          <Link
-            href="#work"
-            className="px-8 py-4 bg-[var(--color-electric-violet)] text-[var(--color-warm-cream)] rounded-full font-medium transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lavender)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-deep-plum)]"
-          >
-            Explore My Work
-          </Link>
-          <Link
-            href="#contact"
-            className="px-8 py-4 border border-[var(--color-lavender)] text-[var(--color-warm-cream)] rounded-full font-medium transition-colors duration-300 hover:bg-[var(--color-lavender)] hover:text-[var(--color-deep-plum)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-lavender)]"
-          >
-            Let's Talk
-          </Link>
+        <div className="hero-bottom">
+          <span>Solomon <span className="hero-bottom-separator">/</span> Portfolio</span>
+          <a href="#work" className="scroll-cue">Scroll to explore <span aria-hidden="true">↓</span></a>
         </div>
       </div>
     </section>

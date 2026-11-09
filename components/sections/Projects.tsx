@@ -3,18 +3,18 @@ import ProjectShowcase from '@/components/ui/ProjectShowcase';
 
 export default function Projects() {
   return (
-    <section id="work" className="section-dark py-24 md:py-32">
-      <div className="container mx-auto px-6 md:px-12 max-w-7xl">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 md:mb-32">
-          <h2 className="font-['Times_New_Roman'] text-[var(--text-3xl)] md:text-7xl text-[var(--color-warm-cream)] leading-[1.05]">
-            Selected <br/> Work.
-          </h2>
-          <p className="text-[var(--color-lavender)]/70 max-w-sm mt-6 md:mt-0 text-lg">
-            A collection of software systems and digital products I've engineered, from initial concept to deployment.
+    <section id="work" className="projects-section">
+      <div className="content-wrap">
+        <div className="projects-heading">
+          <div>
+            <p className="eyebrow">02 / Selected work</p>
+            <h2 className="editorial-heading">Projects with<br /><em>a purpose.</em></h2>
+          </div>
+          <p className="projects-intro">
+            A growing collection of digital products shaped by real needs, thoughtful design, and the details behind the interface.
           </p>
         </div>
-
-        <div>
+        <div className="projects-list">
           {projects.map((project, index) => (
             <ProjectShowcase key={project.slug} project={project} index={index} />
           ))}

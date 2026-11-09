@@ -5,9 +5,7 @@ import { gsap } from 'gsap';
 
 export default function CreativeStatement() {
   const sectionRef = useGsapContext(() => {
-    const words = document.querySelectorAll('.statement-word');
-
-    gsap.fromTo(words,
+    gsap.fromTo('.statement-word',
       { opacity: 0.15, y: 10 },
       {
         opacity: 1,

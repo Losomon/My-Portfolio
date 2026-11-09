@@ -1,13 +1,19 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects } from '@/lib/projects';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
 
 export function generateStaticParams() {
   return projects.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const project = projects.find((p) => p.slug === params.slug);
+type PageProps = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
   if (!project) return {};
   return {
     title: `${project.title} — Case Study`,
@@ -15,8 +21,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function CaseStudyPage({ params }: { params: { slug: string } }) {
-  const project = projects.find((p) => p.slug === params.slug);
+export default async function CaseStudyPage({ params }: PageProps) {
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
   const cs = project.caseStudy;
 
@@ -36,32 +43,42 @@ export default function CaseStudyPage({ params }: { params: { slug: string } }) 
   ];
 
   return (
-    <main className="min-h-screen bg-[var(--color-warm-cream)] text-[var(--color-deep-plum)] py-24">
-      <div className="container mx-auto px-6 md:px-12 max-w-4xl">
-        <h1 className="font-['Times_New_Roman'] text-[var(--text-4xl)] mb-4">{project.title}</h1>
-        <p className="text-[var(--color-secondary-text)] text-lg mb-12">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-12">
-          {cs.technologyChoices.map((t) => (
-            <span key={t} className="px-3 py-1 rounded-full text-xs border border-[var(--color-deep-plum)]/20">{t}</span>
-          ))}
-        </div>
-        {cs.architectureDiagram && (
-          <img src={cs.architectureDiagram} alt="Architecture diagram" className="w-full rounded-2xl mb-12" />
-        )}
-        {sections.map((s) => (
-          <section key={s.title} className="mb-10">
-            <h2 className="font-['Times_New_Roman'] text-[var(--text-3xl)] mb-3">{s.title}</h2>
-            <p className="text-[var(--color-secondary-text)] leading-relaxed">{s.body}</p>
-          </section>
-        ))}
-        {project.gallery && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-            {project.gallery.map((g) => (
-              <img key={g.src} src={g.src} alt={g.alt} className="w-full rounded-2xl" />
-            ))}
+    <>
+      <Navigation />
+      <main className="case-study">
+        <div className="case-study-header">
+          <div className="case-study-wrap">
+            <Link href="/#work" className="case-study-back"><span aria-hidden="true">←</span> Back to selected work</Link>
+            <p className="eyebrow">{project.category} <span>·</span> {project.status}</p>
+            <h1>{project.title}<span>.</span></h1>
+            <p className="case-study-description">{project.description}</p>
+            <div className="case-study-tags">
+              {cs.technologyChoices.map((technology) => (
+                <span key={technology}>{technology}</span>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
-    </main>
+        </div>
+        <div className="case-study-wrap case-study-content">
+          <div className="case-study-facts">
+            <div><span>Role</span><strong>{project.role}</strong></div>
+            <div><span>Current status</span><strong>{project.status}</strong></div>
+            <div><span>Toolkit</span><strong>{project.stack.join(' · ')}</strong></div>
+          </div>
+          {sections.map((section, index) => (
+            <section key={section.title} className="case-study-section">
+              <span className="case-study-number">0{index + 1}</span>
+              <div>
+                <h2>{section.title}</h2>
+                <p>{section.body}</p>
+              </div>
+            </section>
+          ))}
+          <p className="case-study-status-note">{project.statusNote}</p>
+          <Link href="/#work" className="text-link">Back to selected work <span aria-hidden="true">↗</span></Link>
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 }
