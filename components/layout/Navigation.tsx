@@ -33,6 +33,17 @@ export default function Navigation() {
               {link.label}
             </Link>
           ))}
+          <button
+            type="button"
+            className="text-link text-link-light"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', font: 'inherit', padding: 0 }}
+            onClick={() => {
+              setMenuOpen(false);
+              window.dispatchEvent(new CustomEvent('open-library-entrance'));
+            }}
+          >
+            🏛️ 3D Library
+          </button>
           <span className="availability"><i aria-hidden="true" /> Building Stockly</span>
         </nav>
       </div>

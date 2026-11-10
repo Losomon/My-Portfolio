@@ -40,6 +40,7 @@ export const projects: Project[] = [
       overview: 'Stockly is a mobile-first inventory management system built to replace pen-and-paper tracking for small retail businesses in Kenya. It provides real-time visibility into stock levels, sales, and supplier orders.',
       problem: 'Small business owners lose significant revenue due to stockouts, overstocking, and unrecorded shrinkage. Existing enterprise ERPs are too complex and expensive, while basic spreadsheet solutions lack mobile accessibility and real-time syncing.',
       targetUsers: 'Retail shop owners, pharmacy managers, and small warehouse operators who need to track inventory on the go using their smartphones.',
+      role: 'Sole Architect & Full-Stack Engineer',
       designDirection: 'The design prioritizes speed and thumb-friendly navigation. High-contrast UI for outdoor use, large tap targets, and a dashboard that surfaces critical alerts (low stock) immediately upon opening the app.',
       technicalArchitecture: 'The system uses a modular architecture. The frontend is a Next.js PWA for offline capabilities. The backend is designed as a multi-tenant API, allowing a single deployment to serve multiple independent businesses with isolated data.',
       technologyChoices: ['Next.js 14', 'TypeScript', 'PostgreSQL', 'Prisma', 'Tailwind CSS', 'Zustand'],

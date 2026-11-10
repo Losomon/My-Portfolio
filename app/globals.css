@@ -1771,3 +1771,375 @@ a:focus-visible {
     display: none;
   }
 }
+
+/* ==========================================================================
+   IMMERSIVE 3D DIGITAL LIBRARY ENTRANCE & CINEMATIC GSAP HUD
+   ========================================================================== */
+
+.digital-library-entrance-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0a0705;
+  color: #f5efe3;
+  overflow: hidden;
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.digital-library-entrance-root.is-exiting {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.digital-library-entrance-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.digital-library-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.digital-library-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Vignette overlay */
+.digital-library-canvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 45%, rgba(10, 7, 5, 0.65) 100%),
+    linear-gradient(180deg, rgba(10, 7, 5, 0.7) 0%, transparent 22%, transparent 75%, rgba(10, 7, 5, 0.85) 100%);
+}
+
+/* HUD Header */
+.entrance-hud-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(16px, 3vh, 32px) clamp(20px, 4vw, 56px);
+  pointer-events: auto;
+}
+
+.entrance-logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.library-crest {
+  font-size: 24px;
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.45));
+}
+
+.entrance-logo-mark strong {
+  display: block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  color: #f7e6c4;
+}
+
+.entrance-logo-mark small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(245, 239, 227, 0.52);
+  text-transform: uppercase;
+}
+
+.entrance-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.entrance-sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(28, 20, 16, 0.65);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 30px;
+  color: #e8d8be;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 220ms ease;
+}
+
+.entrance-sound-toggle:hover {
+  background: rgba(56, 36, 24, 0.85);
+  border-color: rgba(212, 175, 55, 0.6);
+  color: #fff;
+}
+
+.entrance-sound-toggle.is-active {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: #d4af37;
+  color: #ffd875;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.25);
+}
+
+.sound-wave-icon {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 12px;
+}
+
+.sound-wave-icon i {
+  display: block;
+  width: 2px;
+  height: 100%;
+  background: currentColor;
+  border-radius: 2px;
+  animation: sound-bar 1.2s ease-in-out infinite;
+}
+
+.sound-wave-icon i:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+.sound-wave-icon i:nth-child(3) { animation-delay: 0.4s; height: 80%; }
+.sound-wave-icon i:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+
+@keyframes sound-bar {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.entrance-skip-button {
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  color: rgba(245, 239, 227, 0.58);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.entrance-skip-button:hover {
+  color: #f7e6c4;
+}
+
+/* POI Nav Dock */
+.entrance-poi-nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 20px;
+  pointer-events: auto;
+}
+
+.poi-nav-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(212, 175, 55, 0.65);
+  margin-right: 6px;
+}
+
+.poi-pill {
+  padding: 7px 15px;
+  background: rgba(18, 12, 9, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 24px;
+  color: rgba(245, 239, 227, 0.75);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 240ms ease;
+}
+
+.poi-pill:hover {
+  background: rgba(45, 28, 18, 0.85);
+  border-color: rgba(212, 175, 55, 0.55);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.poi-pill.is-active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(138, 92, 36, 0.45) 100%);
+  border-color: #e5be58;
+  color: #ffe6a3;
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.28);
+}
+
+/* POI Content Showcase Card */
+.entrance-poi-card {
+  position: relative;
+  z-index: 10;
+  width: min(580px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: clamp(20px, 3vh, 32px) clamp(24px, 3.5vw, 36px);
+  background: rgba(15, 11, 8, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), inset 0 0 30px rgba(212, 175, 55, 0.05);
+  backdrop-filter: blur(14px);
+  pointer-events: auto;
+  text-align: left;
+}
+
+.poi-badge {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #d4af37;
+  margin-bottom: 8px;
+}
+
+.poi-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #faedd0;
+  margin: 0 0 12px;
+}
+
+.poi-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(245, 239, 227, 0.78);
+  margin: 0 0 18px;
+}
+
+.poi-quote {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-left: 2px solid #d4af37;
+  background: rgba(212, 175, 55, 0.07);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #eed6a8;
+}
+
+.piano-action-prompt {
+  margin-bottom: 18px;
+}
+
+.button-library-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(30, 20, 15, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 6px;
+  color: #f7e0b5;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.button-library-outline:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #fff;
+}
+
+.poi-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.button-dive {
+  padding: 12px 26px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #e4c17f 0%, #d4af37 100%);
+  color: #17100a;
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.4);
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+
+.button-dive:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 32px rgba(212, 175, 55, 0.65);
+  filter: brightness(1.08);
+}
+
+.poi-hint {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(245, 239, 227, 0.45);
+}
+
+/* HUD Footer */
+.entrance-hud-footer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(14px, 2.5vh, 24px) clamp(20px, 4vw, 56px);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245, 239, 227, 0.45);
+  pointer-events: none;
+}
+
+.entrance-scroll-prompt {
+  color: #d4af37;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .entrance-hud-header {
+    padding: 16px 20px;
+  }
+
+  .entrance-poi-card {
+    padding: 20px;
+    width: calc(100% - 32px);
+  }
+
+  .poi-title {
+    font-size: 24px;
+  }
+
+  .entrance-hud-footer span:first-child,
+  .entrance-hud-footer span:last-child {
+    display: none;
+  }
+
+  .entrance-hud-footer {
+    justify-content: center;
+    padding: 14px 20px;
+  }
+}
+
