@@ -7,6 +7,7 @@ import { libraryAudio } from '@/lib/ambientAudio';
 
 interface DigitalLibrarySceneProps {
   onEnterPortfolio: () => void;
+  onSkipImmediately: () => void;
 }
 
 interface FlyingBook {
@@ -19,13 +20,20 @@ interface FlyingBook {
   rotSpeed: number;
 }
 
-export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrarySceneProps) {
+export default function DigitalLibraryScene({
+  onEnterPortfolio,
+  onSkipImmediately,
+}: DigitalLibrarySceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const darkShroudRef = useRef<HTMLDivElement>(null);
+  const topLeftRef = useRef<HTMLDivElement>(null);
+  const centerPortalRef = useRef<HTMLDivElement>(null);
+
   const [isHovered, setIsHovered] = useState(false);
   const [isEntering, setIsEntering] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  // References for continuous 3D loop & GSAP animations
+  // References for render loop & GSAP tweens
   const sceneState = useRef<{
     camera: THREE.PerspectiveCamera | null;
     lookTarget: THREE.Vector3;
@@ -35,9 +43,14 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     rightWing: THREE.Group | null;
     flutterLeaves: THREE.Mesh[];
     bookGlow: THREE.PointLight | null;
+    chandelier: THREE.PointLight | null;
+    deskLamp: THREE.PointLight | null;
+    candleLight: THREE.PointLight | null;
+    ambientLight: THREE.HemisphereLight | null;
     haloMesh: THREE.Mesh | null;
-    flyingBooks: FlyingBook[];
+    particlesMat: THREE.PointsMaterial | null;
     particlesGeo: THREE.BufferGeometry | null;
+    flyingBooks: FlyingBook[];
     particleCount: number;
     particlePositions: Float32Array | null;
     particleSpeeds: Float32Array | null;
@@ -53,9 +66,14 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     rightWing: null,
     flutterLeaves: [],
     bookGlow: null,
+    chandelier: null,
+    deskLamp: null,
+    candleLight: null,
+    ambientLight: null,
     haloMesh: null,
-    flyingBooks: [],
+    particlesMat: null,
     particlesGeo: null,
+    flyingBooks: [],
     particleCount: 420,
     particlePositions: null,
     particleSpeeds: null,
@@ -64,12 +82,11 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     mouseNorm: { x: 0, y: 0 },
   });
 
-  // Synchronize state ref for the render loop
   useEffect(() => {
     sceneState.current.isHovered = isHovered;
   }, [isHovered]);
 
-  // --- HOVER ANIMATION (Part C) ---
+  // --- HOVER ANIMATION (Section C) ---
   const handleHoverChange = useCallback((hovered: boolean) => {
     if (sceneState.current.isEntering) return;
     setIsHovered(hovered);
@@ -79,13 +96,13 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     if (hovered) {
       // 1. Camera slowly moves closer
       gsap.to(camera.position, {
-        z: 8.3,
+        z: 8.35,
         duration: 1.4,
         ease: 'power2.out',
         overwrite: 'auto',
       });
 
-      // 2. Book's pages begin moving gently (flutter / rustle)
+      // 2. Book's pages begin moving gently (fluttering)
       gsap.to(leftWing.rotation, {
         y: -0.38,
         duration: 0.55,
@@ -116,7 +133,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
 
       // 3. Golden light swells & halo intensifies
       gsap.to(bookGlow, {
-        intensity: 280,
+        intensity: 290,
         distance: 11,
         duration: 0.9,
         ease: 'power2.out',
@@ -131,7 +148,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
         });
       }
     } else {
-      // Return to serene baseline state
+      // Reset back to baseline overview
       gsap.to(camera.position, {
         z: sceneState.current.baseCameraZ,
         duration: 1.6,
@@ -182,13 +199,13 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     }
   }, []);
 
-  // --- CLICK ENTER INTERACTION (Part C - 2 to 3 seconds) ---
+  // --- CLICK ENTER INTERACTION (Section C & E - 2.4s Sequence) ---
   const handleEnterClick = useCallback(() => {
     if (sceneState.current.isEntering) return;
     setIsEntering(true);
     sceneState.current.isEntering = true;
 
-    // Trigger soft piano chord shimmer on activation
+    // Soft classical chord activation
     libraryAudio.playPianoChord(1);
 
     const { camera, lookTarget, leftWing, rightWing, flutterLeaves, bookGlow } = sceneState.current;
@@ -203,7 +220,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       },
     });
 
-    // 1. The book opens completely flat (pages spread wide)
+    // 1. The book opens completely flat
     enterTl.to(
       leftWing.rotation,
       {
@@ -235,7 +252,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       );
     });
 
-    // 2. Golden light expands across the entire scene
+    // 2. Golden light expands across the entire screen
     enterTl.to(
       bookGlow,
       {
@@ -247,7 +264,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       0
     );
 
-    // 3. Camera accelerates towards the light
+    // 3. Camera moves towards the glowing book into the light
     enterTl.to(
       camera.position,
       {
@@ -273,10 +290,12 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     );
   }, [onEnterPortfolio]);
 
-  // --- THREE.JS INITIALIZATION ---
+  // --- THREE.JS INITIALIZATION & TIMELINE E ---
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#0a0705');
@@ -288,8 +307,8 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       0.1,
       80
     );
-    // Start at threshold in mysterious darkness
-    camera.position.set(0, 3.2, 13.5);
+    // Start at entryway threshold in darkness
+    camera.position.set(0, 3.1, reducedMotion ? 9.8 : 13.0);
     sceneState.current.camera = camera;
 
     let renderer: THREE.WebGLRenderer;
@@ -313,7 +332,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
 
-    // Helper: Box mesh creator
     const box = (
       parent: THREE.Object3D,
       pos: [number, number, number],
@@ -328,13 +346,13 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       return mesh;
     };
 
-    // Dark academia materials
+    // Materials
     const darkWood = new THREE.MeshStandardMaterial({ color: '#24140b', roughness: 0.65, metalness: 0.12 });
     const polishedWood = new THREE.MeshStandardMaterial({ color: '#381e10', roughness: 0.28, metalness: 0.22 });
     const antiqueGold = new THREE.MeshStandardMaterial({ color: '#d4af37', roughness: 0.32, metalness: 0.85 });
     const warmStone = new THREE.MeshStandardMaterial({ color: '#1a1614', roughness: 0.92 });
 
-    // Polished Floor
+    // Floor
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(24, 28),
       new THREE.MeshStandardMaterial({ color: '#28170c', roughness: 0.24, metalness: 0.25 })
@@ -346,7 +364,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       box(scene, [0, 0.005, z], [24, 0.008, 0.02], darkWood);
     }
 
-    // Walls & Ceiling
+    // Walls & Beams
     box(scene, [0, 5.5, -9.0], [22, 11, 0.4], warmStone);
     box(scene, [-9.5, 5.5, 0], [0.4, 11, 24], warmStone);
     box(scene, [9.5, 5.5, 0], [0.4, 11, 24], warmStone);
@@ -354,7 +372,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       box(scene, [0, 9.8, z], [19.2, 0.6, 0.5], darkWood);
     }
 
-    // Tall Bookshelves
+    // Bookshelves
     const bookColors = ['#5a1818', '#1a3826', '#875d27', '#3d2516', '#141414', '#9e734a', '#22384a'];
     const buildShelf = (x: number, z: number, rotY: number, width: number, tiers: number) => {
       const g = new THREE.Group();
@@ -407,7 +425,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     }
     box(scene, [-6.8, 4.2, -8.0], [5.0, 0.3, 3.0], darkWood);
 
-    // Central Scholar's Desk
+    // Central Desk
     const desk = new THREE.Group();
     desk.position.set(0, 0, 0.6);
     scene.add(desk);
@@ -416,7 +434,8 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     [-1.7, 1.7].forEach((px) => {
       box(desk, [px, 0.7, 0], [0.85, 1.25, 1.9], darkWood);
     });
-    // Banker's lamp
+
+    // Banker's lamp (initially off for 0-1s, fades up at 1-3s)
     box(desk, [-1.2, 1.55, -0.4], [0.22, 0.08, 0.22], antiqueGold);
     box(desk, [-1.2, 1.85, -0.4], [0.06, 0.55, 0.06], antiqueGold);
     box(desk, [-1.2, 2.15, -0.4], [0.46, 0.16, 0.26], new THREE.MeshStandardMaterial({
@@ -425,21 +444,23 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       emissive: '#13703c',
       emissiveIntensity: 0.4,
     }));
-    const deskLamp = new THREE.PointLight('#ffd685', 45, 6, 2);
+    const deskLamp = new THREE.PointLight('#ffd685', reducedMotion ? 45 : 0, 6, 2);
     deskLamp.position.set(-1.2, 2.05, -0.4);
     desk.add(deskLamp);
+    sceneState.current.deskLamp = deskLamp;
 
-    // Candle
+    // Candle (initially off for 0-1s, fades up at 1-3s)
     box(desk, [1.3, 1.54, 0.3], [0.18, 0.1, 0.18], antiqueGold);
     box(desk, [1.3, 1.8, 0.3], [0.07, 0.45, 0.07], new THREE.MeshStandardMaterial({ color: '#eee2cb' }));
     const candleFlame = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.15, 8), new THREE.MeshBasicMaterial({ color: '#ffb338' }));
     candleFlame.position.set(1.3, 2.1, 0.3);
     desk.add(candleFlame);
-    const candleLight = new THREE.PointLight('#ff9d26', 28, 4.5, 2);
+    const candleLight = new THREE.PointLight('#ff9d26', reducedMotion ? 28 : 0, 4.5, 2);
     candleLight.position.set(1.3, 2.15, 0.3);
     desk.add(candleLight);
+    sceneState.current.candleLight = candleLight;
 
-    // Grand Piano
+    // Piano
     const piano = new THREE.Group();
     piano.position.set(4.4, 0, 0.4);
     piano.rotation.y = -0.35;
@@ -451,7 +472,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     const lid = box(piano, [0.2, 2.05, -0.25], [2.2, 0.05, 1.25], pianoBlack);
     lid.rotation.z = -0.42;
 
-    // --- ENORMOUS CENTRAL FLOATING OPEN BOOK (Interactive Focus) ---
+    // --- CENTRAL FLOATING BOOK ---
     const bookGroup = new THREE.Group();
     bookGroup.position.set(0.1, 2.75, -1.0);
     scene.add(bookGroup);
@@ -466,7 +487,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     });
     const leatherMat = new THREE.MeshStandardMaterial({ color: '#45200f', roughness: 0.5 });
 
-    // Left Wing (Cover + Page Leaves)
     const leftWing = new THREE.Group();
     leftWing.position.set(-0.06, 0, 0);
     leftWing.rotation.y = -0.22;
@@ -480,7 +500,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     leftCover.position.set(-0.725, 0, -0.015);
     leftWing.add(leftCover);
 
-    // Right Wing (Cover + Page Leaves)
     const rightWing = new THREE.Group();
     rightWing.position.set(0.06, 0, 0);
     rightWing.rotation.y = 0.22;
@@ -494,7 +513,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     rightCover.position.set(0.725, 0, -0.015);
     rightWing.add(rightCover);
 
-    // Calligraphic ancient text lines on pages
     for (let l = 0; l < 8; l++) {
       const textLineMat = new THREE.MeshBasicMaterial({ color: '#7a4f25', transparent: true, opacity: 0.75 });
       const lineLeft = box(leftWing, [-0.7, 0.6 - l * 0.16, 0.01], [0.85 - (l % 3) * 0.08, 0.012, 0.005], textLineMat);
@@ -503,7 +521,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       lineRight.castShadow = false;
     }
 
-    // Additional interior flutter leaves that react on hover
     const flutterLeaves: THREE.Mesh[] = [];
     const interiorPageMat = new THREE.MeshStandardMaterial({
       color: '#fffaed',
@@ -519,12 +536,10 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       flutterLeaves.push(flutterLeaf);
     }
     sceneState.current.flutterLeaves = flutterLeaves;
-
-    // Spine
     box(bookGroup, [0, 0, -0.05], [0.16, 1.96, 0.16], leatherMat);
 
-    // Golden point light radiating from within the book
-    const bookGlow = new THREE.PointLight('#ffbb4d', 0, 8.5, 1.7);
+    // Internal golden book light (ignites at 3-4s)
+    const bookGlow = new THREE.PointLight('#ffbb4d', reducedMotion ? 195 : 0, 8.5, 1.7);
     bookGlow.position.set(0, 0.35, 0.85);
     bookGroup.add(bookGlow);
     sceneState.current.bookGlow = bookGlow;
@@ -535,14 +550,14 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       color: '#f5c871',
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.45,
+      opacity: reducedMotion ? 0.45 : 0,
     });
     const haloMesh = new THREE.Mesh(haloGeo, haloMat);
     haloMesh.rotation.x = Math.PI / 2.3;
     bookGroup.add(haloMesh);
     sceneState.current.haloMesh = haloMesh;
 
-    // --- ENCHANTED FLYING SATELLITE BOOKS (Rawpixel Reference) ---
+    // Satellite flying books
     const flyingBooks: FlyingBook[] = [];
     const flyingSpreads = [
       { pos: [-2.8, 4.8, -2.5], scale: 0.48, rot: 0.35 },
@@ -591,7 +606,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     });
     sceneState.current.flyingBooks = flyingBooks;
 
-    // --- GOTHIC WINDOWS & VOLUMETRIC GOD RAYS ---
+    // Gothic windows
     const makeWindow = (wx: number) => {
       const wg = new THREE.Group();
       wg.position.set(wx, 5.0, -8.7);
@@ -614,7 +629,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     makeWindow(-3.2);
     makeWindow(3.2);
 
-    // Light Beams
+    // Volumetric Beam
     const beamMat = new THREE.MeshBasicMaterial({
       color: '#ffc875',
       transparent: true,
@@ -627,7 +642,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     centerBeam.rotation.x = Math.PI;
     scene.add(centerBeam);
 
-    // Floating Dust Motes & Golden Embers
+    // Floating Dust Particles & Golden Embers (appear at 3-4s)
     const particleCount = 420;
     sceneState.current.particleCount = particleCount;
     const particlePositions = new Float32Array(particleCount * 3);
@@ -650,52 +665,144 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       color: '#fed894',
       size: 0.04,
       transparent: true,
-      opacity: 0.85,
+      opacity: reducedMotion ? 0.85 : 0,
       sizeAttenuation: true,
     });
+    sceneState.current.particlesMat = particlesMat;
     const particles = new THREE.Points(particlesGeo, particlesMat);
     scene.add(particles);
 
-    // Chandelier & Ambient
-    const chandelier = new THREE.PointLight('#ffa84d', 90, 18, 1.8);
+    // Ambient Lights & Chandelier
+    const chandelier = new THREE.PointLight('#ffa84d', reducedMotion ? 90 : 0, 18, 1.8);
     chandelier.position.set(0, 7.8, 2.5);
     chandelier.castShadow = true;
     scene.add(chandelier);
+    sceneState.current.chandelier = chandelier;
 
-    const ambientLight = new THREE.HemisphereLight('#687d94', '#22140a', 0.65);
+    const ambientLight = new THREE.HemisphereLight('#687d94', '#22140a', reducedMotion ? 0.65 : 0.08);
     scene.add(ambientLight);
+    sceneState.current.ambientLight = ambientLight;
 
-    // --- INITIAL CINEMATIC REVEAL SEQUENCE (GSAP) ---
-    const introTl = gsap.timeline({ delay: 0.25 });
-    introTl.to(camera.position, {
-      x: 0,
-      y: 2.7,
-      z: 9.8,
-      duration: 4.8,
-      ease: 'power3.out',
-    });
-    introTl.to(
-      sceneState.current.lookTarget,
-      {
-        x: 0.1,
-        y: 2.7,
-        z: -1.0,
-        duration: 4.8,
-        ease: 'power3.out',
-      },
-      0
-    );
-    introTl.to(
-      bookGlow,
-      {
-        intensity: 195,
-        duration: 3.2,
-        ease: 'power2.out',
-      },
-      1.0
-    );
+    // =========================================================================
+    // SECTION E: THE ENTRANCE ANIMATION TIMELINE (0 to 5 seconds)
+    // =========================================================================
+    const introTl = gsap.timeline();
 
-    // Idle levitation oscillation for main book
+    if (!reducedMotion) {
+      // 0–1 sec: Dark screen fades in
+      if (darkShroudRef.current) {
+        introTl.to(
+          darkShroudRef.current,
+          {
+            opacity: 0,
+            duration: 1.0,
+            ease: 'power2.inOut',
+          },
+          0
+        );
+      }
+
+      // 1–3 sec: Library lighting gradually appears
+      introTl.to(
+        chandelier,
+        {
+          intensity: 95,
+          duration: 2.0,
+          ease: 'power2.out',
+        },
+        1.0
+      );
+      introTl.to(
+        deskLamp,
+        {
+          intensity: 45,
+          duration: 1.8,
+          ease: 'power2.out',
+        },
+        1.2
+      );
+      introTl.to(
+        candleLight,
+        {
+          intensity: 28,
+          duration: 1.6,
+          ease: 'power2.out',
+        },
+        1.4
+      );
+      introTl.to(
+        ambientLight,
+        {
+          intensity: 0.65,
+          duration: 2.0,
+          ease: 'power2.out',
+        },
+        1.0
+      );
+      introTl.to(
+        camera.position,
+        {
+          z: 9.8,
+          duration: 3.8,
+          ease: 'power3.out',
+        },
+        1.0
+      );
+
+      // 3–4 sec: Floating particles and glowing book appear
+      introTl.to(
+        particlesMat,
+        {
+          opacity: 0.85,
+          duration: 1.0,
+          ease: 'sine.inOut',
+        },
+        3.0
+      );
+      introTl.to(
+        bookGlow,
+        {
+          intensity: 195,
+          duration: 1.0,
+          ease: 'power2.out',
+        },
+        3.0
+      );
+      introTl.to(
+        haloMat,
+        {
+          opacity: 0.45,
+          duration: 1.0,
+          ease: 'sine.inOut',
+        },
+        3.0
+      );
+
+      // 4–5 sec: Your name and Enter button reveal
+      if (topLeftRef.current) {
+        introTl.fromTo(
+          topLeftRef.current,
+          { opacity: 0, y: -16 },
+          { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out' },
+          4.0
+        );
+      }
+      if (centerPortalRef.current) {
+        introTl.fromTo(
+          centerPortalRef.current,
+          { opacity: 0, y: 24, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' },
+          4.1
+        );
+      }
+    } else {
+      // Immediate presentation for prefers-reduced-motion
+      if (darkShroudRef.current) darkShroudRef.current.style.opacity = '0';
+      if (topLeftRef.current) topLeftRef.current.style.opacity = '1';
+      if (centerPortalRef.current) centerPortalRef.current.style.opacity = '1';
+    }
+
+    // Gentle continuous levitation
     gsap.to(bookGroup.position, {
       y: 2.92,
       duration: 3.2,
@@ -711,7 +818,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
       ease: 'sine.inOut',
     });
 
-    // Flickering candle flame
+    // Candle flame organic flicker
     gsap.to(candleLight, {
       intensity: 38,
       duration: 0.18,
@@ -742,7 +849,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
     const animate = () => {
       clock += 0.016;
 
-      // Mouse parallax
       const mx = sceneState.current.mouseNorm.x * 0.4;
       const my = sceneState.current.mouseNorm.y * 0.25;
       camera.lookAt(
@@ -751,10 +857,9 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
         sceneState.current.lookTarget.z
       );
 
-      // Rotate book halo
       if (haloMesh) haloMesh.rotation.z = clock * 0.35;
 
-      // Animate enchanted flying books (page flapping & floating)
+      // Animate flying books
       flyingBooks.forEach((fb) => {
         fb.group.position.y = fb.baseY + Math.sin(clock * fb.bobSpeed + fb.bobOffset) * 0.22;
         fb.group.rotation.y += 0.0012;
@@ -763,7 +868,7 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
         fb.rightPage.rotation.y = 0.25 + flap;
       });
 
-      // Particle physics & golden particle attraction (Part C)
+      // Particle physics & golden particle attraction (On Hover)
       if (particlesGeo && particlePositions && particleSpeeds) {
         const pos = particlesGeo.attributes.position as THREE.BufferAttribute;
         const hovered = sceneState.current.isHovered;
@@ -777,7 +882,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
           const zi = i * 3 + 2;
 
           if (hovered) {
-            // Golden particles gather around the book (vortex attraction)
             const dx = targetX - pos.array[xi];
             const dy = targetY - pos.array[yi];
             const dz = targetZ - pos.array[zi];
@@ -785,7 +889,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
             pos.array[yi] += dy * 0.035;
             pos.array[zi] += dz * 0.035 + Math.cos(clock * 4 + i) * 0.012;
           } else {
-            // Normal gentle upward drift
             pos.array[yi] += particleSpeeds[i];
             pos.array[xi] += Math.sin(clock + i) * 0.0007;
             if (pos.array[yi] > 8.0) {
@@ -833,23 +936,26 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
 
   return (
     <div className={`digital-library-entrance-wrapper ${isEntering ? 'is-entering-mode' : ''}`}>
-      {/* Three.js 3D Canvas */}
+      {/* 3D Canvas */}
       <div ref={containerRef} className="digital-library-canvas" />
+
+      {/* 0–1 sec: Dark screen shroud that fades in */}
+      <div ref={darkShroudRef} className="entrance-dark-shroud" aria-hidden="true" />
 
       {/* Fullscreen Golden Bloom Veil (expands when clicked) */}
       <div className={`golden-light-veil ${isEntering ? 'is-flaring' : ''}`} aria-hidden="true" />
 
       {/* =========================================================================
-          SECTION B: THREE VISUAL AREAS
+          SECTION B & E: THREE VISUAL AREAS & TIMELINE REVEALS
           ========================================================================= */}
 
-      {/* 1. TOP LEFT: Personal Identity */}
-      <div className="entrance-top-left">
+      {/* 1. TOP LEFT: Personal Identity (reveals at 4–5s) */}
+      <div ref={topLeftRef} className="entrance-top-left entrance-reveal-init">
         <h2 className="identity-name">SOLOMON MWANGI</h2>
         <p className="identity-title">SOFTWARE ENGINEER · CREATIVE DEVELOPER</p>
       </div>
 
-      {/* Optional Unobtrusive Ambient Study Audio in Top Right */}
+      {/* Unobtrusive Ambient Study Audio in Top Right */}
       <div className="entrance-top-right">
         <button
           type="button"
@@ -864,12 +970,12 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
         </button>
       </div>
 
-      {/* 2. CENTRE OF THE SCENE: Enter The Archive & Glowing Control */}
-      <div className="entrance-center-portal">
+      {/* 2. CENTRE OF THE SCENE: Enter The Archive & Glowing Control (reveals at 4–5s) */}
+      <div ref={centerPortalRef} className="entrance-center-portal entrance-reveal-init">
         <h1 className="archive-headline">ENTER THE ARCHIVE</h1>
         <p className="archive-subline">A collection of ideas, engineering and creativity.</p>
 
-        {/* Glowing Golden Entrance Control positioned in front of the floating book */}
+        {/* Glowing Golden Entrance Control */}
         <button
           type="button"
           className={`glowing-portal-control ${isHovered ? 'is-hovered' : ''} ${isEntering ? 'is-entering' : ''}`}
@@ -879,7 +985,6 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
           disabled={isEntering}
           aria-label="Enter the digital library and explore portfolio"
         >
-          {/* Animated golden radiant border / aura */}
           <span className="portal-aura" aria-hidden="true" />
           <span className="portal-frame" aria-hidden="true" />
           <span className="portal-label">
@@ -888,15 +993,18 @@ export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrary
         </button>
       </div>
 
-      {/* 3. BOTTOM RIGHT: Skip Intro (Always accessible, subtle & unobtrusive) */}
+      {/* =========================================================================
+          SECTION D: THE SKIP INTRO BUTTON (Immediately visible, never hidden)
+          ========================================================================= */}
       <div className="entrance-bottom-right">
         <button
           type="button"
-          onClick={onEnterPortfolio}
+          onClick={onSkipImmediately}
           className="skip-intro-text-btn"
-          aria-label="Skip introduction and proceed directly to portfolio"
+          aria-label="Skip introduction and proceed immediately to portfolio"
         >
-          Skip Intro →
+          <span>Skip Intro</span>
+          <span className="skip-arrow" aria-hidden="true">→</span>
         </button>
       </div>
     </div>
