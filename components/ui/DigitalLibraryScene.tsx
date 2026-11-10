@@ -301,9 +301,17 @@ export default function DigitalLibraryScene({
     scene.background = new THREE.Color('#0a0705');
     scene.fog = new THREE.FogExp2('#0c0806', 0.038);
 
+    const getViewportSize = () => {
+      const w = container.clientWidth || (typeof window !== 'undefined' ? window.innerWidth : 1280);
+      const h = container.clientHeight || (typeof window !== 'undefined' ? window.innerHeight : 800);
+      return { width: Math.max(w, 320), height: Math.max(h, 400) };
+    };
+
+    const initialSize = getViewportSize();
+
     const camera = new THREE.PerspectiveCamera(
       45,
-      container.clientWidth / container.clientHeight,
+      initialSize.width / initialSize.height,
       0.1,
       80
     );
@@ -324,7 +332,7 @@ export default function DigitalLibraryScene({
     }
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(initialSize.width, initialSize.height);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -836,11 +844,14 @@ export default function DigitalLibraryScene({
 
     const handleResize = () => {
       if (!container) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
+      const size = getViewportSize();
+      camera.aspect = size.width / size.height;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(size.width, size.height);
     };
     window.addEventListener('resize', handleResize);
+    const ro = new ResizeObserver(handleResize);
+    ro.observe(container);
 
     // --- ANIMATION / RENDER LOOP ---
     let reqId = 0;
@@ -909,6 +920,7 @@ export default function DigitalLibraryScene({
 
     return () => {
       cancelAnimationFrame(reqId);
+      ro.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
       introTl.kill();
