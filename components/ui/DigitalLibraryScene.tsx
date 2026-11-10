@@ -5,191 +5,279 @@ import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { libraryAudio } from '@/lib/ambientAudio';
 
-export interface POI {
-  id: 'overview' | 'book' | 'piano' | 'desk' | 'window';
-  title: string;
-  description: string;
-  cameraPos: [number, number, number];
-  lookAt: [number, number, number];
-}
-
-const POIS: Record<string, POI> = {
-  overview: {
-    id: 'overview',
-    title: 'The Great Reading Hall',
-    description: 'Towering shelves of preserved wisdom, illuminated by candle flames and moonbeams.',
-    cameraPos: [0, 2.7, 9.8],
-    lookAt: [0, 2.2, -1.5],
-  },
-  book: {
-    id: 'book',
-    title: 'The Floating Codex',
-    description: 'An ancient illuminated tome hovering in mid-air, radiating thoughts transformed into light.',
-    cameraPos: [0.1, 2.7, 1.8],
-    lookAt: [0.1, 2.8, -1.0],
-  },
-  piano: {
-    id: 'piano',
-    title: 'The Midnight Grand Piano',
-    description: 'A polished concert grand echoing with forgotten nocturnes and resonance.',
-    cameraPos: [2.6, 2.1, 2.2],
-    lookAt: [4.2, 1.3, -0.2],
-  },
-  desk: {
-    id: 'desk',
-    title: "The Scholar's Desk",
-    description: 'Carved mahogany, inkwells, brass instruments, and drafts of digital architecture.',
-    cameraPos: [-0.9, 2.1, 2.4],
-    lookAt: [0, 1.4, 0.4],
-  },
-  window: {
-    id: 'window',
-    title: 'The Gothic Moonlit Arch',
-    description: 'Looking out past stone tracery into the misty midnight expanse and distant stars.',
-    cameraPos: [0, 3.2, 3.8],
-    lookAt: [0, 4.3, -8.2],
-  },
-};
-
 interface DigitalLibrarySceneProps {
   onEnterPortfolio: () => void;
-  activePoi: POI['id'];
-  setActivePoi: (poi: POI['id']) => void;
 }
 
-export default function DigitalLibraryScene({
-  onEnterPortfolio,
-  activePoi,
-  setActivePoi,
-}: DigitalLibrarySceneProps) {
+interface FlyingBook {
+  group: THREE.Group;
+  leftPage: THREE.Mesh;
+  rightPage: THREE.Mesh;
+  baseY: number;
+  bobSpeed: number;
+  bobOffset: number;
+  rotSpeed: number;
+}
+
+export default function DigitalLibraryScene({ onEnterPortfolio }: DigitalLibrarySceneProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isEntering, setIsEntering] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  // References to keep GSAP targets accessible
+  // References for continuous 3D loop & GSAP animations
   const sceneState = useRef<{
     camera: THREE.PerspectiveCamera | null;
     lookTarget: THREE.Vector3;
+    baseCameraZ: number;
     bookGroup: THREE.Group | null;
+    leftWing: THREE.Group | null;
+    rightWing: THREE.Group | null;
+    flutterLeaves: THREE.Mesh[];
     bookGlow: THREE.PointLight | null;
-    candleLight: THREE.PointLight | null;
-    windowMoonlight: THREE.SpotLight | null;
-    pianoKeys: THREE.Mesh[];
-    particlesGeometry: THREE.BufferGeometry | null;
+    haloMesh: THREE.Mesh | null;
+    flyingBooks: FlyingBook[];
+    particlesGeo: THREE.BufferGeometry | null;
     particleCount: number;
-    timeline: gsap.core.Timeline | null;
+    particlePositions: Float32Array | null;
+    particleSpeeds: Float32Array | null;
+    isHovered: boolean;
+    isEntering: boolean;
     mouseNorm: { x: number; y: number };
   }>({
     camera: null,
-    lookTarget: new THREE.Vector3(0, 2.2, -1.5),
+    lookTarget: new THREE.Vector3(0.1, 2.7, -1.0),
+    baseCameraZ: 9.8,
     bookGroup: null,
+    leftWing: null,
+    rightWing: null,
+    flutterLeaves: [],
     bookGlow: null,
-    candleLight: null,
-    windowMoonlight: null,
-    pianoKeys: [],
-    particlesGeometry: null,
-    particleCount: 350,
-    timeline: null,
+    haloMesh: null,
+    flyingBooks: [],
+    particlesGeo: null,
+    particleCount: 420,
+    particlePositions: null,
+    particleSpeeds: null,
+    isHovered: false,
+    isEntering: false,
     mouseNorm: { x: 0, y: 0 },
   });
 
-  // Switch camera to designated Point of Interest with GSAP
-  const navigateToPoi = useCallback(
-    (poiId: POI['id']) => {
-      setActivePoi(poiId);
-      const targetPoi = POIS[poiId];
-      if (!targetPoi || !sceneState.current.camera) return;
+  // Synchronize state ref for the render loop
+  useEffect(() => {
+    sceneState.current.isHovered = isHovered;
+  }, [isHovered]);
 
-      const { camera, lookTarget, pianoKeys } = sceneState.current;
+  // --- HOVER ANIMATION (Part C) ---
+  const handleHoverChange = useCallback((hovered: boolean) => {
+    if (sceneState.current.isEntering) return;
+    setIsHovered(hovered);
+    const { camera, leftWing, rightWing, flutterLeaves, bookGlow, haloMesh } = sceneState.current;
+    if (!camera || !leftWing || !rightWing || !bookGlow) return;
 
-      // Play contextual interaction sounds
-      if (poiId === 'piano') {
-        libraryAudio.playPianoChord(Math.floor(Math.random() * 3));
-        // Animate piano keys depression
-        pianoKeys.forEach((key, idx) => {
-          gsap.to(key.position, {
-            y: key.position.y - 0.03,
-            duration: 0.12,
-            delay: idx * 0.04,
-            yoyo: true,
-            repeat: 1,
-            ease: 'power1.inOut',
-          });
+    if (hovered) {
+      // 1. Camera slowly moves closer
+      gsap.to(camera.position, {
+        z: 8.3,
+        duration: 1.4,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+
+      // 2. Book's pages begin moving gently (flutter / rustle)
+      gsap.to(leftWing.rotation, {
+        y: -0.38,
+        duration: 0.55,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        overwrite: 'auto',
+      });
+      gsap.to(rightWing.rotation, {
+        y: 0.38,
+        duration: 0.55,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        overwrite: 'auto',
+      });
+
+      flutterLeaves.forEach((leaf, idx) => {
+        gsap.to(leaf.rotation, {
+          y: (idx % 2 === 0 ? -1 : 1) * (0.2 + idx * 0.08),
+          duration: 0.35 + idx * 0.09,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          overwrite: 'auto',
+        });
+      });
+
+      // 3. Golden light swells & halo intensifies
+      gsap.to(bookGlow, {
+        intensity: 280,
+        distance: 11,
+        duration: 0.9,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+
+      if (haloMesh) {
+        gsap.to((haloMesh.material as THREE.MeshBasicMaterial), {
+          opacity: 0.85,
+          duration: 0.8,
+          overwrite: 'auto',
         });
       }
-
+    } else {
+      // Return to serene baseline state
       gsap.to(camera.position, {
-        x: targetPoi.cameraPos[0],
-        y: targetPoi.cameraPos[1],
-        z: targetPoi.cameraPos[2],
-        duration: 2.2,
-        ease: 'power3.inOut',
+        z: sceneState.current.baseCameraZ,
+        duration: 1.6,
+        ease: 'power2.inOut',
+        overwrite: 'auto',
       });
 
-      gsap.to(lookTarget, {
-        x: targetPoi.lookAt[0],
-        y: targetPoi.lookAt[1],
-        z: targetPoi.lookAt[2],
-        duration: 2.2,
-        ease: 'power3.inOut',
+      gsap.to(leftWing.rotation, {
+        y: -0.22,
+        duration: 1.0,
+        repeat: 0,
+        ease: 'power2.out',
+        overwrite: 'auto',
       });
-    },
-    [setActivePoi]
-  );
+      gsap.to(rightWing.rotation, {
+        y: 0.22,
+        duration: 1.0,
+        repeat: 0,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
 
-  // Cinematic GSAP dive into book when exiting to main portfolio
-  const handleExitTransition = useCallback(() => {
-    const { camera, lookTarget, bookGlow } = sceneState.current;
-    if (!camera) {
+      flutterLeaves.forEach((leaf) => {
+        gsap.to(leaf.rotation, {
+          y: 0,
+          duration: 0.8,
+          repeat: 0,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      });
+
+      gsap.to(bookGlow, {
+        intensity: 195,
+        distance: 8.5,
+        duration: 1.2,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+
+      if (haloMesh) {
+        gsap.to((haloMesh.material as THREE.MeshBasicMaterial), {
+          opacity: 0.45,
+          duration: 1.0,
+          overwrite: 'auto',
+        });
+      }
+    }
+  }, []);
+
+  // --- CLICK ENTER INTERACTION (Part C - 2 to 3 seconds) ---
+  const handleEnterClick = useCallback(() => {
+    if (sceneState.current.isEntering) return;
+    setIsEntering(true);
+    sceneState.current.isEntering = true;
+
+    // Trigger soft piano chord shimmer on activation
+    libraryAudio.playPianoChord(1);
+
+    const { camera, lookTarget, leftWing, rightWing, flutterLeaves, bookGlow } = sceneState.current;
+    if (!camera || !leftWing || !rightWing || !bookGlow) {
       onEnterPortfolio();
       return;
     }
 
-    const exitTl = gsap.timeline({
+    const enterTl = gsap.timeline({
       onComplete: () => {
         onEnterPortfolio();
       },
     });
 
-    // Zoom rapidly into the glowing book portal
-    exitTl.to(camera.position, {
-      x: 0.1,
-      y: 2.8,
-      z: -0.85,
-      duration: 1.8,
-      ease: 'power4.in',
+    // 1. The book opens completely flat (pages spread wide)
+    enterTl.to(
+      leftWing.rotation,
+      {
+        y: -1.52,
+        duration: 1.8,
+        ease: 'power3.inOut',
+      },
+      0
+    );
+    enterTl.to(
+      rightWing.rotation,
+      {
+        y: 1.52,
+        duration: 1.8,
+        ease: 'power3.inOut',
+      },
+      0
+    );
+
+    flutterLeaves.forEach((leaf, idx) => {
+      enterTl.to(
+        leaf.rotation,
+        {
+          y: (idx % 2 === 0 ? -1.35 : 1.35),
+          duration: 1.6 + idx * 0.1,
+          ease: 'power2.inOut',
+        },
+        0
+      );
     });
 
-    exitTl.to(
-      lookTarget,
+    // 2. Golden light expands across the entire scene
+    enterTl.to(
+      bookGlow,
+      {
+        intensity: 950,
+        distance: 28,
+        duration: 2.2,
+        ease: 'power2.in',
+      },
+      0
+    );
+
+    // 3. Camera accelerates towards the light
+    enterTl.to(
+      camera.position,
       {
         x: 0.1,
-        y: 2.8,
-        z: -2.0,
-        duration: 1.8,
+        y: 2.75,
+        z: -0.85,
+        duration: 2.4,
         ease: 'power4.in',
       },
       0
     );
 
-    if (bookGlow) {
-      exitTl.to(
-        bookGlow,
-        {
-          intensity: 650,
-          duration: 1.6,
-          ease: 'power2.in',
-        },
-        0.2
-      );
-    }
+    enterTl.to(
+      lookTarget,
+      {
+        x: 0.1,
+        y: 2.75,
+        z: -2.5,
+        duration: 2.4,
+        ease: 'power4.in',
+      },
+      0
+    );
   }, [onEnterPortfolio]);
 
+  // --- THREE.JS INITIALIZATION ---
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // --- THREE.JS SETUP ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#0a0705');
     scene.fog = new THREE.FogExp2('#0c0806', 0.038);
@@ -200,7 +288,7 @@ export default function DigitalLibraryScene({
       0.1,
       80
     );
-    // Start camera far back at the entrance threshold
+    // Start at threshold in mysterious darkness
     camera.position.set(0, 3.2, 13.5);
     sceneState.current.camera = camera;
 
@@ -212,7 +300,7 @@ export default function DigitalLibraryScene({
         powerPreference: 'high-performance',
       });
     } catch (e) {
-      console.warn('WebGL initialization failed', e);
+      console.warn('WebGL init failed', e);
       return;
     }
 
@@ -225,28 +313,8 @@ export default function DigitalLibraryScene({
     renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
 
-    // --- MATERIALS (Dark Academia Palette) ---
-    const darkWood = new THREE.MeshStandardMaterial({
-      color: '#24140b',
-      roughness: 0.65,
-      metalness: 0.12,
-    });
-    const polishedWood = new THREE.MeshStandardMaterial({
-      color: '#381e10',
-      roughness: 0.28,
-      metalness: 0.22,
-    });
-    const antiqueGold = new THREE.MeshStandardMaterial({
-      color: '#d4af37',
-      roughness: 0.32,
-      metalness: 0.85,
-    });
-    const warmStone = new THREE.MeshStandardMaterial({
-      color: '#1a1614',
-      roughness: 0.92,
-    });
-
-    const helperBox = (
+    // Helper: Box mesh creator
+    const box = (
       parent: THREE.Object3D,
       pos: [number, number, number],
       size: [number, number, number],
@@ -260,365 +328,293 @@ export default function DigitalLibraryScene({
       return mesh;
     };
 
-    // --- POLISHED WOOD FLOOR ---
+    // Dark academia materials
+    const darkWood = new THREE.MeshStandardMaterial({ color: '#24140b', roughness: 0.65, metalness: 0.12 });
+    const polishedWood = new THREE.MeshStandardMaterial({ color: '#381e10', roughness: 0.28, metalness: 0.22 });
+    const antiqueGold = new THREE.MeshStandardMaterial({ color: '#d4af37', roughness: 0.32, metalness: 0.85 });
+    const warmStone = new THREE.MeshStandardMaterial({ color: '#1a1614', roughness: 0.92 });
+
+    // Polished Floor
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(24, 28),
-      new THREE.MeshStandardMaterial({
-        color: '#28170c',
-        roughness: 0.24,
-        metalness: 0.25,
-      })
+      new THREE.MeshStandardMaterial({ color: '#28170c', roughness: 0.24, metalness: 0.25 })
     );
     floor.rotation.x = -Math.PI / 2;
-    floor.position.y = 0;
     floor.receiveShadow = true;
     scene.add(floor);
-
-    // Parquet board grooves
     for (let z = -12; z <= 12; z += 0.8) {
-      helperBox(scene, [0, 0.005, z], [24, 0.008, 0.02], darkWood);
+      box(scene, [0, 0.005, z], [24, 0.008, 0.02], darkWood);
     }
 
-    // --- ROOM BOUNDARIES ---
-    // Back wall
-    helperBox(scene, [0, 5.5, -9.0], [22, 11, 0.4], warmStone);
-    // Left & Right walls
-    helperBox(scene, [-9.5, 5.5, 0], [0.4, 11, 24], warmStone);
-    helperBox(scene, [9.5, 5.5, 0], [0.4, 11, 24], warmStone);
-    // Ceiling beams
+    // Walls & Ceiling
+    box(scene, [0, 5.5, -9.0], [22, 11, 0.4], warmStone);
+    box(scene, [-9.5, 5.5, 0], [0.4, 11, 24], warmStone);
+    box(scene, [9.5, 5.5, 0], [0.4, 11, 24], warmStone);
     for (let z = -8; z <= 10; z += 3.2) {
-      helperBox(scene, [0, 9.8, z], [19.2, 0.6, 0.5], darkWood);
+      box(scene, [0, 9.8, z], [19.2, 0.6, 0.5], darkWood);
     }
 
-    // --- TALL BOOKSHELVES ---
+    // Tall Bookshelves
     const bookColors = ['#5a1818', '#1a3826', '#875d27', '#3d2516', '#141414', '#9e734a', '#22384a'];
-    const createGrandBookshelf = (x: number, z: number, rotY: number, width: number, tiers: number) => {
-      const shelfGroup = new THREE.Group();
-      shelfGroup.position.set(x, 0, z);
-      shelfGroup.rotation.y = rotY;
-      scene.add(shelfGroup);
+    const buildShelf = (x: number, z: number, rotY: number, width: number, tiers: number) => {
+      const g = new THREE.Group();
+      g.position.set(x, 0, z);
+      g.rotation.y = rotY;
+      scene.add(g);
+      const h = tiers * 1.35;
+      box(g, [0, h / 2, 0], [width, h, 0.2], darkWood);
+      box(g, [-width / 2 + 0.1, h / 2, 0.22], [0.24, h, 0.44], polishedWood);
+      box(g, [width / 2 - 0.1, h / 2, 0.22], [0.24, h, 0.44], polishedWood);
+      box(g, [0, h + 0.15, 0.26], [width + 0.3, 0.3, 0.52], polishedWood);
 
-      const height = tiers * 1.35;
-      // Back panel
-      helperBox(shelfGroup, [0, height / 2, 0], [width, height, 0.2], darkWood);
-      // Side pillars
-      helperBox(shelfGroup, [-width / 2 + 0.1, height / 2, 0.22], [0.24, height, 0.44], polishedWood);
-      helperBox(shelfGroup, [width / 2 - 0.1, height / 2, 0.22], [0.24, height, 0.44], polishedWood);
-      // Ornate top pediment
-      helperBox(shelfGroup, [0, height + 0.15, 0.26], [width + 0.3, 0.3, 0.52], polishedWood);
-
-      // Shelves & Books
       for (let t = 0; t <= tiers; t++) {
-        const shelfY = t * 1.35 + 0.1;
-        helperBox(shelfGroup, [0, shelfY, 0.24], [width + 0.1, 0.1, 0.5], polishedWood);
-
+        const sy = t * 1.35 + 0.1;
+        box(g, [0, sy, 0.24], [width + 0.1, 0.1, 0.5], polishedWood);
         if (t === tiers) continue;
 
         let curX = -width / 2 + 0.26;
         while (curX < width / 2 - 0.35) {
-          const bWidth = 0.12 + Math.random() * 0.12;
-          const bHeight = 0.72 + Math.random() * 0.45;
-          const bColor = bookColors[Math.floor(Math.random() * bookColors.length)];
-          const bMat = new THREE.MeshStandardMaterial({ color: bColor, roughness: 0.75 });
-          const bookMesh = helperBox(
-            shelfGroup,
-            [curX + bWidth / 2, shelfY + bHeight / 2 + 0.05, 0.32],
-            [bWidth, bHeight, 0.32],
-            bMat
-          );
-          bookMesh.rotation.z = (Math.random() - 0.5) * 0.08;
-
-          // Gold spine ribbon on some books
-          if (Math.random() > 0.6) {
-            helperBox(shelfGroup, [curX + bWidth / 2, shelfY + bHeight * 0.6, 0.485], [bWidth * 0.85, 0.05, 0.02], antiqueGold);
-          }
-
-          curX += bWidth + 0.03;
+          const bw = 0.12 + Math.random() * 0.12;
+          const bh = 0.72 + Math.random() * 0.45;
+          const bm = new THREE.MeshStandardMaterial({
+            color: bookColors[Math.floor(Math.random() * bookColors.length)],
+            roughness: 0.75,
+          });
+          const bk = box(g, [curX + bw / 2, sy + bh / 2 + 0.05, 0.32], [bw, bh, 0.32], bm);
+          bk.rotation.z = (Math.random() - 0.5) * 0.08;
+          curX += bw + 0.03;
         }
       }
     };
 
-    // Construct library book walls
-    createGrandBookshelf(-5.6, -8.5, 0, 5.5, 6);
-    createGrandBookshelf(5.6, -8.5, 0, 5.5, 6);
-    createGrandBookshelf(-9.0, -3.2, Math.PI / 2, 6.2, 6);
-    createGrandBookshelf(-9.0, 3.8, Math.PI / 2, 6.2, 6);
-    createGrandBookshelf(9.0, -3.2, -Math.PI / 2, 6.2, 6);
-    createGrandBookshelf(9.0, 3.8, -Math.PI / 2, 6.2, 6);
+    buildShelf(-5.6, -8.5, 0, 5.5, 6);
+    buildShelf(5.6, -8.5, 0, 5.5, 6);
+    buildShelf(-9.0, -3.2, Math.PI / 2, 6.2, 6);
+    buildShelf(-9.0, 3.8, Math.PI / 2, 6.2, 6);
+    buildShelf(9.0, -3.2, -Math.PI / 2, 6.2, 6);
+    buildShelf(9.0, 3.8, -Math.PI / 2, 6.2, 6);
 
-    // --- GRAND SWEEPING STAIRCASE DISAPPEARING INTO DARKNESS ---
-    const stairGroup = new THREE.Group();
-    stairGroup.position.set(-6.8, 0, -4.2);
-    scene.add(stairGroup);
-
+    // Grand Staircase
+    const stair = new THREE.Group();
+    stair.position.set(-6.8, 0, -4.2);
+    scene.add(stair);
     for (let step = 0; step < 16; step++) {
-      const stepY = step * 0.26;
-      const stepZ = -step * 0.35;
-      const stepX = Math.sin(step * 0.12) * 0.6;
-      helperBox(stairGroup, [stepX, stepY + 0.13, stepZ], [2.6, 0.26, 0.48], polishedWood);
-
-      // Balusters
-      const baluster = helperBox(stairGroup, [stepX + 1.2, stepY + 0.6, stepZ], [0.07, 0.8, 0.07], antiqueGold);
-      baluster.rotation.z = 0.05;
+      const sy = step * 0.26;
+      const sz = -step * 0.35;
+      const sx = Math.sin(step * 0.12) * 0.6;
+      box(stair, [sx, sy + 0.13, sz], [2.6, 0.26, 0.48], polishedWood);
+      box(stair, [sx + 1.2, sy + 0.6, sz], [0.07, 0.8, 0.07], antiqueGold);
     }
-    // Upper dark mezzanine ledge
-    helperBox(scene, [-6.8, 4.2, -8.0], [5.0, 0.3, 3.0], darkWood);
+    box(scene, [-6.8, 4.2, -8.0], [5.0, 0.3, 3.0], darkWood);
 
-    // --- CENTRAL SCHOLAR'S DESK ---
-    const deskGroup = new THREE.Group();
-    deskGroup.position.set(0, 0, 0.6);
-    scene.add(deskGroup);
-
-    // Main tabletop & pedestals
-    helperBox(deskGroup, [0, 1.4, 0], [4.4, 0.18, 2.2], polishedWood);
-    // Green leather desktop inlay
-    helperBox(deskGroup, [0, 1.495, 0], [3.8, 0.015, 1.7], new THREE.MeshStandardMaterial({
-      color: '#1a3022',
-      roughness: 0.5,
-    }));
-    // Pedestals with brass handles
+    // Central Scholar's Desk
+    const desk = new THREE.Group();
+    desk.position.set(0, 0, 0.6);
+    scene.add(desk);
+    box(desk, [0, 1.4, 0], [4.4, 0.18, 2.2], polishedWood);
+    box(desk, [0, 1.495, 0], [3.8, 0.015, 1.7], new THREE.MeshStandardMaterial({ color: '#1a3022', roughness: 0.5 }));
     [-1.7, 1.7].forEach((px) => {
-      helperBox(deskGroup, [px, 0.7, 0], [0.85, 1.25, 1.9], darkWood);
-      for (let dy = 0.3; dy <= 1.0; dy += 0.35) {
-        helperBox(deskGroup, [px, dy, 0.96], [0.24, 0.05, 0.05], antiqueGold);
-      }
+      box(desk, [px, 0.7, 0], [0.85, 1.25, 1.9], darkWood);
     });
-
-    // Desk artifacts: Brass banker's desk lamp
-    const lampBase = helperBox(deskGroup, [-1.2, 1.55, -0.4], [0.22, 0.08, 0.22], antiqueGold);
-    helperBox(deskGroup, [-1.2, 1.85, -0.4], [0.06, 0.55, 0.06], antiqueGold);
-    // Emerald green glass lamp shade
-    const lampShade = helperBox(deskGroup, [-1.2, 2.15, -0.4], [0.46, 0.16, 0.26], new THREE.MeshStandardMaterial({
+    // Banker's lamp
+    box(desk, [-1.2, 1.55, -0.4], [0.22, 0.08, 0.22], antiqueGold);
+    box(desk, [-1.2, 1.85, -0.4], [0.06, 0.55, 0.06], antiqueGold);
+    box(desk, [-1.2, 2.15, -0.4], [0.46, 0.16, 0.26], new THREE.MeshStandardMaterial({
       color: '#0e4a2c',
       roughness: 0.2,
       emissive: '#13703c',
       emissiveIntensity: 0.4,
     }));
-    lampBase.castShadow = true;
-    lampShade.castShadow = true;
+    const deskLamp = new THREE.PointLight('#ffd685', 45, 6, 2);
+    deskLamp.position.set(-1.2, 2.05, -0.4);
+    desk.add(deskLamp);
 
-    // Banker's lamp light bulb
-    const deskLampLight = new THREE.PointLight('#ffd685', 45, 6, 2);
-    deskLampLight.position.set(-1.2, 2.05, -0.4);
-    deskGroup.add(deskLampLight);
-
-    // Antique Brass Candlestick with flame
-    helperBox(deskGroup, [1.3, 1.54, 0.3], [0.18, 0.1, 0.18], antiqueGold);
-    helperBox(deskGroup, [1.3, 1.8, 0.3], [0.07, 0.45, 0.07], new THREE.MeshStandardMaterial({ color: '#eee2cb' }));
-    const candleFlame = new THREE.Mesh(
-      new THREE.ConeGeometry(0.04, 0.15, 8),
-      new THREE.MeshBasicMaterial({ color: '#ffb338' })
-    );
+    // Candle
+    box(desk, [1.3, 1.54, 0.3], [0.18, 0.1, 0.18], antiqueGold);
+    box(desk, [1.3, 1.8, 0.3], [0.07, 0.45, 0.07], new THREE.MeshStandardMaterial({ color: '#eee2cb' }));
+    const candleFlame = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.15, 8), new THREE.MeshBasicMaterial({ color: '#ffb338' }));
     candleFlame.position.set(1.3, 2.1, 0.3);
-    deskGroup.add(candleFlame);
-
+    desk.add(candleFlame);
     const candleLight = new THREE.PointLight('#ff9d26', 28, 4.5, 2);
     candleLight.position.set(1.3, 2.15, 0.3);
-    candleLight.castShadow = true;
-    deskGroup.add(candleLight);
-    sceneState.current.candleLight = candleLight;
+    desk.add(candleLight);
 
-    // Inkwell, quill, and scrolls
-    helperBox(deskGroup, [0.8, 1.52, -0.3], [0.12, 0.12, 0.12], new THREE.MeshStandardMaterial({ color: '#111', roughness: 0.2 }));
-    const scroll = helperBox(deskGroup, [-0.4, 1.52, 0.3], [1.1, 0.02, 0.8], new THREE.MeshStandardMaterial({
-      color: '#f0e3cc',
-      roughness: 0.8,
-    }));
-    scroll.rotation.y = 0.15;
+    // Grand Piano
+    const piano = new THREE.Group();
+    piano.position.set(4.4, 0, 0.4);
+    piano.rotation.y = -0.35;
+    scene.add(piano);
+    const pianoBlack = new THREE.MeshStandardMaterial({ color: '#0d0c0b', roughness: 0.15, metalness: 0.25 });
+    box(piano, [0, 1.1, 0], [2.8, 0.35, 1.6], pianoBlack);
+    box(piano, [0.3, 1.38, -0.2], [2.3, 0.22, 1.25], pianoBlack);
+    box(piano, [0.35, 1.48, -0.2], [2.1, 0.03, 1.15], antiqueGold);
+    const lid = box(piano, [0.2, 2.05, -0.25], [2.2, 0.05, 1.25], pianoBlack);
+    lid.rotation.z = -0.42;
 
-    // Scholar Chair
-    helperBox(deskGroup, [0, 0.65, 1.55], [0.85, 0.12, 0.85], polishedWood);
-    helperBox(deskGroup, [0, 1.35, 1.95], [0.85, 1.3, 0.12], polishedWood);
-    [-0.35, 0.35].forEach((cx) => {
-      helperBox(deskGroup, [cx, 0.32, 1.25], [0.08, 0.64, 0.08], darkWood);
-      helperBox(deskGroup, [cx, 0.32, 1.85], [0.08, 0.64, 0.08], darkWood);
-    });
-
-    // --- GRAND CONCERT PIANO (Positioned on the Right Wing) ---
-    const pianoGroup = new THREE.Group();
-    pianoGroup.position.set(4.4, 0, 0.4);
-    pianoGroup.rotation.y = -0.35;
-    scene.add(pianoGroup);
-
-    const pianoBlack = new THREE.MeshStandardMaterial({
-      color: '#0d0c0b',
-      roughness: 0.15,
-      metalness: 0.25,
-    });
-
-    // Piano main body
-    helperBox(pianoGroup, [0, 1.1, 0], [2.8, 0.35, 1.6], pianoBlack);
-    helperBox(pianoGroup, [0.3, 1.38, -0.2], [2.3, 0.22, 1.25], pianoBlack);
-    // Gold cast-iron harp plate inside
-    helperBox(pianoGroup, [0.35, 1.48, -0.2], [2.1, 0.03, 1.15], antiqueGold);
-
-    // Open Propped Piano Lid
-    const pianoLid = helperBox(pianoGroup, [0.2, 2.05, -0.25], [2.2, 0.05, 1.25], pianoBlack);
-    pianoLid.rotation.z = -0.42;
-    // Prop stick
-    const propStick = helperBox(pianoGroup, [-0.65, 1.75, 0.2], [0.04, 0.8, 0.04], antiqueGold);
-    propStick.rotation.z = 0.25;
-
-    // Piano legs & golden lyre pedals
-    [-1.1, 0.9].forEach((lx) => {
-      helperBox(pianoGroup, [lx, 0.48, -0.5], [0.12, 0.96, 0.12], pianoBlack);
-    });
-    helperBox(pianoGroup, [-1.1, 0.48, 0.6], [0.12, 0.96, 0.12], pianoBlack);
-    helperBox(pianoGroup, [-0.1, 0.25, 0.3], [0.28, 0.45, 0.1], antiqueGold);
-
-    // Keyboard (Ivory white keys and ebony sharps)
-    const whiteKeyMat = new THREE.MeshStandardMaterial({ color: '#f5efe3', roughness: 0.3 });
-    const blackKeyMat = new THREE.MeshStandardMaterial({ color: '#151311', roughness: 0.2 });
-    const createdKeys: THREE.Mesh[] = [];
-
-    for (let k = 0; k < 21; k++) {
-      const kx = -1.18 + k * 0.11;
-      const whiteKey = helperBox(pianoGroup, [kx, 1.0, 0.72], [0.098, 0.08, 0.45], whiteKeyMat);
-      createdKeys.push(whiteKey);
-
-      if (![2, 6, 9, 13, 16, 20].includes(k)) {
-        helperBox(pianoGroup, [kx + 0.05, 1.06, 0.6], [0.055, 0.08, 0.24], blackKeyMat);
-      }
-    }
-    sceneState.current.pianoKeys = createdKeys;
-
-    // Music stand with antique sheet music
-    const musicStand = helperBox(pianoGroup, [-0.15, 1.45, 0.42], [0.95, 0.35, 0.04], pianoBlack);
-    musicStand.rotation.x = -0.3;
-    helperBox(pianoGroup, [-0.15, 1.48, 0.45], [0.75, 0.28, 0.02], new THREE.MeshStandardMaterial({ color: '#ece0cb' }));
-
-    // --- ENORMOUS FLOATING OPEN BOOK GLOWING WITH GOLDEN LIGHT ---
+    // --- ENORMOUS CENTRAL FLOATING OPEN BOOK (Interactive Focus) ---
     const bookGroup = new THREE.Group();
     bookGroup.position.set(0.1, 2.75, -1.0);
     scene.add(bookGroup);
     sceneState.current.bookGroup = bookGroup;
 
-    const bookPageMat = new THREE.MeshStandardMaterial({
-      color: '#fff0d0',
+    const pageMat = new THREE.MeshStandardMaterial({
+      color: '#fff2d6',
       emissive: '#d69738',
-      emissiveIntensity: 0.55,
-      roughness: 0.75,
+      emissiveIntensity: 0.52,
+      roughness: 0.72,
       side: THREE.DoubleSide,
     });
-    const leatherCoverMat = new THREE.MeshStandardMaterial({
-      color: '#4a2512',
-      roughness: 0.5,
-    });
+    const leatherMat = new THREE.MeshStandardMaterial({ color: '#45200f', roughness: 0.5 });
 
-    // Curved open pages
-    for (const side of [-1, 1]) {
-      const pageGeo = new THREE.PlaneGeometry(1.4, 1.9, 8, 8);
-      // Curve vertices to simulate open curved book pages
-      const posAttr = pageGeo.attributes.position;
-      for (let i = 0; i < posAttr.count; i++) {
-        const px = posAttr.getX(i);
-        posAttr.setZ(i, Math.sin((px + 0.7) * 2.2) * 0.16);
-      }
-      pageGeo.computeVertexNormals();
+    // Left Wing (Cover + Page Leaves)
+    const leftWing = new THREE.Group();
+    leftWing.position.set(-0.06, 0, 0);
+    leftWing.rotation.y = -0.22;
+    bookGroup.add(leftWing);
+    sceneState.current.leftWing = leftWing;
 
-      const leaf = new THREE.Mesh(pageGeo, bookPageMat);
-      leaf.position.x = side * 0.75;
-      leaf.rotation.y = side * -0.22;
-      bookGroup.add(leaf);
+    const leftLeaf = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.9, 6, 6), pageMat);
+    leftLeaf.position.x = -0.7;
+    leftWing.add(leftLeaf);
+    const leftCover = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.95), leatherMat);
+    leftCover.position.set(-0.725, 0, -0.015);
+    leftWing.add(leftCover);
 
-      // Book cover backing
-      const backCover = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.95), leatherCoverMat);
-      backCover.position.set(side * 0.76, 0, -0.02);
-      backCover.rotation.y = side * -0.22;
-      bookGroup.add(backCover);
+    // Right Wing (Cover + Page Leaves)
+    const rightWing = new THREE.Group();
+    rightWing.position.set(0.06, 0, 0);
+    rightWing.rotation.y = 0.22;
+    bookGroup.add(rightWing);
+    sceneState.current.rightWing = rightWing;
 
-      // Ancient script rules/lines on the pages
-      for (let line = 0; line < 9; line++) {
-        const lineMesh = helperBox(
-          bookGroup,
-          [side * 0.75, 0.65 - line * 0.15, 0.02],
-          [0.85 - (line % 3) * 0.08, 0.012, 0.008],
-          new THREE.MeshBasicMaterial({ color: '#855629', transparent: true, opacity: 0.75 })
-        );
-        lineMesh.rotation.y = side * -0.22;
-      }
+    const rightLeaf = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.9, 6, 6), pageMat);
+    rightLeaf.position.x = 0.7;
+    rightWing.add(rightLeaf);
+    const rightCover = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.95), leatherMat);
+    rightCover.position.set(0.725, 0, -0.015);
+    rightWing.add(rightCover);
+
+    // Calligraphic ancient text lines on pages
+    for (let l = 0; l < 8; l++) {
+      const textLineMat = new THREE.MeshBasicMaterial({ color: '#7a4f25', transparent: true, opacity: 0.75 });
+      const lineLeft = box(leftWing, [-0.7, 0.6 - l * 0.16, 0.01], [0.85 - (l % 3) * 0.08, 0.012, 0.005], textLineMat);
+      const lineRight = box(rightWing, [0.7, 0.6 - l * 0.16, 0.01], [0.85 - (l % 3) * 0.08, 0.012, 0.005], textLineMat);
+      lineLeft.castShadow = false;
+      lineRight.castShadow = false;
     }
-    // Spine
-    helperBox(bookGroup, [0, 0, -0.06], [0.18, 1.98, 0.18], leatherCoverMat);
 
-    // Warm golden radiant light pouring from within the book
+    // Additional interior flutter leaves that react on hover
+    const flutterLeaves: THREE.Mesh[] = [];
+    const interiorPageMat = new THREE.MeshStandardMaterial({
+      color: '#fffaed',
+      emissive: '#d69738',
+      emissiveIntensity: 0.38,
+      roughness: 0.68,
+      side: THREE.DoubleSide,
+    });
+    for (let f = 0; f < 3; f++) {
+      const flutterLeaf = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 1.86), interiorPageMat);
+      flutterLeaf.position.set(0, 0, 0.01 + f * 0.008);
+      bookGroup.add(flutterLeaf);
+      flutterLeaves.push(flutterLeaf);
+    }
+    sceneState.current.flutterLeaves = flutterLeaves;
+
+    // Spine
+    box(bookGroup, [0, 0, -0.05], [0.16, 1.96, 0.16], leatherMat);
+
+    // Golden point light radiating from within the book
     const bookGlow = new THREE.PointLight('#ffbb4d', 0, 8.5, 1.7);
-    bookGlow.position.set(0, 0.4, 0.8);
+    bookGlow.position.set(0, 0.35, 0.85);
     bookGroup.add(bookGlow);
     sceneState.current.bookGlow = bookGlow;
 
-    // Glowing halo ring around the book
-    const haloGeo = new THREE.RingGeometry(1.3, 1.34, 48);
+    // Glowing halo ring
+    const haloGeo = new THREE.RingGeometry(1.35, 1.39, 48);
     const haloMat = new THREE.MeshBasicMaterial({
       color: '#f5c871',
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.45,
     });
-    const halo = new THREE.Mesh(haloGeo, haloMat);
-    halo.rotation.x = Math.PI / 2.3;
-    bookGroup.add(halo);
+    const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+    haloMesh.rotation.x = Math.PI / 2.3;
+    bookGroup.add(haloMesh);
+    sceneState.current.haloMesh = haloMesh;
 
-    // Floating Golden Arcane Orbiters around the book
-    const orbiterGroup = new THREE.Group();
-    bookGroup.add(orbiterGroup);
-    for (let o = 0; o < 8; o++) {
-      const orb = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.045, 0),
-        new THREE.MeshBasicMaterial({ color: '#ffda73' })
-      );
-      const angle = (o / 8) * Math.PI * 2;
-      orb.position.set(Math.cos(angle) * 1.5, Math.sin(angle * 2) * 0.35, Math.sin(angle) * 1.5);
-      orbiterGroup.add(orb);
-    }
+    // --- ENCHANTED FLYING SATELLITE BOOKS (Rawpixel Reference) ---
+    const flyingBooks: FlyingBook[] = [];
+    const flyingSpreads = [
+      { pos: [-2.8, 4.8, -2.5], scale: 0.48, rot: 0.35 },
+      { pos: [3.2, 5.2, -3.2], scale: 0.52, rot: -0.25 },
+      { pos: [-3.8, 3.4, 1.8], scale: 0.44, rot: 0.45 },
+      { pos: [2.9, 3.6, 2.2], scale: 0.46, rot: -0.5 },
+      { pos: [-1.4, 6.2, -4.8], scale: 0.38, rot: 0.15 },
+      { pos: [1.8, 6.5, -5.2], scale: 0.42, rot: -0.3 },
+    ];
 
-    // --- TALL GOTHIC ARCH WINDOWS WITH NIGHT SKY & MOON ---
-    const makeGothicWindow = (wx: number) => {
-      const windowGroup = new THREE.Group();
-      windowGroup.position.set(wx, 5.0, -8.7);
-      scene.add(windowGroup);
+    flyingSpreads.forEach((item, idx) => {
+      const fbGroup = new THREE.Group();
+      fbGroup.position.set(item.pos[0], item.pos[1], item.pos[2]);
+      fbGroup.scale.setScalar(item.scale);
+      fbGroup.rotation.y = item.rot;
+      fbGroup.rotation.z = (Math.random() - 0.5) * 0.2;
+      scene.add(fbGroup);
 
-      // Night sky backing with soft stars
-      const windowGlass = new THREE.Mesh(
+      const fMat = new THREE.MeshStandardMaterial({
+        color: '#fdf6e2',
+        emissive: '#d69738',
+        emissiveIntensity: 0.35,
+        roughness: 0.8,
+        side: THREE.DoubleSide,
+      });
+
+      const lp = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.5), fMat);
+      lp.position.x = -0.55;
+      lp.rotation.y = -0.25;
+      fbGroup.add(lp);
+
+      const rp = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.5), fMat);
+      rp.position.x = 0.55;
+      rp.rotation.y = 0.25;
+      fbGroup.add(rp);
+
+      flyingBooks.push({
+        group: fbGroup,
+        leftPage: lp,
+        rightPage: rp,
+        baseY: item.pos[1],
+        bobSpeed: 1.2 + idx * 0.25,
+        bobOffset: idx * 1.1,
+        rotSpeed: 0.15 + idx * 0.08,
+      });
+    });
+    sceneState.current.flyingBooks = flyingBooks;
+
+    // --- GOTHIC WINDOWS & VOLUMETRIC GOD RAYS ---
+    const makeWindow = (wx: number) => {
+      const wg = new THREE.Group();
+      wg.position.set(wx, 5.0, -8.7);
+      scene.add(wg);
+      const glass = new THREE.Mesh(
         new THREE.PlaneGeometry(2.8, 6.2),
-        new THREE.MeshBasicMaterial({
-          color: '#152438',
-          transparent: true,
-          opacity: 0.88,
-        })
+        new THREE.MeshBasicMaterial({ color: '#152438', transparent: true, opacity: 0.88 })
       );
-      windowGroup.add(windowGlass);
-
-      // Arch tracery lines
-      helperBox(windowGroup, [-1.4, 0, 0.05], [0.18, 6.2, 0.18], darkWood);
-      helperBox(windowGroup, [1.4, 0, 0.05], [0.18, 6.2, 0.18], darkWood);
-      helperBox(windowGroup, [0, 0, 0.05], [0.08, 6.2, 0.14], darkWood);
-      helperBox(windowGroup, [0, 0.8, 0.05], [2.8, 0.08, 0.14], darkWood);
-      helperBox(windowGroup, [0, -1.2, 0.05], [2.8, 0.08, 0.14], darkWood);
-
-      // Crescent moon behind right window
+      wg.add(glass);
+      box(wg, [-1.4, 0, 0.05], [0.18, 6.2, 0.18], darkWood);
+      box(wg, [1.4, 0, 0.05], [0.18, 6.2, 0.18], darkWood);
+      box(wg, [0, 0, 0.05], [0.08, 6.2, 0.14], darkWood);
+      box(wg, [0, 0.8, 0.05], [2.8, 0.08, 0.14], darkWood);
       if (wx > 0) {
-        const moon = new THREE.Mesh(
-          new THREE.CircleGeometry(0.48, 32),
-          new THREE.MeshBasicMaterial({ color: '#eaf4fc' })
-        );
+        const moon = new THREE.Mesh(new THREE.CircleGeometry(0.48, 32), new THREE.MeshBasicMaterial({ color: '#eaf4fc' }));
         moon.position.set(0.65, 1.8, -0.05);
-        windowGroup.add(moon);
+        wg.add(moon);
       }
     };
+    makeWindow(-3.2);
+    makeWindow(3.2);
 
-    makeGothicWindow(-3.2);
-    makeGothicWindow(3.2);
-
-    // Cool blue nighttime moonlight streaming in through the arched windows
-    const windowMoonlight = new THREE.SpotLight('#6b8ea8', 45, 26, Math.PI / 4, 0.6, 1.4);
-    windowMoonlight.position.set(0, 7.5, -8.5);
-    windowMoonlight.target.position.set(0, 1.0, 1.0);
-    scene.add(windowMoonlight);
-    scene.add(windowMoonlight.target);
-    sceneState.current.windowMoonlight = windowMoonlight;
-
-    // --- VOLUMETRIC LIGHT BEAMS (GOD RAYS) ---
+    // Light Beams
     const beamMat = new THREE.MeshBasicMaterial({
       color: '#ffc875',
       transparent: true,
@@ -626,27 +622,13 @@ export default function DigitalLibraryScene({
       side: THREE.DoubleSide,
       depthWrite: false,
     });
-    // Shaft from above pointing at the book
     const centerBeam = new THREE.Mesh(new THREE.ConeGeometry(2.4, 9, 32, 1, true), beamMat);
     centerBeam.position.set(0.1, 5.8, -1.0);
     centerBeam.rotation.x = Math.PI;
     scene.add(centerBeam);
 
-    // Diagonal moonbeam from window
-    const moonBeamMat = new THREE.MeshBasicMaterial({
-      color: '#769bb8',
-      transparent: true,
-      opacity: 0.024,
-      side: THREE.DoubleSide,
-      depthWrite: false,
-    });
-    const moonBeam = new THREE.Mesh(new THREE.ConeGeometry(3.5, 14, 32, 1, true), moonBeamMat);
-    moonBeam.position.set(2.8, 6.2, -4.5);
-    moonBeam.rotation.x = Math.PI / 2.8;
-    scene.add(moonBeam);
-
-    // --- FLOATING DUST MOTES & GOLDEN EMBER PARTICLES ---
-    const particleCount = 380;
+    // Floating Dust Motes & Golden Embers
+    const particleCount = 420;
     sceneState.current.particleCount = particleCount;
     const particlePositions = new Float32Array(particleCount * 3);
     const particleSpeeds = new Float32Array(particleCount);
@@ -655,25 +637,27 @@ export default function DigitalLibraryScene({
       particlePositions[i * 3] = (Math.random() - 0.5) * 16;
       particlePositions[i * 3 + 1] = Math.random() * 8 + 0.2;
       particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 18;
-      particleSpeeds[i] = 0.0015 + Math.random() * 0.003;
+      particleSpeeds[i] = 0.0018 + Math.random() * 0.003;
     }
+    sceneState.current.particlePositions = particlePositions;
+    sceneState.current.particleSpeeds = particleSpeeds;
 
     const particlesGeo = new THREE.BufferGeometry();
     particlesGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    sceneState.current.particlesGeometry = particlesGeo;
+    sceneState.current.particlesGeo = particlesGeo;
 
     const particlesMat = new THREE.PointsMaterial({
       color: '#fed894',
-      size: 0.038,
+      size: 0.04,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.85,
       sizeAttenuation: true,
     });
     const particles = new THREE.Points(particlesGeo, particlesMat);
     scene.add(particles);
 
-    // Ambient fill & ceiling chandelier light
-    const chandelier = new THREE.PointLight('#ffa84d', 85, 18, 1.8);
+    // Chandelier & Ambient
+    const chandelier = new THREE.PointLight('#ffa84d', 90, 18, 1.8);
     chandelier.position.set(0, 7.8, 2.5);
     chandelier.castShadow = true;
     scene.add(chandelier);
@@ -681,37 +665,26 @@ export default function DigitalLibraryScene({
     const ambientLight = new THREE.HemisphereLight('#687d94', '#22140a', 0.65);
     scene.add(ambientLight);
 
-    // --- GSAP CINEMATIC SEQUENCE ---
-    const introTl = gsap.timeline({
-      delay: 0.35,
-      onComplete: () => {
-        setIsLoaded(true);
-      },
-    });
-    sceneState.current.timeline = introTl;
-
-    // Stage 1: Camera glides smoothly forward from the threshold into the hall
+    // --- INITIAL CINEMATIC REVEAL SEQUENCE (GSAP) ---
+    const introTl = gsap.timeline({ delay: 0.25 });
     introTl.to(camera.position, {
-      x: POIS.overview.cameraPos[0],
-      y: POIS.overview.cameraPos[1],
-      z: POIS.overview.cameraPos[2],
+      x: 0,
+      y: 2.7,
+      z: 9.8,
       duration: 4.8,
       ease: 'power3.out',
     });
-
     introTl.to(
       sceneState.current.lookTarget,
       {
-        x: POIS.overview.lookAt[0],
-        y: POIS.overview.lookAt[1],
-        z: POIS.overview.lookAt[2],
+        x: 0.1,
+        y: 2.7,
+        z: -1.0,
         duration: 4.8,
         ease: 'power3.out',
       },
       0
     );
-
-    // Stage 2: Floating book ignites with golden warmth
     introTl.to(
       bookGlow,
       {
@@ -719,37 +692,26 @@ export default function DigitalLibraryScene({
         duration: 3.2,
         ease: 'power2.out',
       },
-      1.2
+      1.0
     );
 
-    // Stage 3: Chandelier and candle warmth blooming
-    introTl.to(
-      chandelier,
-      {
-        intensity: 140,
-        duration: 3.0,
-        ease: 'sine.inOut',
-      },
-      1.5
-    );
-
-    // Stage 4: Gentle levitation floating loop for the book
+    // Idle levitation oscillation for main book
     gsap.to(bookGroup.position, {
-      y: 2.95,
+      y: 2.92,
       duration: 3.2,
       yoyo: true,
       repeat: -1,
       ease: 'sine.inOut',
     });
     gsap.to(bookGroup.rotation, {
-      y: 0.08,
-      duration: 5.5,
+      y: 0.065,
+      duration: 5.0,
       yoyo: true,
       repeat: -1,
       ease: 'sine.inOut',
     });
 
-    // Candle flame organic flicker
+    // Flickering candle flame
     gsap.to(candleLight, {
       intensity: 38,
       duration: 0.18,
@@ -758,58 +720,79 @@ export default function DigitalLibraryScene({
       ease: 'rough({template: none.out, strength: 1, points: 20, taper: none, randomize: true})',
     });
 
-    // --- MOUSE PARALLAX TRACKING ---
+    // Mouse parallax tracking
     const handleMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window;
-      sceneState.current.mouseNorm.x = (e.clientX / innerWidth - 0.5) * 2;
-      sceneState.current.mouseNorm.y = (e.clientY / innerHeight - 0.5) * 2;
+      sceneState.current.mouseNorm.x = (e.clientX / window.innerWidth - 0.5) * 2;
+      sceneState.current.mouseNorm.y = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     window.addEventListener('mousemove', handleMouseMove);
 
-    // --- RESIZE HANDLER ---
     const handleResize = () => {
       if (!container) return;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      camera.aspect = width / height;
+      camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      renderer.setSize(container.clientWidth, container.clientHeight);
     };
     window.addEventListener('resize', handleResize);
 
-    // --- RENDER LOOP ---
+    // --- ANIMATION / RENDER LOOP ---
     let reqId = 0;
-    let clockTime = 0;
+    let clock = 0;
 
     const animate = () => {
-      clockTime += 0.016;
+      clock += 0.016;
 
-      // Subtle mouse parallax damping
-      const mx = sceneState.current.mouseNorm.x * 0.45;
-      const my = sceneState.current.mouseNorm.y * 0.3;
-
-      const dynamicLook = new THREE.Vector3(
-        sceneState.current.lookTarget.x + mx * 0.3,
-        sceneState.current.lookTarget.y - my * 0.25,
+      // Mouse parallax
+      const mx = sceneState.current.mouseNorm.x * 0.4;
+      const my = sceneState.current.mouseNorm.y * 0.25;
+      camera.lookAt(
+        sceneState.current.lookTarget.x + mx * 0.25,
+        sceneState.current.lookTarget.y - my * 0.2,
         sceneState.current.lookTarget.z
       );
-      camera.lookAt(dynamicLook);
 
-      // Rotate book arcane orbiters
-      orbiterGroup.rotation.y = clockTime * 0.6;
-      halo.rotation.z = clockTime * 0.3;
+      // Rotate book halo
+      if (haloMesh) haloMesh.rotation.z = clock * 0.35;
 
-      // Drift floating dust particles upwards
-      if (sceneState.current.particlesGeometry) {
-        const pos = sceneState.current.particlesGeometry.attributes.position as THREE.BufferAttribute;
+      // Animate enchanted flying books (page flapping & floating)
+      flyingBooks.forEach((fb) => {
+        fb.group.position.y = fb.baseY + Math.sin(clock * fb.bobSpeed + fb.bobOffset) * 0.22;
+        fb.group.rotation.y += 0.0012;
+        const flap = Math.sin(clock * 4.2 + fb.bobOffset) * 0.18;
+        fb.leftPage.rotation.y = -0.25 - flap;
+        fb.rightPage.rotation.y = 0.25 + flap;
+      });
+
+      // Particle physics & golden particle attraction (Part C)
+      if (particlesGeo && particlePositions && particleSpeeds) {
+        const pos = particlesGeo.attributes.position as THREE.BufferAttribute;
+        const hovered = sceneState.current.isHovered;
+        const targetX = 0.1;
+        const targetY = 2.75;
+        const targetZ = -1.0;
+
         for (let i = 0; i < particleCount; i++) {
-          const yIdx = i * 3 + 1;
-          const xIdx = i * 3;
-          pos.array[yIdx] += particleSpeeds[i];
-          pos.array[xIdx] += Math.sin(clockTime + i) * 0.0008;
+          const xi = i * 3;
+          const yi = i * 3 + 1;
+          const zi = i * 3 + 2;
 
-          if (pos.array[yIdx] > 8.0) {
-            pos.array[yIdx] = 0.2;
+          if (hovered) {
+            // Golden particles gather around the book (vortex attraction)
+            const dx = targetX - pos.array[xi];
+            const dy = targetY - pos.array[yi];
+            const dz = targetZ - pos.array[zi];
+            pos.array[xi] += dx * 0.035 + Math.sin(clock * 4 + i) * 0.012;
+            pos.array[yi] += dy * 0.035;
+            pos.array[zi] += dz * 0.035 + Math.cos(clock * 4 + i) * 0.012;
+          } else {
+            // Normal gentle upward drift
+            pos.array[yi] += particleSpeeds[i];
+            pos.array[xi] += Math.sin(clock + i) * 0.0007;
+            if (pos.array[yi] > 8.0) {
+              pos.array[yi] = 0.2;
+              pos.array[xi] = (Math.random() - 0.5) * 16;
+              pos.array[zi] = (Math.random() - 0.5) * 18;
+            }
           }
         }
         pos.needsUpdate = true;
@@ -821,7 +804,6 @@ export default function DigitalLibraryScene({
 
     reqId = requestAnimationFrame(animate);
 
-    // --- CLEANUP ---
     return () => {
       cancelAnimationFrame(reqId);
       window.removeEventListener('mousemove', handleMouseMove);
@@ -845,118 +827,78 @@ export default function DigitalLibraryScene({
   }, []);
 
   const toggleSound = () => {
-    const playing = libraryAudio.toggleAtmosphere();
-    setIsPlayingAudio(playing);
+    const active = libraryAudio.toggleAtmosphere();
+    setIsPlayingAudio(active);
   };
 
   return (
-    <div className="digital-library-entrance-wrapper">
-      {/* 3D WebGL Canvas Container */}
+    <div className={`digital-library-entrance-wrapper ${isEntering ? 'is-entering-mode' : ''}`}>
+      {/* Three.js 3D Canvas */}
       <div ref={containerRef} className="digital-library-canvas" />
 
-      {/* Cinematic HUD Header */}
-      <header className="entrance-hud-header">
-        <div className="entrance-logo-mark">
-          <span className="library-crest">🏛️</span>
-          <div>
-            <strong>THE DIGITAL LIBRARY</strong>
-            <small>SOLOMON · 2026 ARCHIVES</small>
-          </div>
-        </div>
+      {/* Fullscreen Golden Bloom Veil (expands when clicked) */}
+      <div className={`golden-light-veil ${isEntering ? 'is-flaring' : ''}`} aria-hidden="true" />
 
-        <div className="entrance-header-actions">
-          <button
-            type="button"
-            onClick={toggleSound}
-            className={`entrance-sound-toggle ${isPlayingAudio ? 'is-active' : ''}`}
-            aria-label="Toggle Dark Academia Study Ambience"
-          >
-            <span className="sound-wave-icon" aria-hidden="true">
-              <i /><i /><i /><i />
-            </span>
-            <span>{isPlayingAudio ? 'Rain & Fireplace : ON' : 'Atmosphere : Muted'}</span>
-          </button>
+      {/* =========================================================================
+          SECTION B: THREE VISUAL AREAS
+          ========================================================================= */}
 
-          <button
-            type="button"
-            onClick={handleExitTransition}
-            className="entrance-skip-button"
-          >
-            Skip to Portfolio <span>→</span>
-          </button>
-        </div>
-      </header>
+      {/* 1. TOP LEFT: Personal Identity */}
+      <div className="entrance-top-left">
+        <h2 className="identity-name">SOLOMON MWANGI</h2>
+        <p className="identity-title">SOFTWARE ENGINEER · CREATIVE DEVELOPER</p>
+      </div>
 
-      {/* Interactive Exploration Waypoints / POIs */}
-      <nav className="entrance-poi-nav" aria-label="Library Landmarks">
-        <span className="poi-nav-label">Explore Room :</span>
-        {(['overview', 'book', 'piano', 'desk', 'window'] as const).map((key) => {
-          const item = POIS[key];
-          const isActive = activePoi === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => navigateToPoi(key)}
-              className={`poi-pill ${isActive ? 'is-active' : ''}`}
-            >
-              {key === 'book' && '✨ '}
-              {key === 'piano' && '🎹 '}
-              {key === 'desk' && '🕯️ '}
-              {key === 'window' && '🌙 '}
-              {key === 'overview' && '🏛️ '}
-              {item.title}
-            </button>
-          );
-        })}
-      </nav>
+      {/* Optional Unobtrusive Ambient Study Audio in Top Right */}
+      <div className="entrance-top-right">
+        <button
+          type="button"
+          onClick={toggleSound}
+          className={`ambient-audio-pill ${isPlayingAudio ? 'is-active' : ''}`}
+          aria-label="Toggle study rain and fireplace sound"
+        >
+          <span className="sound-pulse" aria-hidden="true">
+            <i /><i /><i />
+          </span>
+          <span>{isPlayingAudio ? 'Rain & Hearth : ON' : 'Study Ambience ♫'}</span>
+        </button>
+      </div>
 
-      {/* Center POI Information Card / Quote */}
-      <section className="entrance-poi-card" aria-live="polite">
-        <p className="poi-badge">01 / The Midnight Sanctuary</p>
-        <h1 className="poi-title">{POIS[activePoi]?.title}</h1>
-        <p className="poi-desc">{POIS[activePoi]?.description}</p>
+      {/* 2. CENTRE OF THE SCENE: Enter The Archive & Glowing Control */}
+      <div className="entrance-center-portal">
+        <h1 className="archive-headline">ENTER THE ARCHIVE</h1>
+        <p className="archive-subline">A collection of ideas, engineering and creativity.</p>
 
-        {activePoi === 'book' && (
-          <blockquote className="poi-quote">
-            “A grand library at night is never truly silent — it breathes with every word ever written, waiting for someone curious enough to turn the page.”
-          </blockquote>
-        )}
+        {/* Glowing Golden Entrance Control positioned in front of the floating book */}
+        <button
+          type="button"
+          className={`glowing-portal-control ${isHovered ? 'is-hovered' : ''} ${isEntering ? 'is-entering' : ''}`}
+          onMouseEnter={() => handleHoverChange(true)}
+          onMouseLeave={() => handleHoverChange(false)}
+          onClick={handleEnterClick}
+          disabled={isEntering}
+          aria-label="Enter the digital library and explore portfolio"
+        >
+          {/* Animated golden radiant border / aura */}
+          <span className="portal-aura" aria-hidden="true" />
+          <span className="portal-frame" aria-hidden="true" />
+          <span className="portal-label">
+            {isEntering ? 'ENTERING THE ARCHIVE...' : isHovered ? 'OPENING THE ARCHIVE...' : 'ENTER LIBRARY ↗'}
+          </span>
+        </button>
+      </div>
 
-        {activePoi === 'piano' && (
-          <div className="piano-action-prompt">
-            <button
-              type="button"
-              className="button button-library-outline"
-              onClick={() => {
-                libraryAudio.playPianoChord(Math.floor(Math.random() * 3));
-              }}
-            >
-              Play Nocturne Chord ♫
-            </button>
-          </div>
-        )}
-
-        <div className="poi-cta-row">
-          <button
-            type="button"
-            onClick={handleExitTransition}
-            className="button button-library button-dive"
-          >
-            Enter Experience <span aria-hidden="true">↘</span>
-          </button>
-          <span className="poi-hint">Drag mouse to gaze · Click landmarks to wander</span>
-        </div>
-      </section>
-
-      {/* Bottom Status Ticker */}
-      <footer className="entrance-hud-footer">
-        <span>Curiosity · Craft · Human-Centered Systems</span>
-        <span className="entrance-scroll-prompt">
-          Curtains open <span aria-hidden="true">↓</span>
-        </span>
-        <span>Three.js + GSAP Cinematic Choreography</span>
-      </footer>
+      {/* 3. BOTTOM RIGHT: Skip Intro (Always accessible, subtle & unobtrusive) */}
+      <div className="entrance-bottom-right">
+        <button
+          type="button"
+          onClick={onEnterPortfolio}
+          className="skip-intro-text-btn"
+          aria-label="Skip introduction and proceed directly to portfolio"
+        >
+          Skip Intro →
+        </button>
+      </div>
     </div>
   );
 }

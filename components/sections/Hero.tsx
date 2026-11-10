@@ -7,11 +7,18 @@ import LibraryScene from '@/components/ui/LibraryScene';
 
 export default function Hero() {
   const heroRef = useGsapContext(() => {
-    gsap.fromTo(
-      '.hero-reveal',
-      { y: 24, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.1, stagger: 0.14, ease: 'power3.out', delay: 0.45 }
-    );
+    const playReveal = () => {
+      gsap.fromTo(
+        '.hero-reveal',
+        { y: 32, opacity: 0, filter: 'blur(6px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, stagger: 0.15, ease: 'power3.out', delay: 0.15 }
+      );
+    };
+
+    playReveal();
+
+    window.addEventListener('portfolio-entered', playReveal);
+    return () => window.removeEventListener('portfolio-entered', playReveal);
   });
 
   return (
@@ -21,7 +28,7 @@ export default function Hero() {
       <div className="hero-grain" aria-hidden="true" />
       <div className="hero-inner">
         <div className="hero-copy">
-          <p className="hero-kicker hero-reveal">01 / The digital library <span>·</span> After hours</p>
+          <p className="hero-kicker hero-reveal">Solomon Mwangi <span>·</span> The Digital Library</p>
           <h1 className="hero-title hero-reveal">
             I build digital
             <br />
@@ -39,7 +46,7 @@ export default function Hero() {
         </div>
 
         <div className="hero-bottom">
-          <span>Solomon <span className="hero-bottom-separator">/</span> Portfolio 2026</span>
+          <span>Solomon Mwangi <span className="hero-bottom-separator">/</span> Portfolio 2026</span>
           <span className="library-scene-caption">A study in light, wood &amp; wonder</span>
           <a href="#work" className="scroll-cue">Take a look around <span aria-hidden="true">↓</span></a>
         </div>

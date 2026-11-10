@@ -1,18 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import DigitalLibraryScene, { POI } from './DigitalLibraryScene';
+import DigitalLibraryScene from './DigitalLibraryScene';
 
 export default function Entrance() {
   const [dismissed, setDismissed] = useState(false);
   const [exiting, setExiting] = useState(false);
-  const [activePoi, setActivePoi] = useState<POI['id']>('overview');
 
   useEffect(() => {
     const handleReopen = () => {
       setDismissed(false);
       setExiting(false);
-      setActivePoi('overview');
     };
 
     window.addEventListener('open-library-entrance', handleReopen);
@@ -21,7 +19,12 @@ export default function Entrance() {
 
   const enter = useCallback(() => {
     setExiting(true);
-    window.setTimeout(() => setDismissed(true), 700);
+    // Allow the 2.4s GSAP camera dive and golden bloom to complete before unmounting
+    window.setTimeout(() => {
+      setDismissed(true);
+      // Notify page that entrance has transitioned
+      window.dispatchEvent(new CustomEvent('portfolio-entered'));
+    }, 2400);
   }, []);
 
   if (dismissed) return null;
@@ -33,11 +36,7 @@ export default function Entrance() {
       aria-modal="true"
       aria-label="The Digital Library Entrance"
     >
-      <DigitalLibraryScene
-        onEnterPortfolio={enter}
-        activePoi={activePoi}
-        setActivePoi={setActivePoi}
-      />
+      <DigitalLibraryScene onEnterPortfolio={enter} />
     </div>
   );
 }
