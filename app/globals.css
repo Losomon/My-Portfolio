@@ -1648,3 +1648,126 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+.library-hero {
+  isolation: isolate;
+  background: #100d0a;
+}
+
+.library-scene {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+}
+
+.library-scene canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.library-scene-fallback {
+  background:
+    radial-gradient(ellipse at 68% 46%, rgb(167 105 48 / 28%), transparent 40%),
+    linear-gradient(110deg, #100d0a 10%, #332316 100%);
+}
+
+.library-hero-shade {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(13 10 8 / 96%) 0%, rgb(17 12 9 / 89%) 31%, rgb(17 12 9 / 54%) 53%, rgb(17 12 9 / 8%) 100%),
+    linear-gradient(0deg, rgb(11 9 7 / 58%) 0%, transparent 28%, transparent 77%, rgb(11 9 7 / 26%) 100%);
+}
+
+.library-hero .hero-inner {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.library-hero .hero-copy {
+  width: min(720px, 68%);
+  padding-bottom: 0;
+}
+
+.library-hero .hero-kicker {
+  color: #d7ad72;
+}
+
+.library-hero .hero-kicker span,
+.library-hero .hero-bottom-separator,
+.library-hero .scroll-cue span {
+  color: #e3b76d;
+}
+
+.library-hero .hero-title {
+  font-size: clamp(56px, 6.35vw, 88px);
+}
+
+.library-hero .hero-title em {
+  color: #e2bd82;
+}
+
+.library-hero .hero-description {
+  color: rgb(245 235 220 / 73%);
+}
+
+.button-library {
+  color: #24180e;
+  background: #e3c28d;
+}
+
+.button-library:hover {
+  background: #f0d7ad;
+}
+
+.library-hero .hero-bottom {
+  z-index: 2;
+  align-items: center;
+  color: rgb(245 235 220 / 58%);
+}
+
+.library-scene-caption {
+  color: rgb(245 235 220 / 48%);
+  letter-spacing: 0.13em;
+}
+
+@media (max-width: 900px) {
+  .library-hero .hero-copy {
+    width: min(680px, 82%);
+  }
+
+  .library-hero-shade {
+    background:
+      linear-gradient(90deg, rgb(13 10 8 / 94%) 0%, rgb(17 12 9 / 75%) 54%, rgb(17 12 9 / 22%) 100%),
+      linear-gradient(0deg, rgb(11 9 7 / 62%) 0%, transparent 36%);
+  }
+}
+
+@media (max-width: 640px) {
+  .library-hero .hero-copy {
+    width: 100%;
+  }
+
+  .library-hero .hero-title {
+    font-size: clamp(48px, 13vw, 72px);
+  }
+
+  .library-hero-shade {
+    background:
+      linear-gradient(90deg, rgb(13 10 8 / 91%), rgb(17 12 9 / 65%) 78%, rgb(17 12 9 / 42%)),
+      linear-gradient(0deg, rgb(11 9 7 / 72%), transparent 45%);
+  }
+
+  .library-hero .hero-bottom {
+    font-size: 7px;
+  }
+
+  .library-scene-caption {
+    display: none;
+  }
+}
