@@ -18,8 +18,8 @@ export const useGsapContext = (callback: (ctx: gsap.Context) => void) => {
   useEffect(() => {
     if (reducedMotion) return;
 
-    const ctx = gsap.context(() => {
-      callback(ctx);
+    const ctx = gsap.context((context) => {
+      callback(context);
     }, ref);
 
     return () => ctx.revert();
