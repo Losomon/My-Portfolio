@@ -184,7 +184,7 @@ export default function LibraryScene() {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
     } catch (error) {
       console.error('The Three.js library scene could not initialize WebGL.', error);
-      setUnavailable(true);
+      window.setTimeout(() => setUnavailable(true), 0);
       return;
     }
 

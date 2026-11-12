@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import DigitalLibraryScene from './DigitalLibraryScene';
 
 export default function Entrance() {
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(true);
   const [exiting, setExiting] = useState(false);
 
   // Listen for manual re-opening from the navigation header

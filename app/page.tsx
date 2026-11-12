@@ -1,5 +1,4 @@
 import Hero from '@/components/sections/Hero';
-import CreativeStatement from '@/components/sections/CreativeStatement';
 import Capabilities from '@/components/sections/Capabilities';
 import Projects from '@/components/sections/Projects';
 import About from '@/components/sections/About';
@@ -13,12 +12,11 @@ export default function Home() {
     <>
       <Entrance />
       <Navigation />
-      <main id="top">
+      <main id="top" className="site-shell">
         <Hero />
-        <CreativeStatement />
+        <About />
         <Projects />
         <Capabilities />
-        <About />
         <Contact />
       </main>
       <Footer />

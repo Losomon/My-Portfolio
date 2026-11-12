@@ -1,22 +1,39 @@
-import { projects } from '@/lib/projects';
-import ProjectShowcase from '@/components/ui/ProjectShowcase';
+const projects = [
+  { name: 'Stockly', kind: 'Inventory Management', tone: 'rose', accent: 'violet' },
+  { name: 'Tawas Cosmetic', kind: 'E-commerce Experience', tone: 'blush', accent: 'peach' },
+  { name: 'TravelGo', kind: 'Travel Platform', tone: 'grey', accent: 'charcoal' },
+  { name: 'LOXORA SYSTEMS', kind: 'Enterprise Interface', tone: 'midnight', accent: 'silver' },
+];
 
 export default function Projects() {
   return (
     <section id="work" className="projects-section">
       <div className="content-wrap">
-        <div className="projects-heading">
+        <div className="projects-head">
           <div>
-            <p className="eyebrow">02 / Selected work</p>
-            <h2 className="editorial-heading">Projects with<br /><em>a purpose.</em></h2>
+            <p className="eyebrow">Selected Work</p>
+            <h2 className="section-title">
+              Projects that
+              <span>bring ideas to life.</span>
+            </h2>
           </div>
-          <p className="projects-intro">
-            A growing collection of digital products shaped by real needs, thoughtful design, and the details behind the interface.
-          </p>
+          <button type="button" className="view-button">
+            View All Projects
+          </button>
         </div>
-        <div className="projects-list">
-          {projects.map((project, index) => (
-            <ProjectShowcase key={project.slug} project={project} index={index} />
+
+        <div className="project-grid">
+          {projects.map((project) => (
+            <article key={project.name} className={`project-card project-${project.tone}`}>
+              <div className="project-card-visual" aria-hidden="true">
+                <span className="visual-badge">{project.kind}</span>
+                <div className="visual-pattern" />
+              </div>
+              <div className="project-card-copy">
+                <span className="project-kind">{project.kind}</span>
+                <h3>{project.name}</h3>
+              </div>
+            </article>
           ))}
         </div>
       </div>

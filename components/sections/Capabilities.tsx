@@ -1,57 +1,45 @@
-'use client';
-
-import { useGsapContext } from '@/lib/gsap';
-import { gsap } from 'gsap';
-
 const capabilities = [
-  'Frontend Engineering',
-  'Backend Development',
-  'API Development',
-  'Database Design',
-  'Full-Stack Development',
-  'E-commerce Systems',
-  'Business Automation',
-  'UI Implementation',
-  'Performance & Security'
+  'Frontend',
+  'Backend',
+  'Data',
+  'Creative Tech',
+  'Product Thinking',
 ];
 
 export default function Capabilities() {
-  const sectionRef = useGsapContext(() => {
-    gsap.fromTo('.cap-item',
-      { x: -40, opacity: 0 },
-      {
-        x: 0,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.08,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.cap-list',
-          start: 'top 80%',
-        }
-      }
-    );
-  });
-
   return (
-    <section ref={sectionRef} className="capabilities-section">
-      <div className="content-wrap capabilities-grid">
+    <section className="capabilities-section">
+      <div className="content-wrap capabilities-shell">
         <div className="capabilities-intro">
-          <p className="eyebrow">What I bring</p>
-          <h2 className="capabilities-title">From the data<br />to the details.</h2>
+          <p className="eyebrow eyebrow-dark">Capabilities</p>
+          <h2 className="section-title section-title-dark">
+            What I
+            <span>bring to the table.</span>
+          </h2>
           <p className="capabilities-description">
-            A practical toolkit for building robust, scalable products — and making them feel effortless.
+            From full-stack development to creative problem solving, I build experiences that are practical, scalable and memorable.
           </p>
+          <button type="button" className="inline-link inline-link-dark">
+            Explore Skills
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
-        <ul className="cap-list">
-          {capabilities.map((cap, i) => (
-            <li key={cap} className="cap-item">
-              <span className="cap-number">0{i + 1}</span>
-              <span>{cap}</span>
-              <span className="cap-arrow" aria-hidden="true">↗</span>
-            </li>
+
+        <div className="capability-grid">
+          {capabilities.map((item, index) => (
+            <div key={item} className="capability-card">
+              <span className="capability-index">0{index + 1}</span>
+              <h3>{item}</h3>
+              <p>
+                {index === 0 && 'Crafting interfaces that feel intuitive and precise.'}
+                {index === 1 && 'Designing systems that scale with real business needs.'}
+                {index === 2 && 'Turning complexity into clear, informed decisions.'}
+                {index === 3 && 'Using technology as a creative medium for expression.'}
+                {index === 4 && 'Connecting strategy, design and engineering in one flow.'}
+              </p>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
   );

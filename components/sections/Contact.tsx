@@ -1,24 +1,32 @@
-export default function Contact() {
+﻿export default function Contact() {
   return (
-    <section id="contact" className="contact-section section-dark">
-      <div className="content-wrap contact-inner">
-        <p className="eyebrow">04 / The next scene</p>
-        <h2 className="editorial-heading">
-          Have something
-          <br />
-          <em>good in mind?</em>
-        </h2>
-        <p className="contact-description">
-          I’m always interested in thoughtful ideas and useful things to build.
-        </p>
-        <a
-          href="https://github.com/Losomon"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="button button-light"
-        >
-          Find me on GitHub <span aria-hidden="true">↗</span>
-        </a>
+    <section id="contact" className="contact-section">
+      <div className="content-wrap contact-shell">
+        <div className="journey-box">
+          <p className="eyebrow eyebrow-light">My Journey</p>
+          <h2 className="journey-title">
+            A path of
+            <span>learning and creation.</span>
+          </h2>
+          <ul className="journey-list">
+            <li><span>Kenyatta University</span><small>BSc. Computer Science</small></li>
+            <li><span>Industrial Attachment</span><small>Software engineering practice</small></li>
+            <li><span>Building Real Solutions</span><small>Product design and implementation</small></li>
+          </ul>
+        </div>
+
+        <div className="cta-box">
+          <h2>
+            Let&apos;s build something
+            <span>great together.</span>
+          </h2>
+          <div className="social-row">
+            <a href="https://github.com/Losomon" target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
+            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">IN</a>
+            <a href="mailto:solomon@example.com" aria-label="Email">✉</a>
+          </div>
+          <p>© 2025 Solomon Mwangi. All rights reserved.</p>
+        </div>
       </div>
     </section>
   );
