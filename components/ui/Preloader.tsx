@@ -21,7 +21,6 @@ export default function Preloader() {
     const start = performance.now();
     let frame = 0;
     let exitTimer = 0;
-    let hideTimer = 0;
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
@@ -41,7 +40,6 @@ export default function Preloader() {
     return () => {
       cancelAnimationFrame(frame);
       window.clearTimeout(exitTimer);
-      window.clearTimeout(hideTimer);
     };
   }, []);
 
