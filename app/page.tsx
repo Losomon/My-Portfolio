@@ -5,12 +5,12 @@ import About from '@/components/sections/About';
 import Contact from '@/components/sections/Contact';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
-import Entrance from '@/components/ui/Entrance';
+import Preloader from '@/components/ui/Preloader';
 
 export default function Home() {
   return (
     <>
-      <Entrance />
+      <Preloader />
       <Navigation />
       <main id="top" className="site-shell">
         <Hero />
