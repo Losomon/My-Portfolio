@@ -28,7 +28,57 @@ export interface Project {
 
 export const projects: Project[] = [
   {
-    slug: 'stockly',
+    slug: 'vet-claim',
+    title: 'VetClaim Advantage',
+    category: 'Legal Technology',
+    role: 'Design, Development',
+    description: 'A VA disability law firm that needed to look as serious as the work they do.',
+    stack: ['Next.js', 'TypeScript', 'Tailwind CSS'],
+    status: 'Production',
+    statusNote: 'Case study coming soon.',
+    caseStudy: {
+      overview: 'VetClaim Advantage is a VA disability law firm that needed a digital presence as serious as the work they do. The project involved a complete brand redesign and website development.',
+      problem: 'The firm had an outdated website that didn\'t convey the professionalism and trust required for veterans seeking disability benefits.',
+      targetUsers: 'Veterans seeking VA disability benefits and legal representation.',
+      role: 'Design, Development',
+      designDirection: 'Clean, authoritative design with strong typography and a trustworthy color palette. The design prioritizes credibility and ease of navigation for veterans.',
+      technicalArchitecture: 'Built with Next.js for optimal performance and SEO. Static generation for fast page loads. Responsive design for all devices.',
+      technologyChoices: ['Next.js', 'TypeScript', 'Tailwind CSS'],
+      implementation: 'Developed a custom CMS integration for case studies and blog content. Implemented smooth page transitions and scroll-triggered animations.',
+      engineeringChallenges: 'Balancing the serious nature of legal content with an approachable, modern design. Ensuring accessibility compliance for veteran users.',
+      securityAndPerformance: 'Static generation for optimal performance. Optimized images and fonts. Secure form handling for contact inquiries.',
+      currentStatus: 'Live in production. Case study documentation in progress.',
+      lessonsLearned: 'Legal websites require a careful balance of authority and accessibility. Content strategy is as important as visual design.',
+      nextImprovements: 'Add client portal integration. Expand case study library.'
+    }
+  },
+  {
+    slug: 'folio-v1',
+    title: 'Douglus Folio Vol. 01',
+    category: 'Personal Project',
+    role: 'Design, Development',
+    description: 'An earlier version of my portfolio, designed and built from the ground up.',
+    stack: ['Next.js', 'TypeScript', 'Tailwind CSS'],
+    status: 'Production',
+    statusNote: 'Awwwards Honorable Mention',
+    caseStudy: {
+      overview: 'The first version of my personal portfolio, showcasing my work as a designer and developer. Built from scratch with custom animations and interactions.',
+      problem: 'Needed a portfolio that demonstrates both design and development skills while standing out from template-based portfolios.',
+      targetUsers: 'Potential clients, employers, and design community.',
+      role: 'Design, Development',
+      designDirection: 'Experimental layout with bold typography, custom cursor interactions, and smooth page transitions. Dark theme with high contrast.',
+      technicalArchitecture: 'Custom animation system using CSS and JavaScript. Optimized for 60fps animations. Modular component architecture.',
+      technologyChoices: ['Next.js', 'TypeScript', 'Tailwind CSS'],
+      implementation: 'Built custom scroll-triggered animations, magnetic hover effects, and page transition system. Implemented dark/light mode.',
+      engineeringChallenges: 'Performance optimization for complex animations. Cross-browser compatibility for custom cursor.',
+      securityAndPerformance: 'Code splitting and lazy loading. Optimized bundle size. Static generation where possible.',
+      currentStatus: 'Archived. Received Awwwards Honorable Mention.',
+      lessonsLearned: 'Custom animations require careful performance monitoring. Design systems scale better than one-off components.',
+      nextImprovements: 'Migrate animation system to Framer Motion. Add CMS for project management.'
+    }
+  },
+  {
+    slug: '01',
     title: 'Stockly',
     category: 'Inventory Management',
     role: 'Full-Stack Developer',

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import MenuOverlay, { type MenuLink } from './MenuOverlay';
 
 const LINKS: MenuLink[] = [
-  { href: '#top', label: 'Home', initial: 'H', words: ['Vision', 'Start', 'Everything'] },
-  { href: '#work', label: 'Work', initial: 'W', words: ['Build', 'Create', 'Deliver'] },
-  { href: '#about', label: 'About', initial: 'A', words: ['People', 'Story', 'Values'] },
-  { href: '#contact', label: 'Contact', initial: 'C', words: ['Connect', 'Collab', 'Talk'] },
+  { href: '/', label: 'Home', initial: 'H', words: ['Vision', 'Start', 'Everything'], previewImage: '/images/home-shape-v2.webp' },
+  { href: '/work', label: 'Work', initial: 'W', words: ['Build', 'Create', 'Deliver'], previewImage: '/images/work-shape.webp' },
+  { href: '/about', label: 'About', initial: 'A', words: ['People', 'Story', 'Values'], previewImage: '/images/about-shape.webp' },
+  { href: '/contact', label: 'Contact', initial: 'C', words: ['Connect', 'Collab', 'Talk'], previewImage: '/images/contact-shape.webp' },
 ];
 
 export default function Navigation() {

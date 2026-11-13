@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import Silhouette from '@/components/ui/Silhouette';
+import Image from 'next/image';
 
 export interface MenuLink {
   href: string;
   label: string;
   initial: string;
   words: string[];
+  previewImage: string;
 }
 
 interface MenuOverlayProps {
@@ -43,7 +44,13 @@ export default function MenuOverlay({
               >
                 <div className="menu-overlay__preview-media">
                   <span className="menu-overlay__preview-mask">
-                    <Silhouette className="menu-overlay__preview-image" />
+                    <Image
+                      src={link.previewImage}
+                      alt=""
+                      width={1254}
+                      height={1254}
+                      className="menu-overlay__preview-image"
+                    />
                   </span>
                   <div className="menu-overlay__preview-words">
                     {link.words.map((word) => (
