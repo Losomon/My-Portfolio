@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Solomon Mwangi — Software Engineer & Creative Technologist',
+  title: 'Douglus Nguyen — Web Designer from Vietnam',
   description:
-    'Independent software engineer based in Nairobi, Kenya, focused on web engineering, interaction design, and front-end development.',
+    'Web designer based in Ho Chi Minh City, Vietnam, focused on web design, interaction design, and creative development.',
 };
 
 export const viewport: Viewport = {

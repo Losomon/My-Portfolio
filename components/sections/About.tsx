@@ -19,7 +19,7 @@ export default function About() {
             <span>behind the code.</span>
           </h2>
           <p className="about-text">
-            I’m a Computer Science student and software engineer with a passion for building useful, human-centered digital experiences. I enjoy turning ideas into products that feel clear, practical and memorable.
+            I’m a web designer based in Ho Chi Minh City, Vietnam, with a passion for building useful, human-centered digital experiences. I enjoy turning ideas into products that feel clear, practical and memorable.
           </p>
 
           <div className="about-meta">

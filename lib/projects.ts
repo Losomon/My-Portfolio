@@ -87,7 +87,7 @@ export const projects: Project[] = [
     status: 'Prototype',
     statusNote: 'Core UI and local state management are complete. Multi-business backend architecture is currently in development.',
     caseStudy: {
-      overview: 'Stockly is a mobile-first inventory management system built to replace pen-and-paper tracking for small retail businesses in Kenya. It provides real-time visibility into stock levels, sales, and supplier orders.',
+      overview: 'Stockly is a mobile-first inventory management system built to replace pen-and-paper tracking for small retail businesses in Vietnam. It provides real-time visibility into stock levels, sales, and supplier orders.',
       problem: 'Small business owners lose significant revenue due to stockouts, overstocking, and unrecorded shrinkage. Existing enterprise ERPs are too complex and expensive, while basic spreadsheet solutions lack mobile accessibility and real-time syncing.',
       targetUsers: 'Retail shop owners, pharmacy managers, and small warehouse operators who need to track inventory on the go using their smartphones.',
       role: 'Sole Architect & Full-Stack Engineer',

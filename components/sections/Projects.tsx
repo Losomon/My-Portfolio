@@ -1,9 +1,4 @@
-const projects = [
-  { name: 'Stockly', kind: 'Inventory Management', tone: 'rose', accent: 'violet' },
-  { name: 'Tawas Cosmetic', kind: 'E-commerce Experience', tone: 'blush', accent: 'peach' },
-  { name: 'TravelGo', kind: 'Travel Platform', tone: 'grey', accent: 'charcoal' },
-  { name: 'LOXORA SYSTEMS', kind: 'Enterprise Interface', tone: 'midnight', accent: 'silver' },
-];
+import { projects } from '@/lib/projects';
 
 export default function Projects() {
   return (
@@ -24,14 +19,14 @@ export default function Projects() {
 
         <div className="project-grid">
           {projects.map((project) => (
-            <article key={project.name} className={`project-card project-${project.tone}`}>
+            <article key={project.slug} className={`project-card project-${project.slug}`}>
               <div className="project-card-visual" aria-hidden="true">
-                <span className="visual-badge">{project.kind}</span>
+                <span className="visual-badge">{project.category}</span>
                 <div className="visual-pattern" />
               </div>
               <div className="project-card-copy">
-                <span className="project-kind">{project.kind}</span>
-                <h3>{project.name}</h3>
+                <span className="project-kind">{project.category}</span>
+                <h3>{project.title}</h3>
               </div>
             </article>
           ))}

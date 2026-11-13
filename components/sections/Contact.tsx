@@ -23,9 +23,9 @@
           <div className="social-row">
             <a href="https://github.com/Losomon" target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
             <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">IN</a>
-            <a href="mailto:solomon@example.com" aria-label="Email">✉</a>
+            <a href="mailto:hello@douglus.co" aria-label="Email">✉</a>
           </div>
-          <p>© 2025 Solomon Mwangi. All rights reserved.</p>
+          <p>© 2026 Douglus Nguyen. All rights reserved.</p>
         </div>
       </div>
     </section>

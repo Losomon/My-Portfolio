@@ -55,63 +55,78 @@ export default function Hero() {
           <div className="home-hero__intro">
             <div className="home-hero__reveal-mask text-reveal-mask">
               <p className="home-hero__description">
-                Software engineer &amp; creative technologist
+                Just a designer &amp; developer trying
                 <br />
-                trying to make good things for the web.
+                to make good things for the web.
               </p>
             </div>
             <div className="home-hero__reveal-mask text-reveal-mask">
               <p className="home-hero__description">
-                Based in Nairobi, Kenya,
+                Based in Ho Chi Minh City, Vietnam,
                 <br />
                 working with clients worldwide.
               </p>
             </div>
           </div>
 
-          <div className="home-hero__origin">
-            <div className="home-hero__reveal-mask text-reveal-mask">
-              <span className="home-hero__origin-text">From Kenya with code.</span>
-            </div>
-          </div>
+              <div className="home-hero__origin">
+                <div className="home-hero__reveal-mask text-reveal-mask">
+                  <span className="home-hero__origin-text">From Vietnam with Love.</span>
+                </div>
+              </div>
 
-          <div className="home-hero__cta">
-            <span className="home-hero__reveal-mask text-reveal-mask">
-              <Link href="#work" className="home-hero__cta-label">
-                <span className="home-hero__cta-label-mask">
-                  <span className="home-hero__cta-label-track">
-                    <span>View Work</span>
-                    <span>View Work</span>
-                  </span>
+              <div className="home-hero__cta">
+                <span className="home-hero__reveal-mask text-reveal-mask">
+                  <a
+                    href="https://www.linkedin.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="home-hero__cta-label"
+                  >
+                    <span className="home-hero__cta-label-mask">
+                      <span className="home-hero__cta-label-track">
+                        <span>LinkedIn</span>
+                        <span>LinkedIn</span>
+                      </span>
+                    </span>
+                  </a>
                 </span>
-              </Link>
-            </span>
-            <span className="home-hero__reveal-mask text-reveal-mask">
-              <a href="mailto:solomon@example.com" className="home-hero__cta-label">
-                <span className="home-hero__cta-label-mask">
-                  <span className="home-hero__cta-label-track">
-                    <span>solomon@example.com</span>
-                    <span>solomon@example.com</span>
-                  </span>
+                <span className="home-hero__reveal-mask text-reveal-mask">
+                  <a href="tel:+84393277584" className="home-hero__cta-label">
+                    <span className="home-hero__cta-label-mask">
+                      <span className="home-hero__cta-label-track">
+                        <span>+84 39 327 7584</span>
+                        <span>+84 39 327 7584</span>
+                      </span>
+                    </span>
+                  </a>
                 </span>
-              </a>
-            </span>
-            <span className="home-hero__reveal-mask text-reveal-mask">
-              <a
-                href="https://github.com/Losomon"
-                target="_blank"
-                rel="noreferrer"
-                className="home-hero__cta-label"
-              >
-                <span className="home-hero__cta-label-mask">
-                  <span className="home-hero__cta-label-track">
-                    <span>GitHub</span>
-                    <span>GitHub</span>
-                  </span>
+                <span className="home-hero__reveal-mask text-reveal-mask">
+                  <a href="mailto:hello@douglus.co" className="home-hero__cta-label">
+                    <span className="home-hero__cta-label-mask">
+                      <span className="home-hero__cta-label-track">
+                        <span>hello@douglus.co</span>
+                        <span>hello@douglus.co</span>
+                      </span>
+                    </span>
+                  </a>
                 </span>
-              </a>
-            </span>
-          </div>
+                <span className="home-hero__reveal-mask text-reveal-mask">
+                  <a
+                    href="https://github.com/Losomon"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="home-hero__cta-label"
+                  >
+                    <span className="home-hero__cta-label-mask">
+                      <span className="home-hero__cta-label-track">
+                        <span>GitHub</span>
+                        <span>GitHub</span>
+                      </span>
+                    </span>
+                  </a>
+                </span>
+              </div>
         </div>
       </div>
 
@@ -146,28 +161,28 @@ export default function Hero() {
               </svg>
 
               <div className="home-hero__brutal-info">
-                <p className="home-hero__brutal-name">Solomon Mwangi</p>
+                <p className="home-hero__brutal-name">Douglus Nguyen</p>
                 <p className="home-hero__brutal-description">
                   Just a designer &amp; developer trying
                   <br />
                   to make good things for the web.
                 </p>
                 <p className="home-hero__brutal-location">
-                  Based in Nairobi, Kenya,
+                  Based in Ho Chi Minh City, Viet Nam,
                   <br />
                   working with clients worldwide.
                 </p>
 
                 <div className="home-hero__brutal-actions">
-                  <span className="home-hero__brutal-origin">From Kenya with code</span>
+                  <span className="home-hero__brutal-origin">From Vietnam with Love</span>
                   <Link href="#contact" className="home-hero__brutal-cta">
                     <strong>Let&apos;s Work Together!</strong>
                   </Link>
                   <div className="home-hero__brutal-email">
-                    <a href="mailto:solomon@example.com">solomon@example.com</a>
+                    <a href="mailto:hello@douglus.co">hello@douglus.co</a>
                   </div>
-                  <a href="tel:+254700000000" className="home-hero__brutal-link">
-                    +254 700 000 000
+                  <a href="tel:+84393277584" className="home-hero__brutal-link">
+                    +84 39 327 7584
                   </a>
                   <a
                     href="https://github.com/Losomon"

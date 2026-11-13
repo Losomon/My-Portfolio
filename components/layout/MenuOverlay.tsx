@@ -91,8 +91,8 @@ export default function MenuOverlay({
 
           <div className="menu-overlay__panel-footer">
             <div className="menu-overlay__contact">
-              <a href="mailto:solomon@example.com">solomon@example.com</a>
-              <a href="tel:+254700000000">+254 700 000 000</a>
+              <a href="mailto:hello@douglus.co">hello@douglus.co</a>
+              <a href="tel:+84393277584">+84 39 327 7584</a>
             </div>
 
             <div className="menu-overlay__socials">
