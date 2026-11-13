@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -812,15 +812,46 @@ button:focus-visible, a:focus-visible {
 .home-hero__editorial {
   padding-top: var(--editorial-title-top);
   padding-inline: var(--page-padding);
-  background: #fefff8;
   flex-direction: column;
   align-items: flex-start;
   display: flex;
   position: absolute;
   inset: 0;
+  background: transparent;
 }
 
 .home-hero__panel--editorial .home-hero__background { display: none; }
+
+.home-hero__fluid,
+.home-hero__static-bg {
+  inset: 0;
+  position: absolute;
+  overflow: hidden;
+}
+
+.home-hero__ink-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.home-hero__ink-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  /* Poster is a fallback; hide it when the canvas is active */
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Show poster as fallback if canvas fails to render (no JS / no WebGL) */
+.home-hero__fluid:not(:has(canvas)) .home-hero__ink-poster {
+  opacity: 1;
+}
 
 .home-hero__title {
   z-index: 3;
@@ -1920,6 +1951,195 @@ button:focus-visible, a:focus-visible {
 
 .work-list__media:hover img {
   transform: scale(1.02);
+}
+
+/* Work page - sticky hero with diagonal image movement */
+.work-page .container {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.work-page .wrapper {
+  position: relative;
+  min-height: 100svh;
+}
+
+.work-hero--desktop {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  padding: 0;
+  border-bottom: none;
+}
+
+.work-hero--desktop .work-hero__content {
+  grid-template-columns: 1fr 340px;
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+  height: 100svh;
+  padding: clamp(120px, 18vh, 200px) var(--page-padding) 0;
+}
+
+.work-hero--desktop .work-hero__project {
+  max-width: none;
+}
+
+.work-hero--desktop .work-hero__title {
+  font-size: clamp(44px, 8vw, 120px);
+}
+
+.work-hero--desktop .work-hero__rail {
+  position: sticky;
+  top: clamp(120px, 18vh, 200px);
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.work-hero--desktop .work-hero__track {
+  display: flex;
+  gap: clamp(16px, 2vw, 32px);
+  overflow: visible;
+  scroll-snap-type: none;
+  padding: 0;
+  scrollbar-width: none;
+  will-change: transform;
+  animation: diagonal-move linear both;
+  animation-timeline: scroll();
+  animation-range: 0 500vh;
+}
+
+.work-hero--desktop .work-hero__track::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes diagonal-move {
+  from {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate(-30%, 30%) rotate(-8deg);
+  }
+}
+
+/* Fallback for browsers without scroll-driven animation support */
+@supports not (animation-timeline: scroll()) {
+  .work-hero--desktop .work-hero__track {
+    animation: none;
+  }
+}
+
+.work-hero--desktop .work-hero__card {
+  flex: none;
+  scroll-snap-align: none;
+  width: clamp(200px, 25vw, 320px);
+  height: clamp(200px, 25vw, 320px);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.work-hero--desktop .work-hero__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.work-hero__details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.work-hero__detail {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.work-hero__detail-label {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(30, 30, 30, 0.45);
+}
+
+.work-hero__detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black-color);
+}
+
+.work-hero__services {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(30, 30, 30, 0.6);
+}
+
+.work-hero__counter {
+  position: absolute;
+  right: var(--page-padding);
+  bottom: clamp(80px, 12vh, 160px);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: clamp(14px, 1.8vw, 24px);
+  color: rgba(30, 30, 30, 0.4);
+}
+
+.work-transition-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--white-color);
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .work-hero--desktop {
+    position: static;
+    height: auto;
+    padding: clamp(80px, 12vh, 150px) 0;
+  }
+
+  .work-hero--desktop .work-hero__content {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 0 var(--page-padding);
+  }
+
+  .work-hero--desktop .work-hero__rail {
+    position: static;
+    height: auto;
+    padding: clamp(40px, 6vw, 80px) 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .work-hero--desktop .work-hero__track {
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding-bottom: 16px;
+  }
+
+  .work-hero--desktop .work-hero__card {
+    width: 200px;
+    height: 200px;
+  }
+
+  .work-hero__counter {
+    position: static;
+    margin-top: 32px;
+    right: auto;
+    bottom: auto;
+    justify-content: center;
+  }
 }
 
 /* ------------------------------------------------------------------ */

@@ -286,7 +286,7 @@ export default function AboutPage() {
 
         {/* Break Image - From Kenya With Code */}
         <section className="brk">
-          <img
+          <Image
             src="/images/break-img-2560.webp"
             width={2560}
             height={1655}
@@ -380,11 +380,11 @@ export default function AboutPage() {
 
                 <div className="ft__dn" aria-hidden="true" data-dino>
                   <div className="ft__pl ft__pl--g" data-dino-layer="ghost">
-                    <Image src="/images/dino.png" alt="" />
+                    <Image src="/images/dino.png" alt="" width={100} height={100} />
                   </div>
 
                   <div className="ft__pl ft__pl--m" data-dino-layer="main">
-                    <Image src="/images/dino.png" alt="" />
+                    <Image src="/images/dino.png" alt="" width={100} height={100} />
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import Silhouette from '@/components/ui/Silhouette';
@@ -22,6 +23,19 @@ export default function Hero() {
   return (
     <section className={`home-hero${isBold ? ' is-brutalism' : ''}`} aria-label="Introduction" data-home-hero>
       <div className="home-hero__panel home-hero__panel--editorial" data-editorial-panel>
+        <div className="home-hero__fluid" data-home-fluid aria-hidden="true">
+          <Image
+            className="home-hero__ink-poster"
+            src="/images/bg_.webp"
+            alt=""
+            width={2048}
+            height={1322}
+            priority
+          />
+        </div>
+        <div className="home-hero__static-bg" aria-hidden="true">
+          <Image src="/images/bg_.webp" alt="" width={2048} height={1322} priority />
+        </div>
         <div className="home-hero__editorial" data-editorial-layout>
           <div className="home-hero__background" aria-hidden="true" />
 
@@ -33,21 +47,21 @@ export default function Hero() {
             <span className="home-hero__word home-hero__word--douglus">
               <span className="home-hero__initial-track">
                 <span className="home-hero__initial-mask">
-                  <span className="home-hero__initial font-rox">S</span>
+                  <span className="home-hero__initial font-rox">D</span>
                 </span>
               </span>
               <span className="home-hero__rest-mask">
-                <span className="home-hero__rest"> olomon </span>
+                <span className="home-hero__rest"> ouglus </span>
               </span>
             </span>
             <span className="home-hero__word home-hero__word--nguyen">
               <span className="home-hero__initial-track">
                 <span className="home-hero__initial-mask">
-                  <span className="home-hero__initial font-rox">M</span>
+                  <span className="home-hero__initial font-rox">N</span>
                 </span>
               </span>
               <span className="home-hero__rest-mask">
-                <span className="home-hero__rest"> wangi </span>
+                <span className="home-hero__rest"> guyen </span>
               </span>
             </span>
           </h1>
@@ -69,13 +83,13 @@ export default function Hero() {
             </div>
           </div>
 
-              <div className="home-hero__origin">
-                <div className="home-hero__reveal-mask text-reveal-mask">
-                  <span className="home-hero__origin-text">From Vietnam with Love.</span>
-                </div>
-              </div>
+          <div className="home-hero__origin">
+            <div className="home-hero__reveal-mask text-reveal-mask">
+              <span className="home-hero__origin-text">From Vietnam with Love.</span>
+            </div>
+          </div>
 
-              <div className="home-hero__cta">
+          <div className="home-hero__cta">
                 <span className="home-hero__reveal-mask text-reveal-mask">
                   <a
                     href="https://www.linkedin.com"
