@@ -17,27 +17,28 @@ export default function Preloader() {
 
     const duration = reduced ? 400 : 2200;
     const start = performance.now();
-    let frame = 0;
-    let exitTimer = 0;
+    let exitTimer: number | null = null;
+    let intervalId: number | null = null;
 
-    const tick = (now: number) => {
+    const updateProgress = () => {
+      const now = performance.now();
       const t = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - t, 3);
       setProgress(Math.round(eased * 100));
 
-      if (t < 1) {
-        frame = requestAnimationFrame(tick);
-      } else {
+      if (t >= 1) {
+        if (intervalId) window.clearInterval(intervalId);
         setLeaving(true);
         exitTimer = window.setTimeout(() => setHidden(true), reduced ? 100 : 1000);
       }
     };
 
-    frame = requestAnimationFrame(tick);
+    intervalId = window.setInterval(updateProgress, 16);
+    updateProgress();
 
     return () => {
-      cancelAnimationFrame(frame);
-      window.clearTimeout(exitTimer);
+      if (exitTimer) window.clearTimeout(exitTimer);
+      if (intervalId) window.clearInterval(intervalId);
     };
   }, []);
 
