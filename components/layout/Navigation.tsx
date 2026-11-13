@@ -39,30 +39,41 @@ export default function Navigation() {
 
         <button
           type="button"
-          className="site-header__menu"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          className={`site-header__menu${open ? ' is-opened-navi' : ''}`}
+          aria-label="Menu"
           aria-expanded={open}
           aria-controls="site-menu"
           onClick={() => setOpen((value) => !value)}
+          data-menu-open
         >
-          <span className={`menu-icon${open ? ' is-open' : ''}`} aria-hidden="true">
-            <span className="menu-icon__line menu-icon__line--1">
-              <span className="menu-icon__line-in" />
+          <span className="site-header__menu-icon" aria-hidden="true">
+            <span className="site-header__menu-line site-header__menu-line--01">
+              <span className="site-header__menu-line-in site-header__menu-line-in--01" />
             </span>
-            <span className="menu-icon__line menu-icon__line--2">
-              <span className="menu-icon__line-in" />
+            <span className="site-header__menu-line site-header__menu-line--02">
+              <span className="site-header__menu-line-in site-header__menu-line-in--02" />
             </span>
-            <span className="menu-icon__line menu-icon__line--x1">
-              <span className="menu-icon__line-in" />
+            <span className="site-header__menu-line site-header__menu-line--cross01">
+              <span className="site-header__menu-line-in site-header__menu-line-in--cross01" />
             </span>
-            <span className="menu-icon__line menu-icon__line--x2">
-              <span className="menu-icon__line-in" />
+            <span className="site-header__menu-line site-header__menu-line--cross02">
+              <span className="site-header__menu-line-in site-header__menu-line-in--cross02" />
             </span>
           </span>
 
-          <span className="menu-label">
-            <span className="menu-label__state menu-label__state--menu">Menu</span>
-            <span className="menu-label__state menu-label__state--close">Close</span>
+          <span className="site-header__menu-label">
+            <span className="site-header__menu-label-state site-header__menu-label-state--menu">
+              <span className="site-header__menu-label-track">
+                <span>Menu</span>
+                <span>Menu</span>
+              </span>
+            </span>
+            <span className="site-header__menu-label-state site-header__menu-label-state--close">
+              <span className="site-header__menu-label-track">
+                <span>Close</span>
+                <span>Close</span>
+              </span>
+            </span>
           </span>
         </button>
 

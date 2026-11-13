@@ -3,9 +3,7 @@
 import { useEffect, useState } from 'react';
 import Silhouette from './Silhouette';
 
-const FRAGMENTS = [0, 1, 2, 3, 4];
-
-const fragmentClip = (index: number) => `inset(0 ${80 - index * 20}% 0 ${index * 20}%)`;
+const FRAGMENTS = [1, 2, 3, 4, 5, 6];
 
 export default function Preloader() {
   const [progress, setProgress] = useState(0);
@@ -54,16 +52,9 @@ export default function Preloader() {
     >
       <div className="preloader__artwork" aria-hidden="true">
         <div className="preloader__subject">
-          {FRAGMENTS.map((index) => (
-            <div
-              key={index}
-              className="preloader__fragment"
-              style={{
-                clipPath: fragmentClip(index),
-                animationDelay: `${index * 90}ms`,
-              }}
-            >
-              <Silhouette className="preloader__silhouette" />
+          {FRAGMENTS.map((fragment) => (
+            <div key={fragment} className="preloader__fragment" data-fragment={fragment}>
+              <Silhouette />
             </div>
           ))}
         </div>

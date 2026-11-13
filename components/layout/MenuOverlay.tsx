@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Silhouette from '@/components/ui/Silhouette';
 
 export interface MenuLink {
   href: string;
@@ -29,22 +30,25 @@ export default function MenuOverlay({
       id="site-menu"
       className={`menu-overlay${open ? ' is-open' : ''}`}
       aria-hidden={!open}
+      data-menu
     >
       <div className="menu-overlay__inner">
         <div className="menu-overlay__stage" aria-hidden="true">
-          <div className="menu-overlay__preview">
+          <div className="menu-overlay__preview" data-menu-preview>
             {links.map((link, index) => (
               <div
                 key={link.href}
-                className={`menu-overlay__preview-item${
-                  index === activeIndex ? ' is-active' : ''
-                }`}
+                className={`menu-overlay__preview-item${index === activeIndex ? ' is-in' : ''}`}
+                data-menu-preview-item={link.label.toLowerCase()}
               >
                 <div className="menu-overlay__preview-media">
+                  <span className="menu-overlay__preview-mask">
+                    <Silhouette className="menu-overlay__preview-image" />
+                  </span>
                   <div className="menu-overlay__preview-words">
                     {link.words.map((word) => (
-                      <span key={word} className="menu-overlay__preview-word">
-                        {word}
+                      <span key={word} className="menu-overlay__preview-word-mask">
+                        <span className="menu-overlay__preview-word">{word}</span>
                       </span>
                     ))}
                   </div>
@@ -65,10 +69,13 @@ export default function MenuOverlay({
                 onMouseEnter={() => onHover(index)}
                 onFocus={() => onHover(index)}
                 onClick={onNavigate}
+                data-menu-item={link.label.toLowerCase()}
               >
-                <span className="menu-overlay__link-text">
-                  <span className="font-rox">{link.initial}</span>
-                  {link.label.slice(1)}
+                <span className="menu-overlay__link-mask">
+                  <span className="menu-overlay__link-text">
+                    <span className="font-rox">{link.initial}</span>
+                    {link.label.slice(1)}
+                  </span>
                 </span>
                 <span className="menu-overlay__indicator" aria-hidden="true" />
               </Link>
