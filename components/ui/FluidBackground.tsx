@@ -167,9 +167,10 @@ const DISPLAY_FS = `
 
   void main () {
     vec3 c = texture2D(uTexture, vUv).rgb;
-    // Tone-map and add a subtle deep-blue base
+    float intensity = max(c.r, max(c.g, c.b));
+    float alpha = smoothstep(0.01, 0.15, intensity) * 0.8;
     vec3 base = vec3(0.01, 0.02, 0.06);
-    gl_FragColor = vec4(base + c, 1.0);
+    gl_FragColor = vec4(base + c, alpha);
   }
 `;
 
@@ -269,11 +270,12 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     if (!canvas) return;
 
     const gl = canvas.getContext('webgl', {
-      alpha: false,
+      alpha: true,
       depth: false,
       stencil: false,
       antialias: false,
       preserveDrawingBuffer: false,
+      premultipliedAlpha: false,
     });
     if (!gl) {
       console.warn('WebGL not supported, falling back to static image');
@@ -439,6 +441,17 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       gl!.bindTexture(gl!.TEXTURE_2D, tex);
     }
 
+    // TypeScript assertions after null checks
+    const sp = splatProg!;
+    const adv = advectionProg!;
+    const div = divergenceProg!;
+    const prs = pressureProg!;
+    const grad = gradientProg!;
+    const disp = displayProg!;
+    const crl = curlProg!;
+    const vort = vorticityProg!;
+    const clr = clearProg!;
+
     /* ---- splat ---- */
     function splat(x: number, y: number, dx: number, dy: number, color: [number, number, number]) {
       if (!velocity || !dye) return;
@@ -501,17 +514,6 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- ambient timer – keeps the fluid alive ---- */
     let ambientTimer = 0;
-
-    // TypeScript assertions after null checks
-    const sp = splatProg!;
-    const adv = advectionProg!;
-    const div = divergenceProg!;
-    const prs = pressureProg!;
-    const grad = gradientProg!;
-    const disp = displayProg!;
-    const crl = curlProg!;
-    const vort = vorticityProg!;
-    const clr = clearProg!;
 
     /* ---- step ---- */
     function step(dt: number) {

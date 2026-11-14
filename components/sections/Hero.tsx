@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import Silhouette from '@/components/ui/Silhouette';
 import FluidBackground from '@/components/ui/FluidBackground';
 
@@ -11,17 +10,16 @@ export default function Hero() {
       <div className="home-hero__panel home-hero__panel--editorial" data-editorial-panel>
         <div className="home-hero__fluid" data-home-fluid aria-hidden="true">
           <FluidBackground className="home-hero__ink-canvas" />
+        </div>
+        <div className="home-hero__static-bg" aria-hidden="true">
           <Image
-            className="home-hero__ink-poster"
+            className="home-hero__static-image"
             src="/images/bg_.webp"
             alt=""
             width={2048}
             height={1322}
             priority
           />
-        </div>
-        <div className="home-hero__static-bg" aria-hidden="true">
-          <Image src="/images/bg_.webp" alt="" width={2048} height={1322} priority />
         </div>
         <div className="home-hero__editorial" data-editorial-layout>
           <div className="home-hero__background" aria-hidden="true" />
@@ -96,8 +94,8 @@ export default function Hero() {
               <a href="tel:+84393277584" className="home-hero__cta-label">
                 <span className="home-hero__cta-label-mask">
                   <span className="home-hero__cta-label-track">
-                    <span>+84 393 277 584</span>
-                    <span>+84 393 277 584</span>
+                    <span>+84 39 327 7584</span>
+                    <span>+84 39 327 7584</span>
                   </span>
                 </span>
               </a>
@@ -111,16 +109,6 @@ export default function Hero() {
                   </span>
                 </span>
               </a>
-            </span>
-            <span className="home-hero__reveal-mask text-reveal-mask">
-              <Link href="#contact" className="home-hero__cta-label home-hero__cta-label--primary">
-                <span className="home-hero__cta-label-mask">
-                  <span className="home-hero__cta-label-track">
-                    <span>Let&apos;s Work Together!</span>
-                    <span>Let&apos;s Work Together!</span>
-                  </span>
-                </span>
-              </Link>
             </span>
           </div>
         </div>

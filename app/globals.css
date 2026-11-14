@@ -829,28 +829,19 @@ button:focus-visible, a:focus-visible {
   overflow: hidden;
 }
 
+.home-hero__static-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .home-hero__ink-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
-}
-
-.home-hero__ink-poster {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  /* Poster is a fallback; hide it when the canvas is active */
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-/* Show poster as fallback if canvas fails to render (no JS / no WebGL) */
-.home-hero__fluid:not(:has(canvas)) .home-hero__ink-poster {
-  opacity: 1;
 }
 
 .home-hero__title {
