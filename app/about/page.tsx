@@ -1,5 +1,4 @@
 import Navigation from '@/components/layout/Navigation';
-import Footer from '@/components/layout/Footer';
 import Image from 'next/image';
 
 export default function AboutPage() {
@@ -7,43 +6,6 @@ export default function AboutPage() {
     <>
       <Navigation />
       <main className="about-page">
-        {/* Archive Sections */}
-        <section className="arc">
-          <div className="content-wrap">
-            <p className="arc__l">Archive vol.2</p>
-            <Image src="/images/home-shape-v2.webp" alt="" priority width={800} height={800} />
-          </div>
-        </section>
-        <section className="arc">
-          <div className="content-wrap">
-            <p className="arc__l">Vision Start Everything</p>
-            <Image src="/images/work-shape.webp" alt="" width={800} height={800} />
-          </div>
-        </section>
-        <section className="arc">
-          <div className="content-wrap">
-            <p className="arc__l">Build Create Deliver</p>
-            <Image src="/images/lab-shape.webp" alt="" width={800} height={800} />
-          </div>
-        </section>
-        <section className="arc">
-          <div className="content-wrap">
-            <p className="arc__l">Explore Make Play</p>
-            <Image src="/images/about-shape.webp" alt="" width={800} height={800} />
-          </div>
-        </section>
-        <section className="arc">
-          <div className="content-wrap">
-            <p className="arc__l">People Story Values</p>
-            <Image src="/images/contact-shape.webp" alt="" width={800} height={800} />
-          </div>
-        </section>
-        <section className="arc arc--last">
-          <div className="content-wrap">
-            <p className="arc__l">Connect Collab Talk</p>
-          </div>
-        </section>
-
         {/* Hero Section */}
         <section className="ah is-intro" aria-labelledby="about-title">
           <div className="content-wrap">
@@ -51,6 +13,7 @@ export default function AboutPage() {
               <h1 id="about-title" className="ah__t">
                 <span>
                   <span className="font-rox">D</span>ouglus
+                  {' '}
                   <span className="font-rox">N</span>guyen
                 </span>
               </h1>
@@ -62,35 +25,23 @@ export default function AboutPage() {
                   </span>
 
                   <span>
-                    <span>
-                      I enjoy putting <span className="font-rox">ideas</span>,
-                      <span className="font-rox">visuals</span>,
-                    </span>
-                    <span>
-                      <span className="font-rox">motion</span> and
-                      <span className="font-rox">typography</span> together
-                    </span>
-                    <span>into things people like to use.</span>
+                    I enjoy putting <span className="font-rox">ideas</span>,{' '}
+                    <span className="font-rox">visuals</span>,{' '}
+                    <span className="font-rox">motion</span> and{' '}
+                    <span className="font-rox">typography</span> together into things people like to use.
                   </span>
                 </p>
 
-                <div className="ah__ap">
-                  <div className="ah__ar" aria-hidden="true">
-                    <span>
-                      <span>
-                        <Image src="/images/arrow.svg" alt="" width={45} height={45} />
-                        <Image src="/images/arrow.svg" alt="" width={45} height={45} />
-                      </span>
-                    </span>
-                  </div>
-                </div>
+                <a className="ah__ar" href="#off-the-clock" aria-label="Scroll to Off the clock">
+                  <Image src="/images/arrow.svg" alt="" width={45} height={45} />
+                </a>
               </div>
             </div>
           </div>
         </section>
 
         {/* Off the Clock Gallery */}
-        <section className="off">
+        <section className="off" id="off-the-clock">
           <div className="content-wrap">
             <div className="off__in">
               <div className="off__gal off__gal--t">
@@ -428,7 +379,6 @@ export default function AboutPage() {
           </div>
         </footer>
       </main>
-      <Footer />
     </>
   );
 }
