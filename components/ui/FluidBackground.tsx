@@ -167,10 +167,10 @@ const DISPLAY_FS = `
 
   void main () {
     vec3 c = texture2D(uTexture, vUv).rgb;
-    float intensity = max(c.r, max(c.g, c.b));
-    float alpha = smoothstep(0.01, 0.15, intensity) * 0.8;
-    vec3 base = vec3(0.01, 0.02, 0.06);
-    gl_FragColor = vec4(base + c, alpha);
+    float intensity = length(c);
+    float alpha = smoothstep(0.01, 0.18, intensity) * 0.85;
+    vec3 smoke = mix(vec3(0.12, 0.11, 0.10), vec3(0.32, 0.30, 0.28), clamp(intensity * 1.8, 0.0, 1.0));
+    gl_FragColor = vec4(smoke, alpha);
   }
 `;
 
@@ -299,7 +299,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     const DYE_RES = 512;
     const PRESSURE_ITERATIONS = 20;
     const CURL_STRENGTH = 30;
-    const SPLAT_RADIUS = 0.35;
+    const SPLAT_RADIUS = 0.55;
     const VELOCITY_DISSIPATION = 0.99;
     const DYE_DISSIPATION = 0.985;
     const PRESSURE_DISSIPATION = 0.8;
@@ -419,9 +419,13 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       const dpr = Math.min(window.devicePixelRatio, 1.5);
       const w = Math.round(canvas!.clientWidth * dpr);
       const h = Math.round(canvas!.clientHeight * dpr);
-      if (canvas!.width !== w || canvas!.height !== h) {
-        canvas!.width = w;
-        canvas!.height = h;
+      const sizeChanged = canvas!.width !== w || canvas!.height !== h;
+      const buffersMissing = !velocity || !dye || !pressure || !divergence || !curl;
+      if (sizeChanged || buffersMissing) {
+        if (sizeChanged) {
+          canvas!.width = w;
+          canvas!.height = h;
+        }
         if (!initFBOs()) return false;
       }
       return true;
@@ -474,22 +478,20 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       dye.swap();
     }
 
-    /* ---- colour palette (deep ocean / ink blues) ---- */
+    /* ---- colour palette (fire smoke) ---- */
     function randomBlueColor(): [number, number, number] {
       const palettes: [number, number, number][] = [
-        [0.02, 0.12, 0.45],   // deep blue
-        [0.04, 0.20, 0.65],   // medium blue
-        [0.01, 0.08, 0.35],   // dark navy
-        [0.06, 0.25, 0.70],   // bright blue
-        [0.03, 0.15, 0.55],   // ocean blue
-        [0.08, 0.30, 0.75],   // lighter blue
-        [0.01, 0.05, 0.25],   // very deep navy
-        [0.05, 0.18, 0.60],   // cerulean
-        [0.02, 0.10, 0.40],   // midnight blue
-        [0.00, 0.06, 0.30],   // abyssal blue
+        [0.12, 0.11, 0.10],   // dark soot
+        [0.18, 0.16, 0.14],   // smoke gray
+        [0.22, 0.18, 0.14],   // warm smoke
+        [0.10, 0.10, 0.12],   // cool dark smoke
+        [0.16, 0.13, 0.10],   // ember-tinted smoke
+        [0.20, 0.20, 0.20],   // neutral smoke
+        [0.14, 0.12, 0.11],   // deep smoke
+        [0.25, 0.20, 0.16],   // light warm smoke
       ];
       const c = palettes[Math.floor(Math.random() * palettes.length)];
-      const intensity = 0.5 + Math.random() * 0.7;
+      const intensity = 0.9 + Math.random() * 0.8;
       return [c[0] * intensity, c[1] * intensity, c[2] * intensity];
     }
 
@@ -509,7 +511,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- initial splats to fill the canvas ---- */
     if (velocity && dye) {
-      splatBurst(Math.floor(Math.random() * 8) + 10);
+      splatBurst(18);
     }
 
     /* ---- ambient timer – keeps the fluid alive ---- */

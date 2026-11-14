@@ -8,7 +8,7 @@ const capabilities = [
 
 export default function Capabilities() {
   return (
-    <section className="capabilities-section">
+    <section id="capabilities" className="capabilities-section">
       <div className="content-wrap capabilities-shell">
         <div className="capabilities-intro">
           <p className="eyebrow eyebrow-dark">Capabilities</p>
@@ -19,13 +19,13 @@ export default function Capabilities() {
           <p className="capabilities-description">
             From full-stack development to creative problem solving, I build experiences that are practical, scalable and memorable.
           </p>
-          <button type="button" className="inline-link inline-link-dark">
+          <a href="#capability-grid" className="inline-link inline-link-dark">
             Explore Skills
             <span aria-hidden="true">→</span>
-          </button>
+          </a>
         </div>
 
-        <div className="capability-grid">
+        <div id="capability-grid" className="capability-grid">
           {capabilities.map((item, index) => (
             <div key={item} className="capability-card">
               <span className="capability-index">0{index + 1}</span>

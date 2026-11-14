@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { projects } from '@/lib/projects';
 
 export default function Projects() {
@@ -12,14 +13,14 @@ export default function Projects() {
               <span>bring ideas to life.</span>
             </h2>
           </div>
-          <button type="button" className="view-button">
+          <Link href="/work" className="view-button">
             View All Projects
-          </button>
+          </Link>
         </div>
 
         <div className="project-grid">
           {projects.map((project) => (
-            <article key={project.slug} className={`project-card project-${project.slug}`}>
+            <Link key={project.slug} href={`/work/${project.slug}`} className={`project-card project-${project.slug}`}>
               <div className="project-card-visual" aria-hidden="true">
                 <span className="visual-badge">{project.category}</span>
                 <div className="visual-pattern" />
@@ -28,7 +29,7 @@ export default function Projects() {
                 <span className="project-kind">{project.category}</span>
                 <h3>{project.title}</h3>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>
