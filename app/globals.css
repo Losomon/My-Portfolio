@@ -3412,3 +3412,68 @@ button:focus-visible, a:focus-visible {
     order: -1;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Playground page                                                     */
+/* ------------------------------------------------------------------ */
+
+.playground-page {
+  background: var(--white-color);
+  color: var(--black-color);
+  min-height: 100vh;
+}
+
+.playground-hero {
+  padding: clamp(120px, 18vh, 200px) 0 clamp(80px, 12vh, 140px);
+  border-bottom: 1px solid rgba(30, 30, 30, 0.1);
+}
+
+.playground-title {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(44px, 7vw, 110px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--black-color);
+}
+
+.playground-title span {
+  display: block;
+  animation: playground-line-in 1.2s var(--default-easing) both;
+}
+
+.playground-title span:last-child {
+  margin-top: -0.05em;
+  padding-left: 0.06em;
+  font-family: var(--serif);
+  font-style: italic;
+  letter-spacing: -0.03em;
+  color: rgba(30, 30, 30, 0.5);
+  animation-delay: 0.15s;
+}
+
+.playground-description {
+  margin: 28px 0 0;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.5;
+  color: rgba(30, 30, 30, 0.62);
+}
+
+@keyframes playground-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playground-title span {
+    animation: none;
+  }
+}
