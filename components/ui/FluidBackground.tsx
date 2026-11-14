@@ -19,7 +19,8 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string) 
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+    const error = gl.getShaderInfoLog(shader);
+    console.error('Shader compile error:', error);
     gl.deleteShader(shader);
     return null;
   }
@@ -36,7 +37,8 @@ function createProgram(gl: WebGLRenderingContext, vs: string, fs: string) {
   gl.attachShader(prog, frag);
   gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(prog));
+    const error = gl.getProgramInfoLog(prog);
+    console.error('Program link error:', error);
     return null;
   }
   return prog;
@@ -273,12 +275,21 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       antialias: false,
       preserveDrawingBuffer: false,
     });
-    if (!gl) return;
+    if (!gl) {
+      console.warn('WebGL not supported, falling back to static image');
+      return;
+    }
 
     /* ---- extensions ---- */
     const halfFloatExt = gl.getExtension('OES_texture_half_float');
     const linearExt = gl.getExtension('OES_texture_half_float_linear');
-    const floatType = halfFloatExt ? halfFloatExt.HALF_FLOAT_OES : gl.UNSIGNED_BYTE;
+    
+    if (!halfFloatExt) {
+      console.warn('Half-float textures not supported, falling back to static image');
+      return;
+    }
+    
+    const floatType = halfFloatExt.HALF_FLOAT_OES;
     void linearExt; // just need to activate it
 
     /* ---- config ---- */
@@ -293,17 +304,20 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     const SPLAT_FORCE = 6000;
 
     /* ---- programs ---- */
-    const splatProg = createProgram(gl, BASE_VS, SPLAT_FS)!;
-    const advectionProg = createProgram(gl, BASE_VS, ADVECTION_FS)!;
-    const divergenceProg = createProgram(gl, BASE_VS, DIVERGENCE_FS)!;
-    const pressureProg = createProgram(gl, BASE_VS, PRESSURE_FS)!;
-    const gradientProg = createProgram(gl, BASE_VS, GRADIENT_SUBTRACT_FS)!;
-    const displayProg = createProgram(gl, BASE_VS, DISPLAY_FS)!;
-    const curlProg = createProgram(gl, BASE_VS, CURL_FS)!;
-    const vorticityProg = createProgram(gl, BASE_VS, VORTICITY_FS)!;
-    const clearProg = createProgram(gl, BASE_VS, CLEAR_FS)!;
+    const splatProg = createProgram(gl, BASE_VS, SPLAT_FS);
+    const advectionProg = createProgram(gl, BASE_VS, ADVECTION_FS);
+    const divergenceProg = createProgram(gl, BASE_VS, DIVERGENCE_FS);
+    const pressureProg = createProgram(gl, BASE_VS, PRESSURE_FS);
+    const gradientProg = createProgram(gl, BASE_VS, GRADIENT_SUBTRACT_FS);
+    const displayProg = createProgram(gl, BASE_VS, DISPLAY_FS);
+    const curlProg = createProgram(gl, BASE_VS, CURL_FS);
+    const vorticityProg = createProgram(gl, BASE_VS, VORTICITY_FS);
+    const clearProg = createProgram(gl, BASE_VS, CLEAR_FS);
 
-    if (!splatProg || !advectionProg || !divergenceProg || !pressureProg || !gradientProg || !displayProg || !curlProg || !vorticityProg || !clearProg) return;
+    if (!splatProg || !advectionProg || !divergenceProg || !pressureProg || !gradientProg || !displayProg || !curlProg || !vorticityProg || !clearProg) {
+      console.warn('One or more shader programs failed to compile, falling back to static image');
+      return;
+    }
 
     /* ---- quad buffer ---- */
     const quadBuffer = gl.createBuffer();
@@ -314,35 +328,48 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
     /* ---- FBO helpers ---- */
-    function createFBO(w: number, h: number): { fbo: WebGLFramebuffer; tex: WebGLTexture; width: number; height: number } {
-      const tex = gl!.createTexture()!;
-      gl!.bindTexture(gl!.TEXTURE_2D, tex);
-      gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MIN_FILTER, gl!.LINEAR);
-      gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MAG_FILTER, gl!.LINEAR);
-      gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_S, gl!.CLAMP_TO_EDGE);
-      gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_T, gl!.CLAMP_TO_EDGE);
-      gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, w, h, 0, gl!.RGBA, floatType, null);
+    function createFBO(w: number, h: number): { fbo: WebGLFramebuffer; tex: WebGLTexture; width: number; height: number } | null {
+      try {
+        const tex = gl!.createTexture()!;
+        gl!.bindTexture(gl!.TEXTURE_2D, tex);
+        gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MIN_FILTER, gl!.LINEAR);
+        gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MAG_FILTER, gl!.LINEAR);
+        gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_S, gl!.CLAMP_TO_EDGE);
+        gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_WRAP_T, gl!.CLAMP_TO_EDGE);
+        gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, w, h, 0, gl!.RGBA, floatType, null);
 
-      const fbo = gl!.createFramebuffer()!;
-      gl!.bindFramebuffer(gl!.FRAMEBUFFER, fbo);
-      gl!.framebufferTexture2D(gl!.FRAMEBUFFER, gl!.COLOR_ATTACHMENT0, gl!.TEXTURE_2D, tex, 0);
-      gl!.viewport(0, 0, w, h);
-      gl!.clear(gl!.COLOR_BUFFER_BIT);
+        const fbo = gl!.createFramebuffer()!;
+        gl!.bindFramebuffer(gl!.FRAMEBUFFER, fbo);
+        gl!.framebufferTexture2D(gl!.FRAMEBUFFER, gl!.COLOR_ATTACHMENT0, gl!.TEXTURE_2D, tex, 0);
+        
+        if (gl!.checkFramebufferStatus(gl!.FRAMEBUFFER) !== gl!.FRAMEBUFFER_COMPLETE) {
+          console.warn('Framebuffer incomplete');
+          return null;
+        }
+        
+        gl!.viewport(0, 0, w, h);
+        gl!.clear(gl!.COLOR_BUFFER_BIT);
 
-      return { fbo, tex, width: w, height: h };
+        return { fbo, tex, width: w, height: h };
+      } catch (e) {
+        console.error('Failed to create FBO:', e);
+        return null;
+      }
     }
 
-    function createDoubleFBO(w: number, h: number): DoubleFBO {
-      let fbo1 = createFBO(w, h);
-      let fbo2 = createFBO(w, h);
+    function createDoubleFBO(w: number, h: number): DoubleFBO | null {
+      const fbo1 = createFBO(w, h);
+      const fbo2 = createFBO(w, h);
+      if (!fbo1 || !fbo2) return null;
+      let a = fbo1, b = fbo2;
       return {
-        get read() { return fbo1.fbo; },
-        get write() { return fbo2.fbo; },
-        get readTex() { return fbo1.tex; },
-        get writeTex() { return fbo2.tex; },
+        get read() { return a.fbo; },
+        get write() { return b.fbo; },
+        get readTex() { return a.tex; },
+        get writeTex() { return b.tex; },
         width: w,
         height: h,
-        swap() { const t = fbo1; fbo1 = fbo2; fbo2 = t; },
+        swap() { const t = a; a = b; b = t; },
       };
     }
 
@@ -358,9 +385,12 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     }
 
     /* ---- initialise FBOs ---- */
-    let simW: number, simH: number, dyeW: number, dyeH: number;
-    let velocity: DoubleFBO, dye: DoubleFBO, pressure: DoubleFBO;
-    let divergence: SingleFBO, curl: SingleFBO;
+    let simW = 0, simH = 0, dyeW = 0, dyeH = 0;
+    let velocity: DoubleFBO | null = null;
+    let dye: DoubleFBO | null = null;
+    let pressure: DoubleFBO | null = null;
+    let divergence: SingleFBO | null = null;
+    let curl: SingleFBO | null = null;
 
     function initFBOs() {
       const ratio = canvas!.width / canvas!.height;
@@ -374,6 +404,12 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       pressure = createDoubleFBO(simW, simH);
       divergence = createFBO(simW, simH);
       curl = createFBO(simW, simH);
+
+      if (!velocity || !dye || !pressure || !divergence || !curl) {
+        console.warn('Failed to create FBOs, falling back to static image');
+        return false;
+      }
+      return true;
     }
 
     /* ---- resize ---- */
@@ -384,11 +420,12 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       if (canvas!.width !== w || canvas!.height !== h) {
         canvas!.width = w;
         canvas!.height = h;
-        initFBOs();
+        if (!initFBOs()) return false;
       }
+      return true;
     }
 
-    resize();
+    if (!resize()) return;
 
     /* ---- uniform setters ---- */
     function bindProgram(prog: WebGLProgram) { gl!.useProgram(prog); }
@@ -404,20 +441,21 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- splat ---- */
     function splat(x: number, y: number, dx: number, dy: number, color: [number, number, number]) {
+      if (!velocity || !dye) return;
       // Velocity splat
-      bindProgram(splatProg);
-      uniform1i(splatProg, 'uTarget', 0);
-      uniform1f(splatProg, 'aspectRatio', canvas!.width / canvas!.height);
-      uniform2f(splatProg, 'point', x, y);
-      uniform3f(splatProg, 'color', dx, dy, 0);
-      uniform1f(splatProg, 'radius', SPLAT_RADIUS / 100);
+      bindProgram(sp);
+      uniform1i(sp, 'uTarget', 0);
+      uniform1f(sp, 'aspectRatio', canvas!.width / canvas!.height);
+      uniform2f(sp, 'point', x, y);
+      uniform3f(sp, 'color', dx, dy, 0);
+      uniform1f(sp, 'radius', SPLAT_RADIUS / 100);
       bindTexture(0, velocity.readTex);
       blit(velocity.write, simW, simH);
       velocity.swap();
 
       // Dye splat
-      uniform1i(splatProg, 'uTarget', 0);
-      uniform3f(splatProg, 'color', color[0], color[1], color[2]);
+      uniform1i(sp, 'uTarget', 0);
+      uniform3f(sp, 'color', color[0], color[1], color[2]);
       bindTexture(0, dye.readTex);
       blit(dye.write, dyeW, dyeH);
       dye.swap();
@@ -444,6 +482,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- do a splat burst ---- */
     function splatBurst(count: number) {
+      if (!velocity || !dye) return;
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = 150 + Math.random() * 300;
@@ -456,13 +495,28 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     }
 
     /* ---- initial splats to fill the canvas ---- */
-    splatBurst(Math.floor(Math.random() * 8) + 10);
+    if (velocity && dye) {
+      splatBurst(Math.floor(Math.random() * 8) + 10);
+    }
 
     /* ---- ambient timer – keeps the fluid alive ---- */
     let ambientTimer = 0;
 
+    // TypeScript assertions after null checks
+    const sp = splatProg!;
+    const adv = advectionProg!;
+    const div = divergenceProg!;
+    const prs = pressureProg!;
+    const grad = gradientProg!;
+    const disp = displayProg!;
+    const crl = curlProg!;
+    const vort = vorticityProg!;
+    const clr = clearProg!;
+
     /* ---- step ---- */
     function step(dt: number) {
+      if (!velocity || !dye || !pressure || !divergence || !curl) return;
+      
       /* Ambient motion – inject gentle splats periodically */
       ambientTimer += dt;
       if (ambientTimer > 2.5 + Math.random() * 3) {
@@ -481,77 +535,77 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       }
 
       /* ---- Curl ---- */
-      bindProgram(curlProg);
-      uniform2f(curlProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(curlProg, 'uVelocity', 0);
+      bindProgram(crl);
+      uniform2f(crl, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(crl, 'uVelocity', 0);
       bindTexture(0, velocity.readTex);
       blit(curl.fbo, simW, simH);
 
       /* ---- Vorticity confinement ---- */
-      bindProgram(vorticityProg);
-      uniform2f(vorticityProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(vorticityProg, 'uVelocity', 0);
-      uniform1i(vorticityProg, 'uCurl', 1);
-      uniform1f(vorticityProg, 'curl', CURL_STRENGTH);
-      uniform1f(vorticityProg, 'dt', dt);
+      bindProgram(vort);
+      uniform2f(vort, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(vort, 'uVelocity', 0);
+      uniform1i(vort, 'uCurl', 1);
+      uniform1f(vort, 'curl', CURL_STRENGTH);
+      uniform1f(vort, 'dt', dt);
       bindTexture(0, velocity.readTex);
       bindTexture(1, curl.tex);
       blit(velocity.write, simW, simH);
       velocity.swap();
 
       /* ---- Divergence ---- */
-      bindProgram(divergenceProg);
-      uniform2f(divergenceProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(divergenceProg, 'uVelocity', 0);
+      bindProgram(div);
+      uniform2f(div, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(div, 'uVelocity', 0);
       bindTexture(0, velocity.readTex);
       blit(divergence.fbo, simW, simH);
 
       /* ---- Pressure clear ---- */
-      bindProgram(clearProg);
-      uniform1i(clearProg, 'uTexture', 0);
-      uniform1f(clearProg, 'value', PRESSURE_DISSIPATION);
+      bindProgram(clr);
+      uniform1i(clr, 'uTexture', 0);
+      uniform1f(clr, 'value', PRESSURE_DISSIPATION);
       bindTexture(0, pressure.readTex);
       blit(pressure.write, simW, simH);
       pressure.swap();
 
       /* ---- Pressure solve (Jacobi iterations) ---- */
-      bindProgram(pressureProg);
-      uniform2f(pressureProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(pressureProg, 'uDivergence', 1);
+      bindProgram(prs);
+      uniform2f(prs, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(prs, 'uDivergence', 1);
       bindTexture(1, divergence.tex);
       for (let i = 0; i < PRESSURE_ITERATIONS; i++) {
-        uniform1i(pressureProg, 'uPressure', 0);
+        uniform1i(prs, 'uPressure', 0);
         bindTexture(0, pressure.readTex);
         blit(pressure.write, simW, simH);
         pressure.swap();
       }
 
       /* ---- Gradient subtraction ---- */
-      bindProgram(gradientProg);
-      uniform2f(gradientProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(gradientProg, 'uPressure', 0);
-      uniform1i(gradientProg, 'uVelocity', 1);
+      bindProgram(grad);
+      uniform2f(grad, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(grad, 'uPressure', 0);
+      uniform1i(grad, 'uVelocity', 1);
       bindTexture(0, pressure.readTex);
       bindTexture(1, velocity.readTex);
       blit(velocity.write, simW, simH);
       velocity.swap();
 
       /* ---- Advect velocity ---- */
-      bindProgram(advectionProg);
-      uniform2f(advectionProg, 'texelSize', 1.0 / simW, 1.0 / simH);
-      uniform1i(advectionProg, 'uVelocity', 0);
-      uniform1i(advectionProg, 'uSource', 0);
-      uniform1f(advectionProg, 'dt', dt);
-      uniform1f(advectionProg, 'dissipation', VELOCITY_DISSIPATION);
+      bindProgram(adv);
+      uniform2f(adv, 'texelSize', 1.0 / simW, 1.0 / simH);
+      uniform1i(adv, 'uVelocity', 0);
+      uniform1i(adv, 'uSource', 0);
+      uniform1f(adv, 'dt', dt);
+      uniform1f(adv, 'dissipation', VELOCITY_DISSIPATION);
       bindTexture(0, velocity.readTex);
       blit(velocity.write, simW, simH);
       velocity.swap();
 
       /* ---- Advect dye ---- */
-      uniform2f(advectionProg, 'texelSize', 1.0 / dyeW, 1.0 / dyeH);
-      uniform1i(advectionProg, 'uVelocity', 0);
-      uniform1i(advectionProg, 'uSource', 1);
-      uniform1f(advectionProg, 'dissipation', DYE_DISSIPATION);
+      uniform2f(adv, 'texelSize', 1.0 / dyeW, 1.0 / dyeH);
+      uniform1i(adv, 'uVelocity', 0);
+      uniform1i(adv, 'uSource', 1);
+      uniform1f(adv, 'dissipation', DYE_DISSIPATION);
       bindTexture(0, velocity.readTex);
       bindTexture(1, dye.readTex);
       blit(dye.write, dyeW, dyeH);
@@ -563,11 +617,14 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       const dt = Math.min((t - lastTimeRef.current) / 1000, 0.033);
       lastTimeRef.current = t;
 
-      resize();
+      if (!resize()) {
+        rafRef.current = requestAnimationFrame(frame);
+        return;
+      }
 
       /* ---- pointer splat ---- */
       const ptr = pointerRef.current;
-      if (ptr.moved) {
+      if (ptr.moved && velocity && dye) {
         ptr.moved = false;
         splat(ptr.x, ptr.y, ptr.dx * SPLAT_FORCE, ptr.dy * SPLAT_FORCE, randomBlueColor());
       }
@@ -575,11 +632,13 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       step(dt);
 
       /* ---- display ---- */
-      gl!.viewport(0, 0, canvas!.width, canvas!.height);
-      bindProgram(displayProg);
-      uniform1i(displayProg, 'uTexture', 0);
-      bindTexture(0, dye.readTex);
-      blit(null);
+      if (dye) {
+        gl!.viewport(0, 0, canvas!.width, canvas!.height);
+        bindProgram(disp);
+        uniform1i(disp, 'uTexture', 0);
+        bindTexture(0, dye.readTex);
+        blit(null);
+      }
 
       rafRef.current = requestAnimationFrame(frame);
     }
