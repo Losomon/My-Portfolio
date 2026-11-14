@@ -101,5 +101,30 @@ export const projects: Project[] = [
       lessonsLearned: 'Designing for mobile-first forced me to ruthlessly prioritize features. I learned that small business owners don\'t need complex analytics; they need to know what to reorder today.',
       nextImprovements: 'Complete the backend API integration. Implement barcode scanning using the device camera. Add SMS notifications for low-stock alerts.'
     }
+  },
+  {
+    slug: 'pulse',
+    title: 'Pulse Analytics',
+    category: 'SaaS Dashboard',
+    role: 'Design, Development',
+    description: 'A real-time analytics dashboard concept focused on clarity, speed, and actionable product metrics.',
+    stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'D3.js'],
+    status: 'Prototype',
+    statusNote: 'Concept prototype exploring data visualization and dashboard interaction patterns.',
+    caseStudy: {
+      overview: 'Pulse Analytics is a dashboard concept for SaaS teams that need fast, readable insight into product and growth metrics without the clutter of enterprise BI tools.',
+      problem: 'Many analytics dashboards overwhelm users with dense charts and poor hierarchy, making it hard to identify what needs attention right now.',
+      targetUsers: 'Product managers, founders, and growth teams who need a lightweight, focused view of key metrics.',
+      role: 'Design, Frontend Development',
+      designDirection: 'A calm, high-contrast interface with strong typographic hierarchy, modular metric cards, and chart treatments that emphasize trends over decoration.',
+      technicalArchitecture: 'Built as a component-driven Next.js application with reusable visualization primitives and a layout system designed for responsive dashboard composition.',
+      technologyChoices: ['Next.js', 'TypeScript', 'Tailwind CSS', 'D3.js'],
+      implementation: 'Prototyped interactive metric tiles, time-range controls, and chart components with attention to empty states, loading behavior, and readability across breakpoints.',
+      engineeringChallenges: 'Balancing visual polish with performance and keeping chart interactions smooth while maintaining accessible labels and contrast.',
+      securityAndPerformance: 'Focused on efficient client rendering, memoized chart updates, and lightweight data transformations for responsive interactions.',
+      currentStatus: 'Prototype. Core dashboard views and interaction patterns are designed and partially implemented.',
+      lessonsLearned: 'Effective dashboards depend more on information hierarchy and restraint than on chart variety.',
+      nextImprovements: 'Connect live data sources, add configurable widgets, and expand filtering and comparison workflows.'
+    }
   }
 ];

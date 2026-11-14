@@ -1351,6 +1351,13 @@ button:focus-visible, a:focus-visible {
   margin-bottom: 48px;
 }
 
+.projects-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .view-button {
   min-height: 44px;
   padding: 0 20px;
@@ -1366,6 +1373,11 @@ button:focus-visible, a:focus-visible {
 .view-button:hover { border-color: var(--white-color); color: var(--white-color); }
 
 .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+
+.project-grid.is-list {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
 
 .project-card {
   position: relative;
@@ -1410,6 +1422,7 @@ button:focus-visible, a:focus-visible {
 }
 
 .project-card-copy { padding: 20px 20px 24px; }
+.project-index { display: none; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: rgba(254, 255, 248, 0.4); }
 .project-kind { display: block; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(254, 255, 248, 0.55); }
 
 .project-card h3 {
@@ -1421,6 +1434,28 @@ button:focus-visible, a:focus-visible {
   letter-spacing: -0.02em;
   color: var(--white-color);
 }
+
+.project-grid.is-list .project-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: stretch;
+}
+
+.project-grid.is-list .project-card-visual {
+  height: auto;
+  min-height: 140px;
+}
+
+.project-grid.is-list .project-card-copy {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+}
+
+.project-grid.is-list .project-index { display: inline-block; }
+.project-grid.is-list .project-kind { margin-left: auto; order: 3; }
+.project-grid.is-list .project-card h3 { margin: 0; font-size: clamp(28px, 2.2vw, 40px); }
 
 .project-rose .project-card-visual { background: linear-gradient(140deg, #2a2320, #171310); }
 .project-blush .project-card-visual { background: linear-gradient(140deg, #262320, #141312); }
