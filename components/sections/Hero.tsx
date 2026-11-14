@@ -92,7 +92,7 @@ export default function Hero() {
           <div className="home-hero__cta">
                 <span className="home-hero__reveal-mask text-reveal-mask">
                   <a
-                    href="https://www.linkedin.com"
+                    href="https://www.linkedin.com/in/douglus-nguyen-a48961265"
                     target="_blank"
                     rel="noreferrer"
                     className="home-hero__cta-label"
@@ -109,8 +109,8 @@ export default function Hero() {
                   <a href="tel:+84393277584" className="home-hero__cta-label">
                     <span className="home-hero__cta-label-mask">
                       <span className="home-hero__cta-label-track">
-                        <span>+84 39 327 7584</span>
-                        <span>+84 39 327 7584</span>
+                        <span>+84 393 277 584</span>
+                        <span>+84 393 277 584</span>
                       </span>
                     </span>
                   </a>
@@ -196,15 +196,15 @@ export default function Hero() {
                     <a href="mailto:hello@douglus.co">hello@douglus.co</a>
                   </div>
                   <a href="tel:+84393277584" className="home-hero__brutal-link">
-                    +84 39 327 7584
+                    +84 393 277 584
                   </a>
                   <a
-                    href="https://github.com/Losomon"
+                    href="https://www.linkedin.com/in/douglus-nguyen-a48961265"
                     target="_blank"
                     rel="noreferrer"
                     className="home-hero__brutal-link"
                   >
-                    GitHub
+                    LinkedIn
                   </a>
                 </div>
               </div>

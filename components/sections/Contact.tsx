@@ -8,9 +8,9 @@
             A path of
             <span>learning and creation.</span>
           </h2>
-          <ul className="journey-list">
-            <li><span>Kenyatta University</span><small>BSc. Computer Science</small></li>
-            <li><span>Industrial Attachment</span><small>Software engineering practice</small></li>
+<ul className="journey-list">
+            <li><span>Ho Chi Minh City</span><small>Based in Vietnam</small></li>
+            <li><span>Self-Taught</span><small>Web design & development</small></li>
             <li><span>Building Real Solutions</span><small>Product design and implementation</small></li>
           </ul>
         </div>
@@ -21,8 +21,7 @@
             <span>great together.</span>
           </h2>
           <div className="social-row">
-            <a href="https://github.com/Losomon" target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
-            <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">IN</a>
+<a href="https://www.linkedin.com/in/douglus-nguyen-a48961265" target="_blank" rel="noreferrer" aria-label="LinkedIn">IN</a>
             <a href="mailto:hello@douglus.co" aria-label="Email">✉</a>
           </div>
           <p>© 2026 Douglus Nguyen. All rights reserved.</p>

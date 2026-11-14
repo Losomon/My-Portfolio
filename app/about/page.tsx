@@ -7,6 +7,43 @@ export default function AboutPage() {
     <>
       <Navigation />
       <main className="about-page">
+        {/* Archive Sections */}
+        <section className="arc">
+          <div className="content-wrap">
+            <p className="arc__l">Archive vol.2</p>
+            <Image src="/images/home-shape-v2.webp" alt="" priority width={800} height={800} />
+          </div>
+        </section>
+        <section className="arc">
+          <div className="content-wrap">
+            <p className="arc__l">Vision Start Everything</p>
+            <Image src="/images/work-shape.webp" alt="" width={800} height={800} />
+          </div>
+        </section>
+        <section className="arc">
+          <div className="content-wrap">
+            <p className="arc__l">Build Create Deliver</p>
+            <Image src="/images/lab-shape.webp" alt="" width={800} height={800} />
+          </div>
+        </section>
+        <section className="arc">
+          <div className="content-wrap">
+            <p className="arc__l">Explore Make Play</p>
+            <Image src="/images/about-shape.webp" alt="" width={800} height={800} />
+          </div>
+        </section>
+        <section className="arc">
+          <div className="content-wrap">
+            <p className="arc__l">People Story Values</p>
+            <Image src="/images/contact-shape.webp" alt="" width={800} height={800} />
+          </div>
+        </section>
+        <section className="arc arc--last">
+          <div className="content-wrap">
+            <p className="arc__l">Connect Collab Talk</p>
+          </div>
+        </section>
+
         {/* Hero Section */}
         <section className="ah is-intro" aria-labelledby="about-title">
           <div className="content-wrap">
@@ -21,8 +58,7 @@ export default function AboutPage() {
               <div className="ah__b">
                 <p className="ah__p">
                   <span>
-                    <span>Web designer based in Ho Chi Minh City, Vietnam.</span>
-                    <span>Focused on web design, interaction design, and creative development.</span>
+                    <span>Just a designer from Vietnam, working out of Ho Chi Minh City.</span>
                   </span>
 
                   <span>
@@ -88,7 +124,7 @@ export default function AboutPage() {
 
               <p className="off__desc">
                 <span>Most weekends, </span>
-                <span>I take time out with friends, </span>
+                <span>I take the motorbike out with a friend, </span>
                 <span>following quieter roads just to see where they lead.</span>
               </p>
             </div>
@@ -255,7 +291,7 @@ export default function AboutPage() {
             <div className="pv__in">
               <div className="pv__c">
                 <h2 className="pv__t">
-                  <span><span>Folio</span></span>
+                  <span><span>Douglus: Folio</span></span>
                   <span><span>Vol. 01</span></span>
                 </h2>
 
@@ -284,13 +320,13 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Break Image - From Kenya With Code */}
+        {/* Break Image - From Vietnam With Love */}
         <section className="brk">
           <Image
             src="/images/break-img-2560.webp"
             width={2560}
             height={1655}
-            alt="From Kenya"
+            alt="From Vietnam"
             className="brk__img"
           />
 
@@ -300,8 +336,8 @@ export default function AboutPage() {
                 <div className="brk__a"></div>
 
                 <h2 className="brk__t">
-                  <span>From Kenya</span>
-                  <span>With Code</span>
+                  <span>From Vietnam</span>
+                  <span>With Love</span>
                 </h2>
               </div>
             </div>

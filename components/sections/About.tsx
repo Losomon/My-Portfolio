@@ -8,7 +8,7 @@ export default function About() {
       <div className="content-wrap about-shell">
         <div className="about-image">
           <div className="portrait-frame">
-            <span className="portrait-badge">Based in Kenya</span>
+            <span className="portrait-badge">Based in Ho Chi Minh City</span>
           </div>
         </div>
 
