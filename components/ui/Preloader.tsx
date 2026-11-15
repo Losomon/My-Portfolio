@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Silhouette from './Silhouette';
+import Soffit from './Soffit';
 
 const FRAGMENTS = [1, 2, 3, 4, 5, 6];
 
@@ -51,6 +52,7 @@ export default function Preloader() {
       aria-live="polite"
       aria-label="Loading portfolio"
     >
+      <Soffit className="preloader__soffit" />
       <div className="preloader__artwork" aria-hidden="true">
         <div className="preloader__subject">
           {FRAGMENTS.map((fragment) => (
