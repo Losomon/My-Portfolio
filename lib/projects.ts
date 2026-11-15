@@ -20,6 +20,7 @@ export interface Project {
   category: string;
   role: string;
   description: string;
+  image: string;
   stack: string[];
   status: 'Production' | 'Prototype' | 'In Development';
   statusNote: string;
@@ -33,6 +34,7 @@ export const projects: Project[] = [
     category: 'Legal Technology',
     role: 'Design, Development',
     description: 'A VA disability law firm that needed to look as serious as the work they do.',
+    image: '/images/vet-claim.webp',
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS'],
     status: 'Production',
     statusNote: 'Case study coming soon.',
@@ -58,6 +60,7 @@ export const projects: Project[] = [
     category: 'Personal Project',
     role: 'Design, Development',
     description: 'An earlier version of my portfolio, designed and built from the ground up.',
+    image: '/images/folio-v1.webp',
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS'],
     status: 'Production',
     statusNote: 'Awwwards Honorable Mention',
@@ -83,6 +86,7 @@ export const projects: Project[] = [
     category: 'Inventory Management',
     role: 'Full-Stack Developer',
     description: 'A phone-first inventory management system designed for small businesses. Tracks stock movements, sales, purchases, and suppliers.',
+    image: '/images/01.webp',
     stack: ['Next.js', 'TypeScript', 'PostgreSQL', 'Tailwind CSS'],
     status: 'Prototype',
     statusNote: 'Core UI and local state management are complete. Multi-business backend architecture is currently in development.',
@@ -108,6 +112,7 @@ export const projects: Project[] = [
     category: 'SaaS Dashboard',
     role: 'Design, Development',
     description: 'A real-time analytics dashboard concept focused on clarity, speed, and actionable product metrics.',
+    image: '/images/pulse.jpg',
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'D3.js'],
     status: 'Prototype',
     statusNote: 'Concept prototype exploring data visualization and dashboard interaction patterns.',

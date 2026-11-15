@@ -16,7 +16,9 @@ if (typeof window !== 'undefined') {
 const DESKTOP = '(min-width: 1025px)';
 const COUNTER_SLIDE_MS = 580;
 
-const railCards = projects.flatMap((project) => projects.map(() => project));
+const railCards = projects.flatMap((project, projectIndex) =>
+  projects.map(() => ({ project, projectIndex })),
+);
 const lead = projects[0] ?? {
   title: 'Selected Work',
   role: 'Design, Development',
@@ -101,8 +103,14 @@ export default function WorkPage() {
         paintCounter(index);
       };
 
-      const projectAt = (progress: number) =>
-        Math.min(Math.floor(progress * projects.length), projects.length - 1);
+      const cardAt = (progress: number) =>
+        Math.min(Math.round(progress * (cards.length - 1)), cards.length - 1);
+
+      const sync = (progress: number) => {
+        const idx = cardAt(progress);
+        const projectIndex = Number(cards[idx]?.dataset.projectIndex ?? 0);
+        setActive(projectIndex);
+      };
 
       const mm = gsap.matchMedia();
 
@@ -116,8 +124,8 @@ export default function WorkPage() {
             end: 'bottom bottom',
             scrub: 0.65,
             invalidateOnRefresh: true,
-            onUpdate: (self) => setActive(projectAt(self.progress)),
-            onRefresh: (self) => setActive(projectAt(self.progress)),
+            onUpdate: (self) => sync(self.progress),
+            onRefresh: (self) => sync(self.progress),
           },
         });
 
@@ -228,14 +236,14 @@ export default function WorkPage() {
 
             <div className="work-hero__rail" aria-hidden="true">
               <div className="work-hero__track" data-work-track>
-                {railCards.map((project, index) => (
+                {railCards.map(({ project, projectIndex }, index) => (
                   <div
                     key={`${project.slug}-${index}`}
                     className="work-hero__card"
-                    data-project-index={index % projects.length}
+                    data-project-index={projectIndex}
                   >
                     <Image
-                      src={`/images/${project.slug}.webp`}
+                      src={project.image}
                       alt=""
                       width={1254}
                       height={1254}
@@ -291,7 +299,7 @@ export default function WorkPage() {
                 </dl>
 
                 <figure className="work-list__media">
-                  <Image src={`/images/${project.slug}.webp`} alt={project.title} width={1917} height={927} />
+                  <Image src={project.image} alt={project.title} width={1917} height={927} />
                 </figure>
               </div>
               </article>

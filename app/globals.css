@@ -2405,6 +2405,7 @@ button:focus-visible, a:focus-visible {
   pointer-events: none;
   user-select: none;
   max-width: none;
+  object-fit: cover;
   transition: filter .55s cubic-bezier(.65, 0, .35, 1);
   position: absolute;
   top: 50%;
@@ -2604,6 +2605,7 @@ button:focus-visible, a:focus-visible {
 .work-list__media {
   background: var(--black-color);
   width: 100%;
+  aspect-ratio: 1917 / 927;
   margin: 0;
   overflow: hidden;
 }
@@ -2611,7 +2613,8 @@ button:focus-visible, a:focus-visible {
 .work-list__media img {
   width: 100%;
   max-width: none;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
