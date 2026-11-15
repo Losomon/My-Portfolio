@@ -13,16 +13,16 @@ export default function AboutPage() {
             <div className="ah__c">
               <h1 id="about-title" className="ah__t">
                 <span>
-                  <span className="font-rox">D</span>ouglus
+                  <span className="font-rox">S</span>olomon
                   {' '}
-                  <span className="font-rox">N</span>guyen
+                  <span className="font-rox">M</span>wangi
                 </span>
               </h1>
 
               <div className="ah__b">
                 <p className="ah__p">
                   <span>
-                    <span>Just a designer from Vietnam, working out of Ho Chi Minh City.</span>
+                    <span>Just a designer from Kenya, working out of Nairobi.</span>
                   </span>
 
                   <span>
@@ -248,7 +248,7 @@ export default function AboutPage() {
           <div className="pv__in">
             <div className="pv__c">
               <h2 className="pv__t">
-                <span><span>Douglus: Folio</span></span>
+                <span><span>Solomon: Folio</span></span>
                 <span><span>Vol. 01</span></span>
               </h2>
 
@@ -276,13 +276,13 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Break Image - From Vietnam With Love */}
+        {/* Break Image - From Kenya With Love */}
         <section className="brk">
           <Image
             src="/images/break-img-2560.webp"
             width={2560}
             height={1655}
-            alt="From Vietnam"
+            alt="From Kenya"
           />
 
           <div className="brk__c">
@@ -290,7 +290,7 @@ export default function AboutPage() {
               <div className="brk__a"></div>
 
               <h2 className="brk__t">
-                <span>From VietNam</span>
+                <span>From Kenya</span>
                 <span>With Love</span>
               </h2>
             </div>
@@ -344,8 +344,8 @@ export default function AboutPage() {
           <div className="ft__in">
             <div className="ft__em" data-scroll data-scroll-offset="15%">
               <div>
-                <a href="mailto:hello@douglus.co" data-footer-email aria-label="hello@douglus.co">
-                  <span aria-hidden="true">h</span><span aria-hidden="true">e</span><span aria-hidden="true">l</span><span aria-hidden="true">l</span><span aria-hidden="true">o</span><span aria-hidden="true">@</span><span aria-hidden="true">d</span><span aria-hidden="true">o</span><span aria-hidden="true">u</span><span aria-hidden="true">g</span><span aria-hidden="true">l</span><span aria-hidden="true">u</span><span aria-hidden="true">s</span><span aria-hidden="true">.</span><span aria-hidden="true">c</span><span aria-hidden="true">o</span>
+                <a href="mailto:solomboni5@gmail.com" data-footer-email aria-label="solomboni5@gmail.com">
+                  <span aria-hidden="true">s</span><span aria-hidden="true">o</span><span aria-hidden="true">l</span><span aria-hidden="true">o</span><span aria-hidden="true">m</span><span aria-hidden="true">b</span><span aria-hidden="true">o</span><span aria-hidden="true">n</span><span aria-hidden="true">i</span><span aria-hidden="true">5</span><span aria-hidden="true">@</span><span aria-hidden="true">g</span><span aria-hidden="true">m</span><span aria-hidden="true">a</span><span aria-hidden="true">i</span><span aria-hidden="true">l</span><span aria-hidden="true">.</span><span aria-hidden="true">c</span><span aria-hidden="true">o</span><span aria-hidden="true">m</span>
                 </a>
               </div>
             </div>

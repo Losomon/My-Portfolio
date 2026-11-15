@@ -899,8 +899,8 @@ button:focus-visible, a:focus-visible {
 .home-hero__initial,
 .home-hero__rest { display: inline-block; }
 
-.home-hero__word--douglus .home-hero__rest-mask,
-.home-hero__word--nguyen .home-hero__rest-mask { margin-left: -.19em; }
+.home-hero__word--solomon .home-hero__rest-mask,
+.home-hero__word--mwangi .home-hero__rest-mask { margin-left: -.19em; }
 
 .home-hero__intro {
   z-index: 4;

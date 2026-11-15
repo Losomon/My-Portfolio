@@ -168,23 +168,27 @@ export default function PlaygroundPage() {
             <div className="ft__in">
               <div className="ft__em">
                 <div>
-                  <a href="mailto:hello@douglus.co" data-footer-email aria-label="hello@douglus.co">
-                    <span aria-hidden="true">h</span>
-                    <span aria-hidden="true">e</span>
-                    <span aria-hidden="true">l</span>
-                    <span aria-hidden="true">l</span>
-                    <span aria-hidden="true">o</span>
-                    <span aria-hidden="true">@</span>
-                    <span aria-hidden="true">d</span>
-                    <span aria-hidden="true">o</span>
-                    <span aria-hidden="true">u</span>
-                    <span aria-hidden="true">g</span>
-                    <span aria-hidden="true">l</span>
-                    <span aria-hidden="true">u</span>
+                  <a href="mailto:solomboni5@gmail.com" data-footer-email aria-label="solomboni5@gmail.com">
                     <span aria-hidden="true">s</span>
+                    <span aria-hidden="true">o</span>
+                    <span aria-hidden="true">l</span>
+                    <span aria-hidden="true">o</span>
+                    <span aria-hidden="true">m</span>
+                    <span aria-hidden="true">b</span>
+                    <span aria-hidden="true">o</span>
+                    <span aria-hidden="true">n</span>
+                    <span aria-hidden="true">i</span>
+                    <span aria-hidden="true">5</span>
+                    <span aria-hidden="true">@</span>
+                    <span aria-hidden="true">g</span>
+                    <span aria-hidden="true">m</span>
+                    <span aria-hidden="true">a</span>
+                    <span aria-hidden="true">i</span>
+                    <span aria-hidden="true">l</span>
                     <span aria-hidden="true">.</span>
                     <span aria-hidden="true">c</span>
                     <span aria-hidden="true">o</span>
+                    <span aria-hidden="true">m</span>
                   </a>
                 </div>
               </div>

@@ -37,20 +37,20 @@ export default function ContactPage() {
                 <div className="contact-details">
                   <div className="contact-detail">
                     <span className="contact-detail-label">Email</span>
-                    <a href="mailto:hello@douglus.co" className="contact-detail-value">
-                      hello@douglus.co
+                    <a href="mailto:solomboni5@gmail.com" className="contact-detail-value">
+                      solomboni5@gmail.com
                     </a>
                   </div>
                   <div className="contact-detail">
                     <span className="contact-detail-label">Phone</span>
-                    <a href="tel:+84393277584" className="contact-detail-value">
-                      +84 393 277 584
+                    <a href="tel:0794152041" className="contact-detail-value">
+                      0794152041
                     </a>
                   </div>
                   <div className="contact-detail">
                     <span className="contact-detail-label">Social</span>
                     <a
-                      href="https://www.linkedin.com/in/douglus-nguyen-a48961265"
+                      href="https://www.linkedin.com/in/losomon22/"
                       target="_blank"
                       rel="noreferrer"
                       className="contact-detail-value"
@@ -60,7 +60,7 @@ export default function ContactPage() {
                   </div>
                   <div className="contact-detail">
                     <span className="contact-detail-label">Local time</span>
-                    <span className="contact-detail-value" data-local-time>--:-- GMT+7</span>
+                    <span className="contact-detail-value" data-local-time>--:-- GMT+3</span>
                   </div>
                 </div>
               </div>

@@ -46,24 +46,24 @@ export default function Hero() {
           </div>
 
           <h1 className="home-hero__title" data-editorial-title>
-            <span className="home-hero__word home-hero__word--douglus">
+            <span className="home-hero__word home-hero__word--solomon">
               <span className="home-hero__initial-track">
                 <span className="home-hero__initial-mask">
-                  <span className="home-hero__initial font-rox">D</span>
+                  <span className="home-hero__initial font-rox">S</span>
                 </span>
               </span>
               <span className="home-hero__rest-mask">
-                <span className="home-hero__rest"> ouglus </span>
+                <span className="home-hero__rest"> olomon </span>
               </span>
             </span>
-            <span className="home-hero__word home-hero__word--nguyen">
+            <span className="home-hero__word home-hero__word--mwangi">
               <span className="home-hero__initial-track">
                 <span className="home-hero__initial-mask">
-                  <span className="home-hero__initial font-rox">N</span>
+                  <span className="home-hero__initial font-rox">M</span>
                 </span>
               </span>
               <span className="home-hero__rest-mask">
-                <span className="home-hero__rest"> guyen </span>
+                <span className="home-hero__rest"> wangi </span>
               </span>
             </span>
           </h1>
@@ -78,7 +78,7 @@ export default function Hero() {
             </div>
             <div className="home-hero__reveal-mask text-reveal-mask">
               <p className="home-hero__description">
-                Based in Ho Chi Minh City, Vietnam,
+                Based in Nairobi, Kenya,
                 <br />
                 working with clients worldwide.
               </p>
@@ -87,14 +87,14 @@ export default function Hero() {
 
           <div className="home-hero__origin">
             <div className="home-hero__reveal-mask text-reveal-mask">
-              <span className="home-hero__origin-text">From Vietnam with Love.</span>
+              <span className="home-hero__origin-text">From Kenya with Love.</span>
             </div>
           </div>
 
           <div className="home-hero__cta">
             <span className="home-hero__reveal-mask text-reveal-mask">
               <a
-                href="https://www.linkedin.com/in/douglus-nguyen-a48961265"
+                href="https://www.linkedin.com/in/losomon22/"
                 target="_blank"
                 rel="noreferrer"
                 className="home-hero__cta-label"
@@ -108,21 +108,21 @@ export default function Hero() {
               </a>
             </span>
             <span className="home-hero__reveal-mask text-reveal-mask">
-              <a href="tel:+84393277584" className="home-hero__cta-label">
+              <a href="tel:0794152041" className="home-hero__cta-label">
                 <span className="home-hero__cta-label-mask">
                   <span className="home-hero__cta-label-track">
-                    <span>+84 393 277 584</span>
-                    <span>+84 393 277 584</span>
+                    <span>0794152041</span>
+                    <span>0794152041</span>
                   </span>
                 </span>
               </a>
             </span>
             <span className="home-hero__reveal-mask text-reveal-mask">
-              <a href="mailto:hello@douglus.co" className="home-hero__cta-label">
+              <a href="mailto:solomboni5@gmail.com" className="home-hero__cta-label">
                 <span className="home-hero__cta-label-mask">
                   <span className="home-hero__cta-label-track">
-                    <span>hello@douglus.co</span>
-                    <span>hello@douglus.co</span>
+                    <span>solomboni5@gmail.com</span>
+                    <span>solomboni5@gmail.com</span>
                   </span>
                 </span>
               </a>
@@ -177,31 +177,31 @@ export default function Hero() {
               </svg>
 
               <div className="home-hero__brutal-info">
-                <p className="home-hero__brutal-name">Douglus Nguyen</p>
+                <p className="home-hero__brutal-name">Solomon Mwangi</p>
                 <p className="home-hero__brutal-description">
                   Just a designer &amp; developer trying
                   <br />
                   to make good things for the web.
                 </p>
                 <p className="home-hero__brutal-location">
-                  Based in Ho Chi Minh City, Viet Nam,
+                  Based in Nairobi, Kenya,
                   <br />
                   working with clients worldwide.
                 </p>
 
                 <div className="home-hero__brutal-actions">
-                  <span className="home-hero__brutal-origin">From Vietnam with Love</span>
+                  <span className="home-hero__brutal-origin">From Kenya with Love</span>
                   <Link href="/contact" className="home-hero__brutal-cta">
                     <strong>Let&apos;s Work Together!</strong>
                   </Link>
                   <div className="home-hero__brutal-email">
-                    <a href="mailto:hello@douglus.co">hello@douglus.co</a>
+                    <a href="mailto:solomboni5@gmail.com">solomboni5@gmail.com</a>
                   </div>
-                  <a href="tel:+84393277584" className="home-hero__brutal-link">
-                    +84 393 277 584
+                  <a href="tel:0794152041" className="home-hero__brutal-link">
+                    0794152041
                   </a>
                   <a
-                    href="https://www.linkedin.com/in/douglus-nguyen-a48961265"
+                    href="https://www.linkedin.com/in/losomon22/"
                     target="_blank"
                     rel="noreferrer"
                     className="home-hero__brutal-link"
