@@ -4,6 +4,7 @@ import { projects } from '@/lib/projects';
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Link from 'next/link';
 import Image from 'next/image';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
@@ -249,7 +250,13 @@ export default function WorkPage() {
 
         <section className="work-list">
           {projects.map((project, index) => (
-            <article key={project.slug} className="work-list__item" data-scroll data-scroll-offset="15%">
+            <Link
+              key={project.slug}
+              href={`/work/${project.slug}`}
+              className="work-list__link"
+              passHref
+            >
+              <article className="work-list__item" data-scroll data-scroll-offset="15%">
               <div className="work-list__header">
                 <div className="work-list__heading">
                   <h2 className="work-list__title">
@@ -287,7 +294,8 @@ export default function WorkPage() {
                   <Image src={`/images/${project.slug}.webp`} alt={project.title} width={1917} height={927} />
                 </figure>
               </div>
-            </article>
+              </article>
+            </Link>
           ))}
         </section>
 
