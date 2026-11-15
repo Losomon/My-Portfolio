@@ -7,31 +7,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 import DragStage from '@/components/playground/DragStage';
+import { waitFrames, waitForImage } from '@/lib/ready';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-const waitFrames = (count: number) =>
-  new Promise<void>((resolve) => {
-    let remaining = count;
-    const step = () => {
-      remaining -= 1;
-      if (remaining <= 0) resolve();
-      else requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  });
-
-const waitForImage = (image: HTMLImageElement | null) => {
-  if (!image) return Promise.resolve();
-  if (image.complete && image.naturalWidth > 0) return Promise.resolve();
-
-  return new Promise<void>((resolve) => {
-    image.addEventListener('load', () => resolve(), { once: true });
-    image.addEventListener('error', () => resolve(), { once: true });
-  });
-};
 
 export default function PlaygroundPage() {
   const heroRef = useRef<HTMLElement>(null);
