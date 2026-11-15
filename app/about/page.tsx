@@ -313,7 +313,7 @@ export default function AboutPage() {
                 <span>Minim</span>
 
                 <span className="mh__m">
-                  <Image src="/images/geometry.webp" alt="" width={100} height={100} />
+                  <Image src="/images/geometry.webp" alt="" width={1024} height={341} />
                   <svg viewBox="0 0 1000 320" preserveAspectRatio="none" aria-hidden="true" className="mh__svg">
                     <path d="M 70 0 C 20 70, 20 250, 70 320" />
                     <path d="M 930 0 C 980 70, 980 250, 930 320" />
