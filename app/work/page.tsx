@@ -250,6 +250,7 @@ export default function WorkPage() {
                       alt=""
                       width={1254}
                       height={1254}
+                      sizes="(max-width: 64rem) 100vw, 68vw"
                       className="work-hero__media"
                     />
                   </div>
@@ -302,7 +303,14 @@ export default function WorkPage() {
                 </dl>
 
                 <figure className="work-list__media">
-                  <Image src={project.image} alt={project.title} width={1917} height={927} />
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    width={1917}
+                    height={927}
+                    sizes="(max-width: 640px) 100vw, 65vw"
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                  />
                 </figure>
               </div>
               </article>

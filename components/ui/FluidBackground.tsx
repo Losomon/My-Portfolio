@@ -269,6 +269,11 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const lowPower =
+      window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+
     const gl = canvas.getContext('webgl', {
       alpha: true,
       depth: false,
@@ -295,9 +300,9 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     void linearExt; // just need to activate it
 
     /* ---- config ---- */
-    const SIM_RES = 128;
-    const DYE_RES = 512;
-    const PRESSURE_ITERATIONS = 20;
+    const SIM_RES = lowPower ? 64 : 128;
+    const DYE_RES = lowPower ? 256 : 512;
+    const PRESSURE_ITERATIONS = lowPower ? 8 : 20;
     const CURL_STRENGTH = 30;
     const SPLAT_RADIUS = 0.55;
     const VELOCITY_DISSIPATION = 0.99;
@@ -416,7 +421,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- resize ---- */
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5);
       const w = Math.round(canvas!.clientWidth * dpr);
       const h = Math.round(canvas!.clientHeight * dpr);
       const sizeChanged = canvas!.width !== w || canvas!.height !== h;
@@ -617,12 +622,21 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     }
 
     /* ---- render loop ---- */
+    let isInViewport = false;
+    const isAnimationActive = () =>
+      isInViewport && document.visibilityState === 'visible';
+
     function frame(t: number) {
+      if (!isAnimationActive()) {
+        rafRef.current = 0;
+        return;
+      }
+
       const dt = Math.min((t - lastTimeRef.current) / 1000, 0.033);
       lastTimeRef.current = t;
 
       if (!resize()) {
-        rafRef.current = requestAnimationFrame(frame);
+        rafRef.current = isAnimationActive() ? requestAnimationFrame(frame) : 0;
         return;
       }
 
@@ -644,10 +658,35 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
         blit(null);
       }
 
-      rafRef.current = requestAnimationFrame(frame);
+      rafRef.current = isAnimationActive() ? requestAnimationFrame(frame) : 0;
     }
 
-    rafRef.current = requestAnimationFrame(frame);
+    const updateAnimation = () => {
+      if (isAnimationActive()) {
+        if (!rafRef.current) {
+          lastTimeRef.current = performance.now();
+          rafRef.current = requestAnimationFrame(frame);
+        }
+      } else if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = 0;
+      }
+    };
+
+    const visibilityObserver =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver(([entry]) => {
+            isInViewport = entry.isIntersecting;
+            updateAnimation();
+          });
+    if (visibilityObserver) {
+      visibilityObserver.observe(canvas);
+    } else {
+      isInViewport = true;
+      updateAnimation();
+    }
+    document.addEventListener('visibilitychange', updateAnimation);
 
     /* ---- pointer events ---- */
     function onPointerMove(e: PointerEvent) {
@@ -668,34 +707,15 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       ptr.moved = true;
     }
 
-    function onTouchMove(e: TouchEvent) {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = canvas!.getBoundingClientRect();
-      const x = (touch.clientX - rect.left) / rect.width;
-      const y = 1.0 - (touch.clientY - rect.top) / rect.height;
-      const ptr = pointerRef.current;
-      if (ptr.firstMove) {
-        ptr.firstMove = false;
-        ptr.x = x;
-        ptr.y = y;
-        return;
-      }
-      ptr.dx = x - ptr.x;
-      ptr.dy = y - ptr.y;
-      ptr.x = x;
-      ptr.y = y;
-      ptr.moved = true;
-    }
-
     canvas.addEventListener('pointermove', onPointerMove);
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('resize', resize);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+      visibilityObserver?.disconnect();
+      document.removeEventListener('visibilitychange', updateAnimation);
       canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('resize', resize);
     };
   }, []);
@@ -713,6 +733,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       style={{
         width: '100%',
         height: '100%',
+        touchAction: 'pan-y',
         display: 'block',
         position: 'absolute',
         inset: 0,

@@ -3,50 +3,6 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ */
-/* Fonts                                                               */
-/* ------------------------------------------------------------------ */
-
-@font-face {
-  font-family: Neue Montreal;
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url(/fonts/NeueMontreal-Light.woff2) format("woff2"), url(/fonts/NeueMontreal-Light.woff) format("woff");
-}
-
-@font-face {
-  font-family: Neue Montreal;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/fonts/NeueMontreal-Regular.woff2) format("woff2"), url(/fonts/NeueMontreal-Regular.woff) format("woff");
-}
-
-@font-face {
-  font-family: Neue Montreal;
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(/fonts/NeueMontreal-Medium.woff2) format("woff2"), url(/fonts/NeueMontreal-Medium.woff) format("woff");
-}
-
-@font-face {
-  font-family: Neue Montreal;
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(/fonts/NeueMontreal-Bold.woff2) format("woff2"), url(/fonts/NeueMontreal-Bold.woff) format("woff");
-}
-
-@font-face {
-  font-family: Roxborough CF;
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/fonts/roxborough-cf-regular.woff2) format("woff2"), url(/fonts/roxborough-cf-regular.woff) format("woff");
-}
-
-/* ------------------------------------------------------------------ */
 /* Reset                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -2630,6 +2586,12 @@ button:focus-visible, a:focus-visible {
   display: block;
 }
 
+@media (width <= 56rem) {
+  .work-list__title {
+    font-size: clamp(1.75rem, 6.5vw, 3rem);
+  }
+}
+
 .work-list__intro {
   --rv-delay: .18s;
   --rv-y: 20px;
@@ -3429,6 +3391,18 @@ button:focus-visible, a:focus-visible {
 @media (width <= 768px) {
   .svc__eb {
     font-weight: 400;
+  }
+
+  .svc__t {
+    font-size: clamp(2rem, 10vw, 3.25rem);
+  }
+
+  .svc__tp > span {
+    margin-bottom: 0;
+  }
+
+  .svc__tp {
+    row-gap: .12em;
   }
 }
 
@@ -4832,6 +4806,10 @@ button:focus-visible, a:focus-visible {
 @media (width <= 64rem) {
   .ft__pl--g {
     filter: blur(.0625rem);
+  }
+
+  .ft__em a {
+    font-size: clamp(1.25rem, 8.5vw, 2rem);
   }
 }
 

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects } from '@/lib/projects';
@@ -21,7 +22,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function CaseStudyPage({ params }: PageProps) {
+export default function CaseStudyPage({ params }: PageProps) {
+  return (
+    <>
+      <Navigation />
+      <Suspense
+        fallback={
+          <main className="case-study">
+            <div className="case-study-header">
+              <div className="case-study-wrap">
+                <p className="eyebrow" role="status">Loading case study...</p>
+              </div>
+            </div>
+          </main>
+        }
+      >
+        <CaseStudyContent params={params} />
+      </Suspense>
+      <Footer />
+    </>
+  );
+}
+
+async function CaseStudyContent({ params }: PageProps) {
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
   if (!project) notFound();
@@ -43,42 +66,38 @@ export default async function CaseStudyPage({ params }: PageProps) {
   ];
 
   return (
-    <>
-      <Navigation />
-      <main className="case-study">
-        <div className="case-study-header">
-          <div className="case-study-wrap">
-            <Link href="/#work" className="case-study-back"><span aria-hidden="true">←</span> Back to selected work</Link>
-            <p className="eyebrow">{project.category} <span>·</span> {project.status}</p>
-            <h1>{project.title}<span>.</span></h1>
-            <p className="case-study-description">{project.description}</p>
-            <div className="case-study-tags">
-              {cs.technologyChoices.map((technology) => (
-                <span key={technology}>{technology}</span>
-              ))}
+    <main className="case-study">
+      <div className="case-study-header">
+        <div className="case-study-wrap">
+          <Link href="/#work" className="case-study-back"><span aria-hidden="true">←</span> Back to selected work</Link>
+          <p className="eyebrow">{project.category} <span>·</span> {project.status}</p>
+          <h1>{project.title}<span>.</span></h1>
+          <p className="case-study-description">{project.description}</p>
+          <div className="case-study-tags">
+            {cs.technologyChoices.map((technology) => (
+              <span key={technology}>{technology}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="case-study-wrap case-study-content">
+        <div className="case-study-facts">
+          <div><span>Role</span><strong>{project.role}</strong></div>
+          <div><span>Current status</span><strong>{project.status}</strong></div>
+          <div><span>Toolkit</span><strong>{project.stack.join(' · ')}</strong></div>
+        </div>
+        {sections.map((section, index) => (
+          <section key={section.title} className="case-study-section">
+            <span className="case-study-number">0{index + 1}</span>
+            <div>
+              <h2>{section.title}</h2>
+              <p>{section.body}</p>
             </div>
-          </div>
-        </div>
-        <div className="case-study-wrap case-study-content">
-          <div className="case-study-facts">
-            <div><span>Role</span><strong>{project.role}</strong></div>
-            <div><span>Current status</span><strong>{project.status}</strong></div>
-            <div><span>Toolkit</span><strong>{project.stack.join(' · ')}</strong></div>
-          </div>
-          {sections.map((section, index) => (
-            <section key={section.title} className="case-study-section">
-              <span className="case-study-number">0{index + 1}</span>
-              <div>
-                <h2>{section.title}</h2>
-                <p>{section.body}</p>
-              </div>
-            </section>
-          ))}
-          <p className="case-study-status-note">{project.statusNote}</p>
-          <Link href="/#work" className="text-link">Back to selected work <span aria-hidden="true">↗</span></Link>
-        </div>
-      </main>
-      <Footer />
-    </>
+          </section>
+        ))}
+        <p className="case-study-status-note">{project.statusNote}</p>
+        <Link href="/#work" className="text-link">Back to selected work <span aria-hidden="true">↗</span></Link>
+      </div>
+    </main>
   );
 }

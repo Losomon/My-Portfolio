@@ -112,6 +112,7 @@ export default function PlaygroundPage() {
             width={2048}
             height={1322}
             decoding="async"
+            loading="eager"
             fetchPriority="high"
             data-scroll
             data-scroll-speed="-3"
