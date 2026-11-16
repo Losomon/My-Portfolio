@@ -537,8 +537,8 @@ function tE(t, e) {
     lr = { canvas: r, ctx: o };
   }
   return (
-    lr.canvas.width !== n && (lr.canvas.width = n),
-    lr.canvas.height !== a && (lr.canvas.height = a),
+    lr.canvas.width !== n && (lr.canvas.width = Math.max(1, Math.floor(n))),
+    lr.canvas.height !== a && (lr.canvas.height = Math.max(1, Math.floor(a))),
     lr
   );
 }
