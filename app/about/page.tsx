@@ -210,17 +210,17 @@ export default function AboutPage() {
           </section>
         </div>
 
-        {/* Project Showcase - VetClaim Advantage */}
+        {/* Project Showcase - Loxora System */}
         <section className="pv pv--vet" data-scroll data-scroll-offset="38%">
           <div className="pv__in">
             <div className="pv__c">
               <h2 className="pv__t">
-                <span><span>VetClaim</span></span>
-                <span><span>Advantage</span></span>
+                <span><span>Loxora</span></span>
+                <span><span>System</span></span>
               </h2>
 
               <p className="pv__p">
-                <span><span>A VA disability law firm that needed to look</span></span>
+                <span><span>A legal technology firm that needed to look</span></span>
                 <span><span>as serious as the work they do.</span></span>
               </p>
             </div>
@@ -229,13 +229,13 @@ export default function AboutPage() {
               <div className="pv__cmp">
                 <div className="pv__b pv__b--l">
                   <div className="ripple">
-                    <Image src="/images/vetclaim-about-01.webp" alt="VetClaim Advantage" width={1350} height={1032} />
+                    <Image src="/images/vetclaim-about-01.webp" alt="Loxora System" width={1350} height={1032} />
                   </div>
                 </div>
 
                 <div className="pv__b pv__b--s">
                   <div className="ripple">
-                    <Image src="/images/vetclaim-about-02.webp" alt="VetClaim Advantage" width={812} height={612} />
+                    <Image src="/images/vetclaim-about-02.webp" alt="Loxora System" width={812} height={612} />
                   </div>
                 </div>
               </div>
@@ -243,13 +243,13 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Project Showcase - Folio Vol. 01 */}
+        {/* Project Showcase - Solomon */}
         <section className="pv pv--folio" data-scroll data-scroll-offset="38%">
           <div className="pv__in">
             <div className="pv__c">
               <h2 className="pv__t">
-                <span><span>Solomon: Folio</span></span>
-                <span><span>Vol. 01</span></span>
+                <span><span>Solomon</span></span>
+                <span><span>Folio</span></span>
               </h2>
 
               <p className="pv__p">
@@ -262,13 +262,13 @@ export default function AboutPage() {
               <div className="pv__cmp">
                 <div className="pv__b pv__b--l">
                   <div className="ripple">
-                    <Image src="/images/folio-about-01.webp" alt="Folio Vol. 01" width={1350} height={1032} />
+                    <Image src="/images/folio-about-01.webp" alt="Solomon Folio" width={1350} height={1032} />
                   </div>
                 </div>
 
                 <div className="pv__b pv__b--s">
                   <div className="ripple">
-                    <Image src="/images/folio-about-02.webp" alt="Folio Vol. 01" width={812} height={612} />
+                    <Image src="/images/folio-about-02.webp" alt="Solomon Folio" width={812} height={612} />
                   </div>
                 </div>
               </div>
