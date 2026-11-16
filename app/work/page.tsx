@@ -18,7 +18,7 @@ const COUNTER_SLIDE_MS = 580;
 
 const railCards = projects.flatMap((project, projectIndex) =>
   projects.map(() => ({ project, projectIndex })),
-);
+).reverse();
 const lead = projects[0] ?? {
   title: 'Selected Work',
   role: 'Design, Development',
@@ -108,15 +108,18 @@ export default function WorkPage() {
 
       const sync = (progress: number) => {
         const idx = cardAt(progress);
-        const projectIndex = Number(cards[idx]?.dataset.projectIndex ?? 0);
+        const projectIndex = Number(cards[cards.length - 1 - idx]?.dataset.projectIndex ?? 0);
         setActive(projectIndex);
       };
 
       const mm = gsap.matchMedia();
 
       mm.add(DESKTOP, () => {
+        const midpoint = (cards.length - 1) / 2;
+        gsap.set(track, { x: () => -step() * midpoint });
+
         const tween = gsap.to(track, {
-          x: () => step() * Math.max(cards.length - 1, 0),
+          x: () => step() * midpoint,
           ease: 'none',
           scrollTrigger: {
             trigger: range,
