@@ -7,11 +7,11 @@ import { projects } from '@/lib/projects';
 import ParticleField from '@/components/particle-field/ParticleField';
 import { GALAXY_A_LIGHT_FORM, GALAXY_A_LIGHT_SETTINGS } from '@/data/particle-field-presets';
 
-const HOME_PROJECT_SLUGS = ['vet-claim', 'folio-v1', '01', 'pulse'] as const;
+const HOME_PROJECT_SLUGS = ['vet-claim', 'solomon', '01', 'pulse'] as const;
 
 const imageBySlug: Record<string, string> = {
   'vet-claim': '/images/vet-claim.webp',
-  'folio-v1': '/images/folio-v1.webp',
+  'solomon': '/images/folio-v1.webp',
   '01': '/images/01.webp',
   pulse: '/images/pulse.jpg',
 };
