@@ -182,10 +182,10 @@ export default function WorkPage() {
                 <div className="work-hero__meta">
                   <p className="work-hero__description">
                     <span className="work-hero__line-mask">
-                      <span className="work-hero__description-line">A selection of projects exploring</span>
+                      <span className="work-hero__description-line">A selection of engineering projects exploring</span>
                     </span>
                     <span className="work-hero__line-mask">
-                      <span className="work-hero__description-line">web design, development, and digital experiences.</span>
+                      <span className="work-hero__description-line">full-stack development and digital experiences.</span>
                     </span>
                   </p>
                   <div className="work-hero__line-mask work-hero__services-mask">

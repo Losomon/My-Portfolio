@@ -213,6 +213,35 @@ The verification suite checks:
 
 Note: Running production verification sends requests to the live endpoint and can consume rate-limit capacity.
 
+## SEO & Domain Configuration
+
+Canonical URLs, Open Graph tags, structured data, the sitemap and `robots.txt` all read from a single public environment variable.
+
+```env
+NEXT_PUBLIC_SITE_URL=https://solomonmwangi.com
+```
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | No | Canonical origin for canonical links, social previews, `sitemap.xml` and `robots.txt`. Defaults to the current Vercel URL. |
+
+Generated routes:
+
+- `/sitemap.xml` — every page and case study.
+- `/robots.txt` — crawl rules plus sitemap reference.
+- `/opengraph-image` — 1200×630 social card.
+- `/work/[slug]/opengraph-image` — per-case-study social card.
+
+Structured data (`Person` and `WebSite` JSON-LD) is rendered from the root layout.
+
+### Moving to a custom domain
+
+1. Set `NEXT_PUBLIC_SITE_URL` in Vercel (Production and Preview) to the new origin.
+2. Add the domain in the Vercel project settings and point DNS at it.
+3. Redeploy, then submit `https://<domain>/sitemap.xml` in Google Search Console.
+
+No component changes are required; every canonical URL, social tag, and sitemap entry follows the variable.
+
 ## Deployment
 
 The portfolio is deployed on [Vercel](https://vercel.com/).

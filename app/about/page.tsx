@@ -1,6 +1,15 @@
+import type { Metadata } from 'next';
 import Navigation from '@/components/layout/Navigation';
 import AboutMotion from '@/components/about/AboutMotion';
+import { seoMetadata } from '@/lib/seo';
 import Image from 'next/image';
+
+export const metadata: Metadata = seoMetadata({
+  title: 'About Solomon Mwangi — Software Engineer in Nairobi, Kenya',
+  description:
+    'Solomon Mwangi is a software engineer and full-stack developer based in Nairobi, Kenya, working across frontend, backend, data, and creative technology.',
+  path: '/about',
+});
 
 export default function AboutPage() {
   return (
@@ -22,7 +31,7 @@ export default function AboutPage() {
               <div className="ah__b">
                 <p className="ah__p">
                   <span>
-                    <span>Just a designer from Kenya, working out of Nairobi.</span>
+                    <span>A software engineer from Kenya, working out of Nairobi.</span>
                   </span>
 
                   <span>

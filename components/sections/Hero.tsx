@@ -71,9 +71,9 @@ export default function Hero() {
           <div className="home-hero__intro">
             <div className="home-hero__reveal-mask text-reveal-mask">
               <p className="home-hero__description">
-                Just a designer &amp; developer trying
+                Software engineer &amp; developer building
                 <br />
-                to make good things for the web.
+                useful things for the web.
               </p>
             </div>
             <div className="home-hero__reveal-mask text-reveal-mask">
@@ -179,9 +179,9 @@ export default function Hero() {
               <div className="home-hero__brutal-info">
                 <p className="home-hero__brutal-name">Solomon Mwangi</p>
                 <p className="home-hero__brutal-description">
-                  Just a designer &amp; developer trying
+                  Software engineer &amp; developer building
                   <br />
-                  to make good things for the web.
+                  useful things for the web.
                 </p>
                 <p className="home-hero__brutal-location">
                   Based in Nairobi, Kenya,

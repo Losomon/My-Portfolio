@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { projects } from '@/lib/projects';
+import { caseStudyImage, seoMetadata } from '@/lib/seo';
+import { siteConfig } from '@/lib/site';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
 
@@ -16,10 +18,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const project = projects.find((p) => p.slug === slug);
   if (!project) return {};
-  return {
-    title: `${project.title} — Case Study`,
+  return seoMetadata({
+    title: `${project.title} — ${project.category} Case Study`,
     description: project.description,
-  };
+    path: `/work/${project.slug}`,
+    images: [
+      {
+        ...caseStudyImage(project.slug),
+        alt: `${project.title} — ${project.category} case study by ${siteConfig.name}`,
+      },
+    ],
+  });
 }
 
 export default function CaseStudyPage({ params }: PageProps) {

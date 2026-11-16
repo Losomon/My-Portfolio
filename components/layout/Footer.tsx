@@ -16,7 +16,7 @@ export default function Footer() {
             <Link href="/#top" className="wordmark">
               SOLOMON<span>MWANGI</span>
             </Link>
-            <p className="site-footer-tagline">Web designer based in Nairobi, Kenya.</p>
+            <p className="site-footer-tagline">Software engineer &amp; full-stack developer based in Nairobi, Kenya.</p>
           </div>
 
           <nav className="site-footer-nav" aria-label="Footer">
