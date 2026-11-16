@@ -15,10 +15,23 @@ const SUCCESS_TITLE = 'Inquiry received successfully!';
 const SUCCESS_BODY =
   "Thank you for reaching out. I've received your message and will review your project details. I'll get back to you as soon as possible.";
 const SUCCESS_CLOSING = 'Looking forward to connecting with you.';
-const FAILURE_MESSAGE =
-  "Something went wrong. Your inquiry couldn't be sent. Please try again.";
+
+const RATE_LIMIT_MESSAGE =
+  'Too many inquiries have been submitted. Please wait a little before trying again.';
+const EMAIL_SERVICE_FAILURE_MESSAGE =
+  "We couldn't send your inquiry right now. Please try again shortly.";
+const NETWORK_FAILURE_MESSAGE =
+  'Unable to connect. Please check your internet connection and try again.';
+const DUPLICATE_MESSAGE =
+  'This inquiry has already been submitted. Please wait before submitting it again.';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
+type ErrorKind =
+  | 'rate_limited'
+  | 'email_failed'
+  | 'network'
+  | 'duplicate'
+  | 'generic';
 
 const FIELD_IDS: Record<ContactField, string> = {
   name: 'contact-name',
@@ -45,6 +58,7 @@ function fieldA11y(field: ContactField, errors: ContactErrors) {
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>('idle');
+  const [errorKind, setErrorKind] = useState<ErrorKind>('generic');
   const [errors, setErrors] = useState<ContactErrors>({});
   const submittingRef = useRef(false);
 
@@ -53,6 +67,36 @@ export default function ContactForm() {
     if (!field) return;
     const element = document.getElementById(FIELD_IDS[field]);
     element?.focus();
+  }
+
+  function resolveErrorKind(
+    response: Response,
+    data: { ok?: boolean; error?: string; errors?: ContactErrors; duplicate?: boolean } | null,
+  ): ErrorKind {
+    if (data?.error === 'rate_limited') return 'rate_limited';
+    if (data?.error === 'email_failed') return 'email_failed';
+    if (data?.error === 'validation') return 'generic';
+    if (data?.error === 'not_configured') return 'email_failed';
+    if (data?.error === 'payload_too_large' || data?.error === 'invalid_json' || data?.error === 'unsupported_media_type') {
+      return 'generic';
+    }
+    if (!response.ok && !data) return 'generic';
+    return 'generic';
+  }
+
+  function failureMessage(kind: ErrorKind): string {
+    switch (kind) {
+      case 'rate_limited':
+        return RATE_LIMIT_MESSAGE;
+      case 'email_failed':
+        return EMAIL_SERVICE_FAILURE_MESSAGE;
+      case 'network':
+        return NETWORK_FAILURE_MESSAGE;
+      case 'duplicate':
+        return DUPLICATE_MESSAGE;
+      default:
+        return EMAIL_SERVICE_FAILURE_MESSAGE;
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -73,6 +117,7 @@ export default function ContactForm() {
     const { errors: clientErrors } = validateContact(payload);
     setErrors(clientErrors);
     setStatus('idle');
+    setErrorKind('generic');
 
     if (hasContactErrors(clientErrors)) {
       focusFirstError(clientErrors);
@@ -91,18 +136,31 @@ export default function ContactForm() {
 
       const data: {
         ok?: boolean;
+        error?: string;
         errors?: ContactErrors;
+        duplicate?: boolean;
       } | null = await response.json().catch(() => null);
 
       if (response.ok && data?.ok) {
         setErrors({});
+        setErrorKind('generic');
         setStatus('success');
         form.reset();
+      } else if (data?.duplicate) {
+        // Preserve entered information — the inquiry was already sent.
+        setErrorKind('duplicate');
+        setStatus('error');
+      } else if (data?.errors) {
+        setErrors(data.errors);
+        setErrorKind('generic');
+        setStatus('error');
       } else {
-        if (data?.errors) setErrors(data.errors);
+        setErrorKind(resolveErrorKind(response, data));
         setStatus('error');
       }
     } catch {
+      // Network failure — the request never reached the server.
+      setErrorKind('network');
       setStatus('error');
     } finally {
       submittingRef.current = false;
@@ -287,7 +345,7 @@ export default function ContactForm() {
               ) : null}
               {status === 'error' ? (
                 <p className="contact-inquiry__status contact-inquiry__status--error" role="alert">
-                  {FAILURE_MESSAGE}
+                  {failureMessage(errorKind)}
                 </p>
               ) : null}
             </div>

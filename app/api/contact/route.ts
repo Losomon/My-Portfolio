@@ -1,24 +1,32 @@
+import crypto from 'node:crypto';
 import {
   hasContactErrors,
   validateContact,
   type ContactValues,
 } from '@/lib/contact';
+import {
+  acquireDuplicateLock,
+  checkRateLimit,
+  logSanitizedWarning,
+} from '@/lib/redis';
 
 // Formspree form endpoint (https://formspree.io/f/...). Server-side only.
 const FORMSPREE_ENDPOINT = process.env.FORMSPREE_ENDPOINT ?? '';
 
 const MAX_BODY_BYTES = 16 * 1024;
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 5;
 const DUPLICATE_WINDOW_MS = 20_000;
-const RATE_LIMIT_PRUNE_THRESHOLD = 500;
+const RATE_LIMIT_WINDOW_MS = 60_000;
 
-type RateBucket = { count: number; resetAt: number };
-
-const rateBuckets = new Map<string, RateBucket>();
-const recentSubmissions = new Map<string, number>();
+function formatSubmittedAt(date: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'full',
+    timeStyle: 'long',
+  }).format(date);
+}
 
 function getClientIp(request: Request): string {
+  // Vercel sets x-real-ip on the edge/proxy layer; x-forwarded-for is
+  // populated by Vercel itself and is trusted in this deployment context.
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
     const first = forwarded.split(',')[0]?.trim();
@@ -28,49 +36,17 @@ function getClientIp(request: Request): string {
   return realIp || 'unknown';
 }
 
-function pruneRateBuckets(now: number) {
-  if (rateBuckets.size < RATE_LIMIT_PRUNE_THRESHOLD) return;
-  for (const [key, bucket] of rateBuckets) {
-    if (bucket.resetAt <= now) rateBuckets.delete(key);
-  }
-  for (const [key, at] of recentSubmissions) {
-    if (now - at > DUPLICATE_WINDOW_MS) recentSubmissions.delete(key);
-  }
-}
-
-function checkRateLimit(key: string, now: number): { allowed: boolean; retryAfter: number } {
-  pruneRateBuckets(now);
-  const bucket = rateBuckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    rateBuckets.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, retryAfter: 0 };
-  }
-  if (bucket.count >= RATE_LIMIT_MAX) {
-    return { allowed: false, retryAfter: Math.ceil((bucket.resetAt - now) / 1000) };
-  }
-  bucket.count += 1;
-  return { allowed: true, retryAfter: 0 };
-}
-
 function hashString(input: string): string {
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = (hash * 31 + input.charCodeAt(i)) | 0;
-  }
-  return (hash >>> 0).toString(36);
+  return crypto.createHash('sha256').update(input).digest('hex');
 }
 
 function submissionKey(values: ContactValues): string {
-  return `${values.email.toLowerCase()}:${hashString(
-    `${values.name}|${values.message}`,
-  )}`;
-}
-
-function formatSubmittedAt(date: Date): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    dateStyle: 'full',
-    timeStyle: 'long',
-  }).format(date);
+  // Normalize: lowercase email, collapse whitespace in name/message.
+  const normalizedEmail = values.email.toLowerCase().trim();
+  const normalizedName = values.name.trim().toLowerCase();
+  const normalizedMessage = values.message.trim().toLowerCase();
+  const raw = `${normalizedName}|${normalizedEmail}|${normalizedMessage}|${values.service ?? ''}|${values.organization ?? ''}`;
+  return `portfolio:contact:dup:${hashString(raw)}`;
 }
 
 async function deliverInquiry(
@@ -156,14 +132,25 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: true, delivery: 'skipped' });
   }
 
-  const now = Date.now();
   const ip = getClientIp(request);
-  const limit = checkRateLimit(ip, now);
-  if (!limit.allowed) {
+
+  // --- Distributed rate limiting (Upstash Redis sliding window) ---
+  const rateResult = await checkRateLimit(ip);
+  if (!rateResult.success) {
     return json(
-      { ok: false, error: 'rate_limited', retryAfter: limit.retryAfter },
+      {
+        ok: false,
+        error: 'rate_limited',
+        retryAfter: rateResult.retryAfter ?? RATE_LIMIT_WINDOW_MS / 1000,
+      },
       429,
-      { 'Retry-After': String(limit.retryAfter) },
+      { 'Retry-After': String(rateResult.retryAfter ?? RATE_LIMIT_WINDOW_MS / 1000) },
+    );
+  }
+
+  if (rateResult.degraded) {
+    logSanitizedWarning(
+      `rate limiting degraded (Redis unavailable) for IP-derived identifier; allowing submission`,
     );
   }
 
@@ -172,30 +159,39 @@ export async function POST(request: Request): Promise<Response> {
     return json({ ok: false, error: 'validation', errors }, 400);
   }
 
-  const key = submissionKey(values);
-  const lastSubmission = recentSubmissions.get(key);
-  if (lastSubmission && now - lastSubmission < DUPLICATE_WINDOW_MS) {
+  const dupKey = submissionKey(values);
+
+  // --- Distributed duplicate prevention (Redis SET NX EX) ---
+  const dup = await acquireDuplicateLock(dupKey, DUPLICATE_WINDOW_MS);
+  if (!dup.acquired) {
     return json({ ok: true, duplicate: true, delivery: 'skipped' });
   }
-  recentSubmissions.set(key, now);
+
+  if (dup.degraded) {
+    logSanitizedWarning(
+      `duplicate prevention degraded (Redis unavailable) for submission; allowing submission`,
+    );
+  }
 
   if (!FORMSPREE_ENDPOINT) {
-    recentSubmissions.delete(key);
+    await dup.release();
     return json({ ok: false, error: 'not_configured' }, 503);
   }
 
-  const submittedAt = new Date(now);
+  const submittedAt = new Date();
   try {
     const result = await deliverInquiry(values, submittedAt);
     if (!result.ok) {
-      recentSubmissions.delete(key);
+      // Release the duplicate lock on definitive delivery failure so the
+      // legitimate sender can retry after the 20-second window.
+      await dup.release();
       return json({ ok: false, error: 'email_failed', detail: result.error }, 502);
     }
 
     // The provider accepted and queued the message; this is not proof of delivery.
     return json({ ok: true, delivery: 'queued', id: result.id });
   } catch {
-    recentSubmissions.delete(key);
+    await dup.release();
     return json({ ok: false, error: 'email_failed' }, 502);
   }
 }

@@ -41,7 +41,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 The contact form on `/contact` posts to the `app/api/contact` route handler, which
 validates the submission, applies rate limiting and spam protection, and delivers the
-inquiry through [Formspree](https://formspree.io) to `solomboni5@gmail.com`.
+inquiry through [Formspree](https://formspree.io).
 
 Submission happens server-side, so visitors do not need any email application
 installed.
@@ -51,12 +51,22 @@ installed.
 Set these in `.env.local` (development) or your host's environment settings
 (production). They are server-side only and are never exposed to the browser:
 
-| Variable             | Required | Description                                                                                                                                                   |
-| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `FORMSPREE_ENDPOINT` | yes      | Formspree form URL, e.g. `https://formspree.io/f/aaaaaaad`. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `FORMSPREE_ENDPOINT` | yes | Formspree form URL. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
+| `UPSTASH_REDIS_URL` | no | Upstash Redis REST URL. Create a free database at https://upstash.com. |
+| `UPSTASH_REDIS_TOKEN` | no | Upstash Redis REST token. Leave unset to disable distributed protection (submission still works, but rate limiting and duplicate prevention fall back to local-only behavior). |
 
 The form shows a success message only after Formspree accepts the submission; if
 sending fails, the visitor sees an error and their entries are preserved.
+
+### Distributed protection
+
+Rate limiting and duplicate prevention are backed by Upstash Redis so they work
+across Vercel serverless instances. Limits: 5 submissions per IP per minute
+(sliding window); duplicate submissions blocked for 20 seconds. If Redis is
+temporarily unavailable, submissions are allowed through and a sanitized
+operational warning is logged — delivery is prioritized over blocking.
 
 ## Deploy on Vercel
 
