@@ -30,10 +30,57 @@ const PARAMS = {
 const BACKGROUND = { kind: 'colour' as const, value: '#0c0b10' };
 
 const capabilities = [
-  { index: '01', title: 'Frontend', description: 'Crafting interfaces that feel intuitive and precise.', icon: '▲' },
-  { index: '02', title: 'Backend', description: 'Designing systems that scale with real business needs.', icon: '●' },
-  { index: '03', title: 'Data', description: 'Turning complexity into clear, informed decisions.', icon: '■' },
-  { index: '04', title: 'Creative Tech', description: 'Using technology as a creative medium for expression.', icon: '◆' },
+  {
+    index: '01',
+    title: 'Frontend',
+    description: 'Crafting interfaces that feel intuitive and precise.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 6.5 12 2l8 4.5" />
+        <path d="M4 9.5 12 5l8 4.5" />
+        <path d="M4 12.5 12 8l8 4.5" />
+        <path d="M20 12.5V19l-8 3-8-3v-6.5" />
+        <path d="M12 19v3" />
+      </svg>
+    ),
+  },
+  {
+    index: '02',
+    title: 'Backend',
+    description: 'Designing systems that scale with real business needs.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <ellipse cx="12" cy="5" rx="6" ry="2" />
+        <path d="M6 5v14a6 2 0 0 0 12 0V5" />
+        <path d="M6 11c0 1.1 2.7 2 6 2s6-.9 6-2" />
+        <path d="M6 17c0 1.1 2.7 2 6 2s6-.9 6-2" />
+      </svg>
+    ),
+  },
+  {
+    index: '03',
+    title: 'Data',
+    description: 'Turning complexity into clear, informed decisions.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 19V5" />
+        <path d="M9 16V7" />
+        <path d="M14 13V5" />
+        <path d="M19 10V5" />
+        <path d="M4 19h16" />
+      </svg>
+    ),
+  },
+  {
+    index: '04',
+    title: 'Creative Tech',
+    description: 'Using technology as a creative medium for expression.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 2 14.5 9.5 22 11l-7 5.5L16.5 22 12 17.5 7.5 22 9 16.5 2 11l7-1.5Z" />
+      </svg>
+    ),
+  },
 ];
 
 type Background = { kind: 'colour'; value: string } | { kind: 'gradient'; angle: number; from: string; to: string };

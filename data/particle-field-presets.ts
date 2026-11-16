@@ -40,3 +40,18 @@ export const GALAXY_A_FORM: ParticleFormField = { kind: "galaxy", seed: 16411015
 // Galaxy B — seed 1310099124
 export const GALAXY_B_SETTINGS: ParticleFieldSettings = { ...BASE_SETTINGS };
 export const GALAXY_B_FORM: ParticleFormField = { kind: "galaxy", seed: 1310099124 };
+
+// Galaxy A — light variant for the projects section. Fewer particles, softer
+// bloom, lower opacity and slower motion so the showcase stays calm and
+// mobile-friendly (see `ParticleField`'s `light` prop for mobile reduction).
+export const GALAXY_A_LIGHT_SETTINGS: ParticleFieldSettings = {
+  ...BASE_SETTINGS,
+  count: 90000,
+  size: 1.7,
+  speed: 0.3,
+  opacity: 0.45,
+  bloomStrength: 0.45,
+  bloomRadius: 0.1,
+  bloomThreshold: 0.3,
+};
+export const GALAXY_A_LIGHT_FORM: ParticleFormField = { kind: "galaxy", seed: 1641101573 };

@@ -5823,19 +5823,6 @@ html.is-grabbing * {
   transform: translateY(-4px);
 }
 
-.project-card-toggle {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
-  text-align: left;
-  color: var(--white-color);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-}
-
 .project-card-media {
   position: relative;
   overflow: hidden;
@@ -5964,109 +5951,6 @@ html.is-grabbing * {
   padding-top: 4px;
 }
 
-.project-card-body {
-  display: none;
-  border-top: 1px solid rgba(254, 255, 248, 0.14);
-}
-
-.project-card.is-expanded {
-  background: rgba(254, 255, 248, 0.03);
-}
-
-.project-card.is-expanded .project-card-body {
-  display: block;
-  padding: 24px;
-}
-
-.project-card-expand {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-  gap: clamp(20px, 3vw, 40px);
-  align-items: start;
-}
-
-.project-card-expand-media {
-  position: relative;
-  overflow: hidden;
-  border-radius: 6px;
-  border: 1px solid rgba(254, 255, 248, 0.1);
-  background: #141414;
-  min-height: 320px;
-}
-
-.project-card-expand-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
-}
-
-.project-card-expand-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding-top: 4px;
-}
-
-.project-card-expand-description {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: rgba(254, 255, 248, 0.72);
-  max-width: 42ch;
-}
-
-.project-detail-label {
-  display: block;
-  margin-bottom: 10px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(254, 255, 248, 0.45);
-}
-
-.project-card-expand-tech ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.project-card-expand-tech li {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(254, 255, 248, 0.78);
-  border: 1px solid rgba(254, 255, 248, 0.16);
-  border-radius: 999px;
-  padding: 7px 10px;
-}
-
-.project-card-expand-links {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.project-close {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(254, 255, 248, 0.55);
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(254, 255, 248, 0.2);
-}
-
-.project-showcase.has-active .project-card:not(.is-expanded) .project-card-title,
-.project-showcase.has-active .project-card:not(.is-expanded) .project-card-description {
-  color: rgba(254, 255, 248, 0.48);
-}
-
 .view-button {
   display: inline-flex;
   align-items: center;
@@ -6078,14 +5962,13 @@ html.is-grabbing * {
   color: var(--white-color);
 }
 
-@media (max-width: 960px) {
-  .project-card-expand { grid-template-columns: 1fr; }
-  .project-card.is-expanded .project-card-body { padding: 20px; }
-}
-
 @media (max-width: 640px) {
   .project-showcase { grid-template-columns: 1fr; }
   .project-card-title { font-size: clamp(20px, 8vw, 28px); }
+
+  /* On small phones the galaxy is pure overhead — hide it and keep the
+     section's dark background so the cards still read. */
+  .projects-section .particle-field { display: none; }
 }
 
 /* Capabilities */
@@ -6194,8 +6077,9 @@ html.is-grabbing * {
 }
 
 .capability-icon {
-  font-family: var(--serif);
-  font-size: 18px;
+  width: 22px;
+  height: 22px;
+  display: block;
   color: var(--black-color);
   line-height: 1;
 }
@@ -6421,6 +6305,11 @@ html.is-grabbing * {
   pointer-events: none;
   background:
     radial-gradient(120% 90% at 50% 42%, rgba(10, 10, 10, 0.12) 0%, rgba(10, 10, 10, 0.5) 72%, rgba(10, 10, 10, 0.82) 100%);
+}
+
+.particle-field--light .particle-field__overlay {
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(10, 10, 10, 0.04) 0%, rgba(10, 10, 10, 0.32) 72%, rgba(10, 10, 10, 0.62) 100%);
 }
 
 /* Keep section content above the particle canvas. */
