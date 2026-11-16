@@ -2967,11 +2967,27 @@ button:focus-visible, a:focus-visible {
   display: flex;
   align-items: center;
   padding-top: clamp(90px, 12vh, 160px);
+  position: relative;
+  overflow: hidden;
+}
+
+.ah.is-intro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/moon-walk.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.18;
+  z-index: 0;
 }
 
 .ah__c {
   width: 100%;
   max-width: 1200px;
+  position: relative;
+  z-index: 1;
 }
 
 .ah__t {
