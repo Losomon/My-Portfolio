@@ -48,8 +48,26 @@ async function post(payload) {
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// Wait for the rate-limit window to reset so we start with fresh quota.
+// The sliding window is 60s; add a small buffer.
+const STARTUP_DELAY_MS = parseInt(process.env.STARTUP_DELAY_MS ?? '62000', 10);
+if (STARTUP_DELAY_MS > 0) {
+  console.log(`Waiting ${STARTUP_DELAY_MS}ms for rate-limit window to reset...`);
+  await sleep(STARTUP_DELAY_MS);
+}
+
 // ---------------------------------------------------------------------------
-// 1. Validation failures
+// 1. Field-level validation (run FIRST, before any rate-limit quota is consumed)
+//    Note: 413 triggers when the entire HTTP body exceeds 16KB.
+//    Field-level limits (e.g. message max 5000 chars) return 400 validation errors.
+// ---------------------------------------------------------------------------
+console.log('\n=== Field validation ===');
+
+const r0 = await post({ name: 'X', email: 'x@x.com', message: 'a'.repeat(5001) });
+assert('oversized message field rejected (400 validation)', r0.status === 400 && r0.data?.error === 'validation' && Boolean(r0.data?.errors?.message), JSON.stringify(r0.data));
+
+// ---------------------------------------------------------------------------
+// 2. Validation failures
 // ---------------------------------------------------------------------------
 console.log('\n=== Validation ===');
 
@@ -58,7 +76,7 @@ assert('empty fields rejected', r1.status === 400 && r1.data?.error === 'validat
 assert('field errors returned', r1.data?.errors && typeof r1.data.errors === 'object');
 
 // ---------------------------------------------------------------------------
-// 2. Honeypot
+// 3. Honeypot
 // ---------------------------------------------------------------------------
 console.log('\n=== Honeypot ===');
 
@@ -69,7 +87,7 @@ const r2 = await post({
 assert('honeypot bot blocked', r2.status === 200 && r2.data?.delivery === 'skipped');
 
 // ---------------------------------------------------------------------------
-// 3. Successful submission
+// 4. Successful submission
 // ---------------------------------------------------------------------------
 console.log('\n=== Success path ===');
 
@@ -84,7 +102,7 @@ const r3 = await post(good);
 assert('valid submission accepted', r3.status === 200 && r3.data?.ok === true, JSON.stringify(r3.data));
 
 // ---------------------------------------------------------------------------
-// 4. Duplicate prevention (same content, same email within 20s)
+// 5. Duplicate prevention (same content, same email within 20s)
 // ---------------------------------------------------------------------------
 console.log('\n=== Duplicate prevention ===');
 
@@ -92,7 +110,7 @@ const dup = await post(good);
 assert('duplicate blocked (200 + duplicate flag)', dup.status === 200 && dup.data?.duplicate === true, JSON.stringify(dup.data));
 
 // ---------------------------------------------------------------------------
-// 5. Rate limiting (5 per minute)
+// 6. Rate limiting (5 per minute)
 // ---------------------------------------------------------------------------
 console.log('\n=== Rate limiting ===');
 
@@ -118,12 +136,15 @@ assert('6th+ request rate-limited (429)', extra.status === 429 && extra.data?.er
 assert('Retry-After header present', Boolean(extra.headers.get('retry-after')));
 
 // ---------------------------------------------------------------------------
-// 6. Redis degradation simulation (skip if Redis is up — can't easily simulate)
-//    We just verify the error path returns generic messages, not Redis errors.
+// 7. Error message safety (no Redis internals leaked)
 // ---------------------------------------------------------------------------
-console.log('\n=== Error message safety ===');
+console.log('\n=== Error message security ===');
 const r4 = await post({ name: 'X', email: 'x@x.com', message: 'a'.repeat(5001) });
-assert('oversized message rejected cleanly', r4.status === 400 && r4.data?.error === 'validation');
+// At this point quota may be exhausted, so we accept either a validation error (400)
+// or a rate-limit rejection (429). Both are clean — no Redis internals are exposed.
+const clean = (r4.status === 400 && r4.data?.error === 'validation') ||
+              (r4.status === 429 && r4.data?.error === 'rate_limited');
+assert('oversized message rejected cleanly (no Redis leak)', clean, JSON.stringify(r4.data));
 
 // ---------------------------------------------------------------------------
 // Summary
