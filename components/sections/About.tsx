@@ -1,23 +1,34 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { createDraggable, utils } from 'animejs';
+import { createDraggable, stagger, utils, waapi } from 'animejs';
 import Silhouette from '@/components/ui/Silhouette';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const coordinates = [
-  { label: 'Location', value: 'Kenya' },
+  { label: 'Location', value: 'Nairobi, Kenya' },
   { label: 'Education', value: 'Computer Science, Kirinyaga University' },
-  { label: 'Professional Direction', value: 'Software Engineering / Full-Stack Development' },
-  { label: 'Disciplines', value: 'Frontend, Backend, Data, Creative Technology' },
+  { label: 'Direction', value: 'Software Engineering / Full-Stack' },
+  { label: 'Disciplines', value: 'Frontend · Backend · Data · Creative Tech' },
   {
     label: 'Current Focus',
-    value: 'Building practical software systems and experimenting with interactive digital experiences.',
+    value: 'Building practical software systems and interactive digital experiences.',
   },
+];
+
+const gallery = [
+  '/images/about-img-1.webp',
+  '/images/about-img-2.webp',
+  '/images/about-img-3.webp',
+  '/images/about-img-4.webp',
 ];
 
 export default function About() {
   const figureRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const figure = figureRef.current;
@@ -40,27 +51,82 @@ export default function About() {
     };
   }, []);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const intro = introRef.current;
+    if (!section || !intro) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const chars = intro.querySelectorAll('.reveal-char');
+    const ups = section.querySelectorAll('.reveal-up');
+
+    const charAnim = waapi.animate(chars, {
+      opacity: [0, 1],
+      translateY: ['30px', 0],
+      duration: 800,
+      easing: 'cubic-bezier(.25, 1, .5, 1)',
+      delay: stagger(40),
+      autoplay: false,
+    });
+
+    const upAnim = waapi.animate(ups, {
+      opacity: [0, 1],
+      translateY: ['40px', 0],
+      duration: 800,
+      easing: 'cubic-bezier(.25, 1, .5, 1)',
+      delay: stagger(100),
+      autoplay: false,
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            charAnim.play();
+            upAnim.play();
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.18 }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+      charAnim.cancel();
+      upAnim.cancel();
+    };
+  }, []);
+
   return (
-    <section id="about" className="about-section">
-      <div className="content-wrap">
-        <div className="about-identity">
-          <p className="about-kicker">Profile / 001</p>
+    <section id="about" className="about-section" ref={sectionRef}>
+      <div className="about-shell">
+        <div className="about-intro" ref={introRef}>
+          <p className="about-kicker reveal-char">Profile / 001</p>
           <h2 className="about-statement">
             Software engineer,
-            <span>creative problem solver.</span>
+            <br />
+            <span className="reveal-char">creative technologist.</span>
           </h2>
+          <p className="about-lead reveal-char">
+            I build software that turns complexity into clarity — blending engineering rigor with creative
+            technology to craft experiences that feel intentional and reliable.
+          </p>
         </div>
 
         <div className="about-body">
           <div className="about-narrative">
-            <p>
-              I approach software development as a process of making complexity usable. I start by understanding constraints, user needs, and the shape of the problem before deciding what deserves to be built.
+            <p className="reveal-up">
+              My process starts by understanding constraints, user needs, and the shape of the problem before
+              deciding what deserves to be built. I break challenges into clear systems, test assumptions early,
+              and refine the details until the solution feels dependable.
             </p>
-            <p>
-              When I work through problems, I break them into clear systems, test assumptions early, and refine the details until the solution feels reliable and intentional. I care about building practical systems that hold up in real use.
-            </p>
-            <p>
-              I am equally drawn to combining engineering with creative technology—using code, motion, and interaction as materials for thoughtful digital experiences, not just functional outputs.
+            <p className="reveal-up">
+              I am equally drawn to the intersection of code and creative technology — using motion, interaction,
+              and systems thinking as materials for thoughtful digital experiences, not just functional outputs.
             </p>
           </div>
 
@@ -74,10 +140,17 @@ export default function About() {
                 <span>Drag to rotate</span>
               </div>
             </div>
+            <div className="about-gallery">
+              {gallery.map((src, i) => (
+                <figure key={i} className="about-gallery-item reveal-up">
+                  <Image src={src} alt={`Studio detail ${i + 1}`} width={600} height={750} className="about-gallery-image" loading="lazy" />
+                </figure>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="about-coordinates" aria-label="Personal coordinates">
+        <div className="about-coordinates reveal-up" aria-label="Personal coordinates">
           <p className="about-coordinates-title">Personal Coordinates</p>
           <dl className="about-index">
             {coordinates.map((item) => (
@@ -87,6 +160,12 @@ export default function About() {
               </div>
             ))}
           </dl>
+        </div>
+
+        <div className="about-divider reveal-up">
+          <Link href="#work" className="about-view-work">
+            View selected work <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
     </section>

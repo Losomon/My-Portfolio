@@ -8,21 +8,25 @@ const capabilities = [
     index: '01',
     title: 'Frontend',
     description: 'Crafting interfaces that feel intuitive and precise.',
+    icon: '▲',
   },
   {
     index: '02',
     title: 'Backend',
     description: 'Designing systems that scale with real business needs.',
+    icon: '●',
   },
   {
     index: '03',
     title: 'Data',
     description: 'Turning complexity into clear, informed decisions.',
+    icon: '■',
   },
   {
     index: '04',
     title: 'Creative Tech',
     description: 'Using technology as a creative medium for expression.',
+    icon: '◆',
   },
 ];
 
@@ -65,6 +69,7 @@ export default function Capabilities() {
       const line = card.querySelector<HTMLElement>('.capability-line');
       const title = card.querySelector<HTMLElement>('.capability-title');
       const desc = card.querySelector<HTMLElement>('.capability-desc');
+      const icon = card.querySelector<HTMLElement>('.capability-icon');
       const base = 220 + index * 170;
 
       const cardAnim = waapi.animate(card, {
@@ -75,6 +80,20 @@ export default function Capabilities() {
         autoplay: false,
       });
       tl.sync(cardAnim, base);
+
+      if (icon) {
+        tl.sync(
+          waapi.animate(icon, {
+            opacity: [0, 1],
+            scale: [0.6, 1],
+            rotate: [-12, 0],
+            duration: 600,
+            ease: 'out(4)',
+            autoplay: false,
+          }),
+          base + 60
+        );
+      }
 
       if (marker) {
         tl.sync(
@@ -164,13 +183,14 @@ export default function Capabilities() {
     <section id="capabilities" className="capabilities-section" ref={sectionRef}>
       <div className="content-wrap capabilities-shell">
         <div className="capabilities-intro" ref={introRef}>
-          <p className="eyebrow eyebrow-dark">Capabilities</p>
+          <p className="eyebrow eyebrow-dark reveal-char">Capabilities</p>
           <h2 className="section-title section-title-dark">
             What I
-            <span>bring to the table.</span>
+            <span className="reveal-char">bring to the table.</span>
           </h2>
-          <p className="capabilities-description">
-            From full-stack development to creative problem solving, I build experiences that are practical, scalable and memorable.
+          <p className="capabilities-description reveal-char">
+            From full-stack development to creative problem solving, I build experiences that are practical,
+            scalable and memorable.
           </p>
           <a href="#capability-grid" className="inline-link inline-link-dark" ref={linkRef}>
             Explore Skills
@@ -190,6 +210,9 @@ export default function Capabilities() {
               <div className="capability-marker" aria-hidden="true">
                 <span className="capability-index">{item.index}</span>
                 <span className="capability-line" />
+              </div>
+              <div className="capability-visual">
+                <span className="capability-icon">{item.icon}</span>
               </div>
               <div className="capability-content">
                 <h3 className="capability-title">{item.title}</h3>

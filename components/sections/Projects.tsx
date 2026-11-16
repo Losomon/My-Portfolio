@@ -6,12 +6,13 @@ import Link from 'next/link';
 import { createLayout } from 'animejs';
 import { projects } from '@/lib/projects';
 
-const HOME_PROJECT_SLUGS = ['vet-claim', 'folio-v1', '01'] as const;
+const HOME_PROJECT_SLUGS = ['vet-claim', 'folio-v1', '01', 'pulse'] as const;
 
 const imageBySlug: Record<string, string> = {
   'vet-claim': '/images/vet-claim.webp',
   'folio-v1': '/images/folio-v1.webp',
   '01': '/images/01.webp',
+  pulse: '/images/pulse.jpg',
 };
 
 export default function Projects() {
@@ -42,15 +43,15 @@ export default function Projects() {
   return (
     <section id="work" className="projects-section">
       <div className="content-wrap">
-        <div className="projects-head projects-head-editorial">
+        <div className="projects-head">
           <div>
-            <p className="eyebrow eyebrow-dark">Selected Projects</p>
+            <p className="eyebrow eyebrow-dark reveal-char">Selected Projects</p>
             <h2 className="section-title section-title-dark">
               A fluid editorial
-              <span>project showcase.</span>
+              <span className="reveal-char">project showcase.</span>
             </h2>
           </div>
-          <Link href="/work" className="view-button">
+          <Link href="/work" className="view-button reveal-char">
             View All Projects
           </Link>
         </div>
@@ -66,52 +67,76 @@ export default function Projects() {
               <article
                 key={project.slug}
                 data-layout-id={`project-${project.slug}`}
-                className={`project-entry${isActive ? ' is-expanded' : ''}`}
+                className={`project-card${isActive ? ' is-expanded' : ''}`}
               >
                 <button
                   type="button"
-                  className="project-entry-toggle"
+                  className="project-card-toggle"
                   onClick={() => toggleProject(project.slug)}
                   aria-expanded={isActive}
                   aria-controls={panelId}
                 >
-                  <span className="project-entry-index">0{index + 1}</span>
-                  <span className="project-entry-main">
-                    <span className="project-entry-meta">
-                      {project.category} — {project.title}
-                    </span>
-                    <span className="project-entry-sub">{project.role}</span>
-                  </span>
-                  <span className="project-entry-action">{isActive ? 'Close' : 'Open'}</span>
-                </button>
-
-                <div id={panelId} className="project-entry-body" aria-hidden={!isActive}>
-                  <div className="project-entry-media">
+                  <div className="project-card-media">
                     <Image
                       src={imageSrc}
                       alt={`${project.title} screenshot`}
-                      width={1400}
-                      height={1000}
-                      className="project-entry-image"
+                      width={800}
+                      height={600}
+                      className="project-card-image"
+                      loading="lazy"
                     />
-                  </div>
-                  <div className="project-entry-detail">
-                    <p className="project-entry-description">{project.description}</p>
-                    <div className="project-entry-tech">
-                      <span className="project-detail-label">Technologies</span>
-                      <ul>
-                        {project.stack.map((item) => (
-                          <li key={item}>{item}</li>
-                        ))}
-                      </ul>
+                    <div className="project-card-overlay">
+                      <span className="project-card-category">{project.category}</span>
+                      <span className="project-card-role">{project.role}</span>
                     </div>
-                    <div className="project-entry-links">
-                      <Link href={`/work/${project.slug}`} className="inline-link inline-link-dark">
-                        Case Study <span aria-hidden="true">→</span>
-                      </Link>
-                      <button type="button" className="project-close" onClick={() => toggleProject(project.slug)}>
-                        Close
-                      </button>
+                    <span className="project-card-index reveal-char">0{index + 1}</span>
+                  </div>
+                  <div className="project-card-content">
+                    <h3 className="project-card-title reveal-char">
+                      {project.title}
+                      <span className="project-card-title-sub">{project.role}</span>
+                    </h3>
+                    <p className="project-card-description reveal-char">{project.description}</p>
+                    <div className="project-card-stack reveal-char">
+                      {project.stack.map((item) => (
+                        <span key={item} className="project-card-tag">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="project-card-action">{isActive ? 'Close details' : 'Open details'}</span>
+                  </div>
+                </button>
+
+                <div id={panelId} className="project-card-body" aria-hidden={!isActive}>
+                  <div className="project-card-expand">
+                    <div className="project-card-expand-media">
+                      <Image
+                        src={imageSrc}
+                        alt={`${project.title} detail`}
+                        width={1400}
+                        height={1000}
+                        className="project-card-expand-image"
+                      />
+                    </div>
+                    <div className="project-card-expand-detail">
+                      <p className="project-card-expand-description">{project.description}</p>
+                      <div className="project-card-expand-tech">
+                        <span className="project-detail-label">Technologies</span>
+                        <ul>
+                          {project.stack.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="project-card-expand-links">
+                        <Link href={`/work/${project.slug}`} className="inline-link inline-link-dark">
+                          Case Study <span aria-hidden="true">→</span>
+                        </Link>
+                        <button type="button" className="project-close" onClick={() => toggleProject(project.slug)}>
+                          Close
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
