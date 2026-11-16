@@ -1,33 +1,115 @@
 'use client';
 
-import { type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
+import {
+  firstContactErrorField,
+  hasContactErrors,
+  validateContact,
+  type ContactErrors,
+  type ContactField,
+} from '@/lib/contact';
 
 const CONTACT_EMAIL = 'solomboni5@gmail.com';
 
+const SUCCESS_TITLE = 'Inquiry received successfully!';
+const SUCCESS_BODY =
+  "Thank you for reaching out. I've received your message and will review your project details. I'll get back to you as soon as possible.";
+const SUCCESS_CLOSING = 'Looking forward to connecting with you.';
+const FAILURE_MESSAGE =
+  "Something went wrong. Your inquiry couldn't be sent. Please try again.";
+
+type Status = 'idle' | 'submitting' | 'success' | 'error';
+
+const FIELD_IDS: Record<ContactField, string> = {
+  name: 'contact-name',
+  email: 'contact-email',
+  organization: 'contact-organization',
+  service: 'contact-service',
+  message: 'contact-message',
+};
+
+function fieldClass(field: ContactField, errors: ContactErrors): string {
+  return errors[field]
+    ? 'contact-inquiry__field contact-inquiry__field--invalid'
+    : 'contact-inquiry__field';
+}
+
+function fieldA11y(field: ContactField, errors: ContactErrors) {
+  return errors[field]
+    ? {
+        'aria-invalid': true as const,
+        'aria-describedby': `${FIELD_IDS[field]}-error`,
+      }
+    : {};
+}
+
 export default function ContactForm() {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  const [status, setStatus] = useState<Status>('idle');
+  const [errors, setErrors] = useState<ContactErrors>({});
+  const submittingRef = useRef(false);
 
-    const formData = new FormData(event.currentTarget);
-    const name = String(formData.get('name') ?? '').trim();
-    const email = String(formData.get('email') ?? '').trim();
-    const organization = String(formData.get('organization') ?? '').trim();
-    const service = String(formData.get('service') ?? '').trim();
-    const message = String(formData.get('message') ?? '').trim();
-    const subject = encodeURIComponent(`Project inquiry from ${name}`);
-    const body = encodeURIComponent(
-      [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Organization: ${organization || 'Not provided'}`,
-        `Looking for: ${service || 'Not specified'}`,
-        '',
-        message,
-      ].join('\n'),
-    );
-
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+  function focusFirstError(nextErrors: ContactErrors) {
+    const field = firstContactErrorField(nextErrors);
+    if (!field) return;
+    const element = document.getElementById(FIELD_IDS[field]);
+    element?.focus();
   }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submittingRef.current) return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get('name') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      organization: String(formData.get('organization') ?? ''),
+      service: String(formData.get('service') ?? ''),
+      message: String(formData.get('message') ?? ''),
+      portfolio_referral: String(formData.get('portfolio_referral') ?? ''),
+    };
+
+    const { errors: clientErrors } = validateContact(payload);
+    setErrors(clientErrors);
+    setStatus('idle');
+
+    if (hasContactErrors(clientErrors)) {
+      focusFirstError(clientErrors);
+      return;
+    }
+
+    submittingRef.current = true;
+    setStatus('submitting');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data: {
+        ok?: boolean;
+        errors?: ContactErrors;
+      } | null = await response.json().catch(() => null);
+
+      if (response.ok && data?.ok) {
+        setErrors({});
+        setStatus('success');
+        form.reset();
+      } else {
+        if (data?.errors) setErrors(data.errors);
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    } finally {
+      submittingRef.current = false;
+    }
+  }
+
+  const isSubmitting = status === 'submitting';
 
   return (
     <section className="contact-inquiry" aria-labelledby="contact-inquiry-title">
@@ -46,8 +128,8 @@ export default function ContactForm() {
         </header>
 
         <div className="contact-inquiry__layout">
-          <form className="contact-inquiry__form" onSubmit={handleSubmit}>
-            <div className="contact-inquiry__field">
+          <form className="contact-inquiry__form" noValidate onSubmit={handleSubmit}>
+            <div className={fieldClass('name', errors)}>
               <span className="contact-inquiry__number" aria-hidden="true">01</span>
               <div>
                 <label htmlFor="contact-name">What&apos;s your name?</label>
@@ -55,74 +137,160 @@ export default function ContactForm() {
                   autoComplete="name"
                   id="contact-name"
                   name="name"
+                  maxLength={100}
                   placeholder="Your name"
                   required
+                  {...fieldA11y('name', errors)}
                 />
+                {errors.name ? (
+                  <p className="contact-inquiry__error" id="contact-name-error" role="alert">
+                    {errors.name}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <div className="contact-inquiry__field">
+            <div className={fieldClass('email', errors)}>
               <span className="contact-inquiry__number" aria-hidden="true">02</span>
               <div>
                 <label htmlFor="contact-email">What&apos;s your email?</label>
                 <input
                   autoComplete="email"
                   id="contact-email"
+                  maxLength={254}
                   name="email"
                   placeholder="you@example.com"
                   required
                   type="email"
+                  {...fieldA11y('email', errors)}
                 />
+                {errors.email ? (
+                  <p className="contact-inquiry__error" id="contact-email-error" role="alert">
+                    {errors.email}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <div className="contact-inquiry__field">
+            <div className={fieldClass('organization', errors)}>
               <span className="contact-inquiry__number" aria-hidden="true">03</span>
               <div>
                 <label htmlFor="contact-organization">Your organization</label>
                 <input
                   autoComplete="organization"
                   id="contact-organization"
+                  maxLength={150}
                   name="organization"
                   placeholder="Company or brand (optional)"
+                  {...fieldA11y('organization', errors)}
                 />
+                {errors.organization ? (
+                  <p
+                    className="contact-inquiry__error"
+                    id="contact-organization-error"
+                    role="alert"
+                  >
+                    {errors.organization}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <div className="contact-inquiry__field">
+            <div className={fieldClass('service', errors)}>
               <span className="contact-inquiry__number" aria-hidden="true">04</span>
               <div>
                 <label htmlFor="contact-service">What are you looking for?</label>
-                <select id="contact-service" name="service" defaultValue="">
+                <select
+                  defaultValue=""
+                  id="contact-service"
+                  name="service"
+                  {...fieldA11y('service', errors)}
+                >
                   <option value="">Choose a service (optional)</option>
                   <option value="Web design">Web design</option>
                   <option value="Web development">Web development</option>
                   <option value="Design and development">Design and development</option>
                   <option value="Something else">Something else</option>
                 </select>
+                {errors.service ? (
+                  <p className="contact-inquiry__error" id="contact-service-error" role="alert">
+                    {errors.service}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <div className="contact-inquiry__field">
+            <div className={fieldClass('message', errors)}>
               <span className="contact-inquiry__number" aria-hidden="true">05</span>
               <div>
                 <label htmlFor="contact-message">Tell me about your project</label>
                 <textarea
                   id="contact-message"
+                  maxLength={5000}
                   name="message"
                   placeholder="A few details about your idea..."
                   required
                   rows={4}
+                  {...fieldA11y('message', errors)}
                 />
+                {errors.message ? (
+                  <p className="contact-inquiry__error" id="contact-message-error" role="alert">
+                    {errors.message}
+                  </p>
+                ) : null}
               </div>
             </div>
 
-            <button className="contact-inquiry__submit" type="submit">
-              Send inquiry <span aria-hidden="true">↗</span>
+            <div aria-hidden="true" className="contact-inquiry__honeypot">
+              <label htmlFor="contact-referral">Leave this field empty</label>
+              <input
+                autoComplete="off"
+                id="contact-referral"
+                name="portfolio_referral"
+                tabIndex={-1}
+              />
+            </div>
+
+            <button
+              aria-busy={isSubmitting}
+              className="contact-inquiry__submit"
+              disabled={isSubmitting}
+              type="submit"
+            >
+              {isSubmitting ? (
+                <>
+                  Sending
+                  <span aria-hidden="true" className="contact-inquiry__dots">
+                    <i>.</i><i>.</i><i>.</i>
+                  </span>
+                </>
+              ) : (
+                <>
+                  Send inquiry <span aria-hidden="true">↗</span>
+                </>
+              )}
             </button>
             <p className="contact-inquiry__note">
-              This opens a draft in your email app so you can send it directly.
+              Your details are sent securely and only used to reply to your inquiry.
             </p>
+
+            <div aria-live="polite">
+              {status === 'success' ? (
+                <div
+                  className="contact-inquiry__status contact-inquiry__status--success"
+                  role="status"
+                >
+                  <p className="contact-inquiry__status-title">{SUCCESS_TITLE}</p>
+                  <p>{SUCCESS_BODY}</p>
+                  <p>{SUCCESS_CLOSING}</p>
+                </div>
+              ) : null}
+              {status === 'error' ? (
+                <p className="contact-inquiry__status contact-inquiry__status--error" role="alert">
+                  {FAILURE_MESSAGE}
+                </p>
+              ) : null}
+            </div>
           </form>
 
           <aside className="contact-inquiry__aside" aria-label="Contact details">

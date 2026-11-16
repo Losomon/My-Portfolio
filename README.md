@@ -34,3 +34,26 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Contact form
+
+The contact form on `/contact` posts to the `app/api/contact` route handler, which
+validates the submission, applies rate limiting and spam protection, and emails the
+inquiry to `solomboni5@gmail.com` through [Resend](https://resend.com).
+
+No email is sent unless the visitor's mail app is irrelevant — submission happens
+server-side, so visitors do not need any email application installed.
+
+### Environment variables
+
+Set these in `.env.local` (development) or your host's environment settings
+(production). They are server-side only and are never exposed to the browser:
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `RESEND_API_KEY` | yes | API key from https://resend.com/api-keys |
+| `CONTACT_TO_EMAIL` | no | Recipient address (defaults to `solomboni5@gmail.com`) |
+| `RESEND_FROM_EMAIL` | yes | Sender on a domain verified in Resend. `onboarding@resend.dev` works for testing but only delivers to the Resend account owner's email. |
+
+The form shows a success message only after the Resend API accepts and queues the
+message; if sending fails, the visitor sees an error and their entries are preserved.

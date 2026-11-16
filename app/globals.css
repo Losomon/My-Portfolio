@@ -5053,6 +5053,90 @@ button:focus-visible, a:focus-visible {
   line-height: 1.45;
 }
 
+.contact-inquiry__honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.contact-inquiry__field--invalid {
+  border-bottom-color: #b42318;
+}
+
+.contact-inquiry__error {
+  margin: 0.55rem 0 0;
+  color: #b42318;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.contact-inquiry__status {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(30, 30, 30, 0.18);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.contact-inquiry__status--success {
+  border-color: rgba(30, 30, 30, 0.28);
+  background: rgba(30, 30, 30, 0.04);
+  color: var(--black-color);
+}
+
+.contact-inquiry__status--error {
+  border-color: rgba(180, 35, 24, 0.35);
+  color: #b42318;
+}
+
+.contact-inquiry__status-title {
+  font-weight: 500;
+}
+
+.contact-inquiry__status p + p {
+  margin-top: 0.5rem;
+}
+
+.contact-inquiry__submit:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.contact-inquiry__submit:disabled:hover {
+  background: var(--black-color);
+  color: var(--white-color);
+}
+
+.contact-inquiry__dots {
+  display: inline-flex;
+}
+
+.contact-inquiry__dots i {
+  font-style: normal;
+  animation: contact-dots 1.2s infinite steps(1, end);
+}
+
+.contact-inquiry__dots i:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.contact-inquiry__dots i:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes contact-dots {
+  0%, 60%, 100% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
 .contact-inquiry__aside {
   display: flex;
   flex-direction: column;
