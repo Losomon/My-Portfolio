@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { createDraggable, stagger, utils, waapi } from 'animejs';
 import Silhouette from '@/components/ui/Silhouette';
 import Link from 'next/link';
-import Image from 'next/image';
 
 const coordinates = [
   { label: 'Location', value: 'Nairobi, Kenya' },
@@ -15,13 +14,6 @@ const coordinates = [
     label: 'Current Focus',
     value: 'Building practical software systems and interactive digital experiences.',
   },
-];
-
-const gallery = [
-  '/images/about-img-1.webp',
-  '/images/about-img-2.webp',
-  '/images/about-img-3.webp',
-  '/images/about-img-4.webp',
 ];
 
 export default function About() {
@@ -139,13 +131,6 @@ export default function About() {
                 <span>Visual Identity</span>
                 <span>Drag to rotate</span>
               </div>
-            </div>
-            <div className="about-gallery">
-              {gallery.map((src, i) => (
-                <figure key={i} className="about-gallery-item reveal-up">
-                  <Image src={src} alt={`Studio detail ${i + 1}`} width={600} height={750} className="about-gallery-image" loading="lazy" />
-                </figure>
-              ))}
             </div>
           </div>
         </div>

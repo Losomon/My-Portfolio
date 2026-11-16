@@ -1,0 +1,98 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import type { ParticleFieldSettings, ParticleFormField } from '@/data/particle-field-presets';
+
+interface ParticleFieldProps {
+  settings: ParticleFieldSettings;
+  form: ParticleFormField;
+  className?: string;
+  /** Draw a dark scrim over the canvas so overlaid content stays readable. */
+  overlay?: boolean;
+}
+
+/**
+ * Full-bleed GPU particle field (three.js). The canvas fills this component's
+ * container (CSS 100% × 100%) and re-mounts on resize. Rendering pauses while
+ * the element is off-screen. three + the engine are imported dynamically so
+ * they never run during SSR.
+ */
+export default function ParticleField({ settings, form, className, overlay }: ParticleFieldProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    let cancelled = false;
+    let cleanup = () => {};
+
+    import('./engine').then(({ ParticleStudio }) => {
+      if (cancelled) return;
+
+      const studio = new ParticleStudio(canvas, { ...settings });
+      const DPR_CAP = 2;
+
+      const resize = () => {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (!w || !h) return;
+        studio.resize(w, h, Math.min(window.devicePixelRatio || 1, DPR_CAP));
+      };
+      resize();
+
+      const ro = new ResizeObserver(resize);
+      ro.observe(container);
+
+      // First form: particles "gather" in from a wide sphere (scale 4), morph 2.6 s.
+      studio.showForm(form.kind, form.seed, 'gather');
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        studio.setSpeed(Math.min(settings.speed, 0.12));
+      }
+
+      let playing = true;
+      let last = performance.now();
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          playing = entry.isIntersecting;
+          last = performance.now();
+        },
+        { threshold: 0.01 },
+      );
+      io.observe(container);
+
+      let raf = requestAnimationFrame(function tick(now: number) {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        if (playing) studio.renderFrame(dt);
+        raf = requestAnimationFrame(tick);
+      });
+
+      cleanup = () => {
+        cancelAnimationFrame(raf);
+        io.disconnect();
+        ro.disconnect();
+        studio.dispose();
+      };
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
+  }, [settings, form]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={`particle-field${className ? ` ${className}` : ''}`}
+      aria-hidden="true"
+    >
+      <canvas ref={canvasRef} className="particle-field__canvas" />
+      {overlay ? <div className="particle-field__overlay" /> : null}
+    </div>
+  );
+}

@@ -1636,17 +1636,54 @@ button:focus-visible, a:focus-visible {
   background: var(--black-color);
   color: var(--white-color);
   border-top: 1px solid rgba(254, 255, 248, 0.08);
+  position: relative;
+  overflow: hidden;
 }
 
-.capabilities-shell {
-  display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
-  gap: clamp(32px, 5vw, 64px);
-  align-items: start;
+.capabilities-stage {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(400px, 52svh, 720px);
+  background: #0c0b10;
 }
 
-.capabilities-description { max-width: 360px; margin: 22px 0 0; font-size: 15px; line-height: 1.8; color: rgba(254, 255, 248, 0.7); }
-.capabilities-intro .inline-link { margin-top: 28px; }
+.capabilities-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to right, #0c0b10, transparent 40%, transparent);
+  pointer-events: none;
+}
+
+.capabilities-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+.capabilities-intro {
+  position: absolute;
+  z-index: 3;
+  top: clamp(48px, 6vh, 100px);
+  left: var(--page-padding);
+  max-width: clamp(300px, 40vw, 560px);
+  color: #ffffff;
+  pointer-events: auto;
+  padding: clamp(24px, 3vw, 40px) clamp(24px, 3vw, 40px) 24px;
+  background: rgba(12, 11, 16, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.capabilities-intro .eyebrow { color: #f0c419; }
+.capabilities-description { max-width: 360px; margin: 22px 0 0; font-size: 15px; line-height: 1.8; color: #e8e2d4; }
+.capabilities-intro .section-title-dark span { color: #f0c419; }
+.capabilities-intro .inline-link { margin-top: 28px; color: #f0c419; }
 
 .capability-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 
@@ -6054,9 +6091,9 @@ html.is-grabbing * {
 /* Capabilities */
 .capabilities-section {
   padding: clamp(80px, 12vh, 150px) 0;
-  background: var(--black-color);
-  color: var(--white-color);
-  border-top: 1px solid rgba(254, 255, 248, 0.08);
+  background: var(--white-color);
+  color: var(--black-color);
+  border-top: 1px solid rgba(30, 30, 30, 0.1);
 }
 
 .capabilities-shell {
@@ -6071,7 +6108,6 @@ html.is-grabbing * {
   margin: 22px 0 0;
   font-size: 15px;
   line-height: 1.8;
-  color: rgba(254, 255, 248, 0.7);
 }
 .capabilities-intro .section-title { font-size: clamp(2.25rem, 3.6vw, 3.75rem); }
 .capabilities-intro .inline-link { margin-top: 28px; }
@@ -6085,9 +6121,9 @@ html.is-grabbing * {
 .capability-card {
   min-height: 240px;
   padding: 26px 22px 28px;
-  border: 1px solid rgba(254, 255, 248, 0.08);
+  border: 1px solid rgba(30, 30, 30, 0.1);
   border-radius: 10px;
-  background: #202020;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -6097,7 +6133,7 @@ html.is-grabbing * {
 }
 
 .capability-card:hover {
-  border-color: rgba(254, 255, 248, 0.28);
+  border-color: rgba(30, 30, 30, 0.24);
   transform: translateY(-4px);
 }
 
@@ -6105,7 +6141,7 @@ html.is-grabbing * {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(254, 255, 248, 0.03), transparent);
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.04), transparent);
   opacity: 0;
   transition: opacity 300ms var(--default-easing);
   pointer-events: none;
@@ -6128,13 +6164,13 @@ html.is-grabbing * {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.16em;
-  color: rgba(254, 255, 248, 0.4);
+  color: rgba(30, 30, 30, 0.4);
 }
 
 .capability-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, rgba(254, 255, 248, 0.22), rgba(254, 255, 248, 0));
+  background: linear-gradient(90deg, rgba(30, 30, 30, 0.22), rgba(30, 30, 30, 0));
   transform-origin: left center;
 }
 
@@ -6142,8 +6178,8 @@ html.is-grabbing * {
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  background: rgba(254, 255, 248, 0.06);
-  border: 1px solid rgba(254, 255, 248, 0.12);
+  background: rgba(30, 30, 30, 0.05);
+  border: 1px solid rgba(30, 30, 30, 0.12);
   display: grid;
   place-items: center;
   position: relative;
@@ -6152,15 +6188,15 @@ html.is-grabbing * {
 }
 
 .capability-card:hover .capability-visual {
-  background: rgba(254, 255, 248, 0.1);
-  border-color: rgba(254, 255, 248, 0.24);
+  background: rgba(30, 30, 30, 0.08);
+  border-color: rgba(30, 30, 30, 0.2);
   transform: translateY(-2px);
 }
 
 .capability-icon {
   font-family: var(--serif);
   font-size: 18px;
-  color: var(--white-color);
+  color: var(--black-color);
   line-height: 1;
 }
 
@@ -6173,14 +6209,14 @@ html.is-grabbing * {
   font-size: clamp(22px, 2vw, 32px);
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: var(--white-color);
+  color: var(--black-color);
 }
 
 .capability-content p {
   margin: 14px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: rgba(254, 255, 248, 0.55);
+  color: rgba(30, 30, 30, 0.6);
   max-width: 28ch;
   position: relative;
   z-index: 2;
@@ -6357,3 +6393,42 @@ html.is-grabbing * {
 @media (max-width: 640px) {
   .social-link { width: 42px; height: 42px; font-size: 11px; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Particle field background (GPU galaxy)                              */
+/* ------------------------------------------------------------------ */
+
+.particle-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #000;
+}
+
+.particle-field__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.particle-field__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 42%, rgba(10, 10, 10, 0.12) 0%, rgba(10, 10, 10, 0.5) 72%, rgba(10, 10, 10, 0.82) 100%);
+}
+
+/* Keep section content above the particle canvas. */
+.projects-section > .content-wrap,
+.contact-section > .content-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.projects-section,
+.contact-section { isolation: isolate; }
