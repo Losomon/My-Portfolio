@@ -51,9 +51,9 @@ installed.
 Set these in `.env.local` (development) or your host's environment settings
 (production). They are server-side only and are never exposed to the browser:
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `FORMSPREE_ENDPOINT` | yes | Formspree form URL, e.g. `https://formspree.io/f/xrpqpdzr`. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
+| Variable             | Required | Description                                                                                                                                                   |
+| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FORMSPREE_ENDPOINT` | yes      | Formspree form URL, e.g. `https://formspree.io/f/aaaaaaad`. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
 
 The form shows a success message only after Formspree accepts the submission; if
 sending fails, the visitor sees an error and their entries are preserved.
