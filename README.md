@@ -38,11 +38,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Contact form
 
 The contact form on `/contact` posts to the `app/api/contact` route handler, which
-validates the submission, applies rate limiting and spam protection, and emails the
-inquiry to `solomboni5@gmail.com` through [Resend](https://resend.com).
+validates the submission, applies rate limiting and spam protection, and delivers the
+inquiry through [Formspree](https://formspree.io) to `solomboni5@gmail.com`.
 
-No email is sent unless the visitor's mail app is irrelevant — submission happens
-server-side, so visitors do not need any email application installed.
+Submission happens server-side, so visitors do not need any email application
+installed.
 
 ### Environment variables
 
@@ -51,9 +51,7 @@ Set these in `.env.local` (development) or your host's environment settings
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `RESEND_API_KEY` | yes | API key from https://resend.com/api-keys |
-| `CONTACT_TO_EMAIL` | no | Recipient address (defaults to `solomboni5@gmail.com`) |
-| `RESEND_FROM_EMAIL` | yes | Sender on a domain verified in Resend. `onboarding@resend.dev` works for testing but only delivers to the Resend account owner's email. |
+| `FORMSPREE_ENDPOINT` | yes | Formspree form URL, e.g. `https://formspree.io/f/xrpqpdzr`. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
 
-The form shows a success message only after the Resend API accepts and queues the
-message; if sending fails, the visitor sees an error and their entries are preserved.
+The form shows a success message only after Formspree accepts the submission; if
+sending fails, the visitor sees an error and their entries are preserved.

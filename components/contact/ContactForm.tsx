@@ -271,7 +271,7 @@ export default function ContactForm() {
               )}
             </button>
             <p className="contact-inquiry__note">
-              Your details are sent securely and only used to reply to your inquiry.
+              Your details are sent securely and only used to reply.
             </p>
 
             <div aria-live="polite">

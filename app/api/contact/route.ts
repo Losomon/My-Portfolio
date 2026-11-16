@@ -4,11 +4,8 @@ import {
   type ContactValues,
 } from '@/lib/contact';
 
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL ?? 'solomboni5@gmail.com';
-const RESEND_API_KEY = process.env.RESEND_API_KEY ?? '';
-const RESEND_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? 'Portfolio <onboarding@resend.dev>';
-const RESEND_ENDPOINT = 'https://api.resend.com/emails';
+// Formspree form endpoint (https://formspree.io/f/...). Server-side only.
+const FORMSPREE_ENDPOINT = process.env.FORMSPREE_ENDPOINT ?? '';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -69,15 +66,6 @@ function submissionKey(values: ContactValues): string {
   )}`;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 function formatSubmittedAt(date: Date): string {
   return new Intl.DateTimeFormat('en-GB', {
     dateStyle: 'full',
@@ -85,100 +73,54 @@ function formatSubmittedAt(date: Date): string {
   }).format(date);
 }
 
-function buildEmail(values: ContactValues, submittedAt: Date) {
-  const submittedAtLabel = formatSubmittedAt(submittedAt);
-  const organization = values.organization || 'Not provided';
-  const service = values.service || 'Not specified';
-
-  const text = [
-    'New portfolio inquiry',
-    '',
-    `Name: ${values.name}`,
-    `Email: ${values.email}`,
-    `Organization: ${organization}`,
-    `Looking for: ${service}`,
-    `Submitted: ${submittedAtLabel}`,
-    '',
-    'Project description:',
-    values.message,
-  ].join('\n');
-
-  const rows: Array<[string, string]> = [
-    ['Name', values.name],
-    ['Email', values.email],
-    ['Organization', organization],
-    ['Looking for', service],
-    ['Submitted', submittedAtLabel],
-  ];
-
-  const html = [
-    '<div style="font-family:Arial,Helvetica,sans-serif;line-height:1.5;color:#1e1e1e">',
-    '<h2 style="font-size:18px;margin:0 0 16px">New portfolio inquiry</h2>',
-    '<table style="border-collapse:collapse;font-size:14px">',
-    ...rows.map(
-      ([label, value]) =>
-        `<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top">${escapeHtml(
-          label,
-        )}</td><td style="padding:4px 0">${escapeHtml(value)}</td></tr>`,
-    ),
-    '</table>',
-    '<h3 style="font-size:14px;margin:20px 0 8px">Project description</h3>',
-    `<p style="margin:0;font-size:14px;white-space:pre-wrap">${escapeHtml(
-      values.message,
-    )}</p>`,
-    '</div>',
-  ].join('');
-
-  return { text, html, submittedAtLabel };
-}
-
-async function sendInquiryEmail(
+async function deliverInquiry(
   values: ContactValues,
   submittedAt: Date,
 ): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const subject = `New Portfolio Inquiry — ${values.name}`;
-  const { text, html } = buildEmail(values, submittedAt);
 
   let response: Response;
   try {
-    response = await fetch(RESEND_ENDPOINT, {
+    response = await fetch(FORMSPREE_ENDPOINT, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: RESEND_FROM_EMAIL,
-        to: [CONTACT_TO_EMAIL],
-        reply_to: values.email,
-        subject,
-        text,
-        html,
+        name: values.name,
+        email: values.email,
+        organization: values.organization,
+        service: values.service,
+        message: values.message,
+        submitted_at: formatSubmittedAt(submittedAt),
+        _replyto: values.email,
+        _subject: subject,
       }),
     });
   } catch {
     return { ok: false, error: 'network_error' };
   }
 
-  let data: { id?: unknown; message?: unknown } | null = null;
+  let data: { ok?: unknown; error?: unknown } | null = null;
   try {
-    data = (await response.json()) as { id?: unknown; message?: unknown } | null;
+    data = (await response.json()) as { ok?: unknown; error?: unknown } | null;
   } catch {
     data = null;
   }
 
   if (!response.ok) {
     const detail =
-      typeof data?.message === 'string' ? data.message : `resend_${response.status}`;
+      typeof data?.error === 'string' ? data.error : `formspree_${response.status}`;
     return { ok: false, error: detail };
   }
 
-  const id = typeof data?.id === 'string' ? data.id : '';
-  if (!id) {
-    return { ok: false, error: 'no_message_id' };
+  if (data?.ok !== true) {
+    return { ok: false, error: 'no_confirmation' };
   }
 
-  return { ok: true, id };
+  // Formspree accepted and queued the message; this is not proof of delivery.
+  return { ok: true, id: 'formspree' };
 }
 
 function json(body: unknown, status = 200, headers?: HeadersInit): Response {
@@ -237,14 +179,14 @@ export async function POST(request: Request): Promise<Response> {
   }
   recentSubmissions.set(key, now);
 
-  if (!RESEND_API_KEY) {
+  if (!FORMSPREE_ENDPOINT) {
     recentSubmissions.delete(key);
     return json({ ok: false, error: 'not_configured' }, 503);
   }
 
   const submittedAt = new Date(now);
   try {
-    const result = await sendInquiryEmail(values, submittedAt);
+    const result = await deliverInquiry(values, submittedAt);
     if (!result.ok) {
       recentSubmissions.delete(key);
       return json({ ok: false, error: 'email_failed', detail: result.error }, 502);
