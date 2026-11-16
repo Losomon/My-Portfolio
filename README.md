@@ -1,79 +1,247 @@
-# Solomon Mwangi — Portfolio
+# Solomon Mwangi — Software Engineer Portfolio
 
-A modern full-stack developer portfolio built with Next.js, React, TypeScript, and Tailwind CSS. Features custom GSAP animations, Three.js WebGL scenes, and a working contact system with rate limiting and spam protection.
+A modern, interactive developer portfolio showcasing my work, technical capabilities, and approach to building digital experiences.
+
+Built with **Next.js, React, TypeScript, and Tailwind CSS**, the portfolio combines modern web technologies, immersive 3D visuals, custom animations, and a server-side contact system with distributed rate limiting and spam protection.
+
+**Live Website:** [solo-portfolio-six.vercel.app](https://solo-portfolio-six.vercel.app/)
+
+---
+
+## Overview
+
+This portfolio is designed to be more than a collection of projects. It provides an interactive experience where visitors can explore my work, understand my technical interests, and get in touch.
+
+The implementation focuses on:
+
+- Interactive and responsive user experiences.
+- Smooth transitions and motion design.
+- Real-time 3D graphics and WebGL.
+- Performance-conscious visual effects.
+- Secure server-side contact processing.
+- Maintainable, component-based architecture.
 
 ## Features
 
-- Smooth scroll animations with GSAP and Lenis
-- Interactive 3D WebGL scenes using Three.js
-- Particle field effects with Web Workers
-- Draggable 3D silhouette artwork
-- Responsive design with Tailwind CSS v4
-- Working contact form with spam protection
-- Formspree integration for email notifications
+### Interactive Experience
+- Smooth scrolling powered by GSAP and Lenis.
+- Custom scroll-triggered animations and transitions.
+- Interactive 3D scenes using Three.js and WebGL.
+- Draggable 3D silhouette artwork.
+- Particle field effects powered by Web Workers.
+- Responsive layouts across desktop, tablet, and mobile.
 
-## Tech Stack
+### Visual Design
+- Custom animation sequences.
+- Immersive visual elements and interactive components.
+- Tailwind CSS v4 styling.
+- Responsive navigation and page layouts.
 
-- **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS 4
-- **Animation:** GSAP, Anime.js, Framer Motion, Lenis smooth scroll
-- **3D:** Three.js
-- **Backend:** Next.js API routes, Formspree
+### Contact System
+A custom server-side contact system designed to handle visitor inquiries reliably.
+
+- Next.js API route for server-side request processing.
+- Server-side field validation.
+- Formspree integration for email delivery.
+- Upstash Redis for distributed rate limiting.
+- Atomic duplicate-submission prevention.
+- Honeypot spam detection.
+- SHA-256 hashing for duplicate identifiers.
+- Graceful handling of Redis failures.
+- Distinct frontend error states.
+
+**Protection configuration:**
+- Rate limit: 5 submissions per IP address per minute.
+- Duplicate prevention: 20-second lock.
+- Excessive requests: HTTP 429.
+- Invalid submissions: HTTP 400.
+
+The implementation has passed nine production verification checks.
+
+## Technology Stack
+
+| Category | Technologies |
+|---|---|
+| Framework | Next.js 16 |
+| UI Library | React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Animation | GSAP, Anime.js, Framer Motion |
+| Smooth Scrolling | Lenis |
+| 3D Graphics | Three.js, WebGL |
+| Background Processing | Web Workers |
+| Backend | Next.js Route Handlers |
+| Email Delivery | Formspree |
+| Distributed Storage | Upstash Redis |
+| Deployment | Vercel |
+
+## Architecture
+
+The application uses Next.js for both the frontend and server-side request processing.
+
+### Contact request flow
+
+```text
+Visitor
+   |
+   v
+Contact Form
+   |
+   v
+Next.js API Route
+   |
+   v
+Input Validation
+   |
+   v
+Spam & Security Checks
+   |
+   +------> Upstash Redis
+   |          |
+   |          +-- Rate Limiting
+   |          +-- Duplicate Prevention
+   |
+   v
+Formspree
+   |
+   v
+Email Notification
+```
+
+Upstash Redis provides shared protection across Vercel serverless instances. Formspree handles email delivery independently of the frontend.
+
+If Redis becomes unavailable, the contact system uses a fail-open strategy: submissions can continue, although distributed protection is temporarily degraded.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js
+- npm
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone YOUR_REPOSITORY_URL
+cd YOUR_PROJECT_DIRECTORY
+```
+
+Replace the placeholders with your actual GitHub repository URL and directory name.
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+FORMSPREE_ENDPOINT=your_formspree_endpoint
+
+UPSTASH_REDIS_URL=your_upstash_redis_url
+UPSTASH_REDIS_TOKEN=your_upstash_redis_token
+```
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `FORMSPREE_ENDPOINT` | Yes | Formspree email delivery endpoint |
+| `UPSTASH_REDIS_URL` | No | Upstash Redis REST URL |
+| `UPSTASH_REDIS_TOKEN` | No | Upstash Redis authentication token |
+
+Redis credentials must remain server-side. Never expose them through `NEXT_PUBLIC_` variables or commit `.env.local` to Git.
+
+The contact form can continue accepting submissions when Redis is unavailable, but distributed rate limiting and duplicate protection will be degraded.
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-## Contact form
+The application will automatically reload as you modify the source files.
 
-The contact form on `/contact` posts to the `app/api/contact` route handler, which
-validates the submission, applies rate limiting and spam protection, and delivers the
-inquiry through [Formspree](https://formspree.io).
+## Production Build
 
-Submission happens server-side, so visitors do not need any email application
-installed.
+Create an optimized production build:
 
-### Environment variables
+```bash
+npm run build
+```
 
-Set these in `.env.local` (development) or your host's environment settings
-(production). They are server-side only and are never exposed to the browser:
+Start the production server locally:
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `FORMSPREE_ENDPOINT` | yes | Formspree form URL. Create one at https://formspree.io and set the notification recipient in the Formspree dashboard. |
-| `UPSTASH_REDIS_URL` | no | Upstash Redis REST URL. Create a free database at https://upstash.com. |
-| `UPSTASH_REDIS_TOKEN` | no | Upstash Redis REST token. Leave unset to disable distributed protection (submission still works, but rate limiting and duplicate prevention fall back to local-only behavior). |
+```bash
+npm run start
+```
 
-The form shows a success message only after Formspree accepts the submission; if
-sending fails, the visitor sees an error and their entries are preserved.
+## Production Verification
 
-### Distributed protection
+The contact API has a dedicated production verification script.
 
-Rate limiting and duplicate prevention are backed by Upstash Redis so they work
-across Vercel serverless instances. Limits: 5 submissions per IP per minute
-(sliding window); duplicate submissions blocked for 20 seconds. If Redis is
-temporarily unavailable, submissions are allowed through and a sanitized
-operational warning is logged — delivery is prioritized over blocking.
+Run it against the deployed application:
 
-## Deploy on Vercel
+**PowerShell:**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```powershell
+$env:PRODUCTION_URL="https://solo-portfolio-six.vercel.app"
+node scripts/verify-contact.mjs
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The verification suite checks:
 
-## Live
+- Input validation.
+- Empty-field rejection.
+- Field-level validation errors.
+- Honeypot spam detection.
+- Successful submission.
+- Duplicate prevention.
+- Rate limiting.
+- Retry-After response headers.
+- Error-response security.
 
-https://solo-portfolio-six.vercel.app/
+**Latest verification:** 9 out of 9 checks passed.
+
+Note: Running production verification sends requests to the live endpoint and can consume rate-limit capacity.
+
+## Deployment
+
+The portfolio is deployed on [Vercel](https://vercel.com/).
+
+To deploy your own instance:
+
+1. Push the project to GitHub.
+2. Import the repository into Vercel.
+3. Configure the required environment variables.
+4. Deploy the application.
+5. Verify the production contact endpoint.
+
+For additional information, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+
+## Project Goals
+
+This project represents my approach to software engineering: combining functional implementation, thoughtful architecture, interactive design, and practical problem-solving.
+
+I continue to improve the portfolio as I explore new technologies and build software solutions.
+
+## Contact
+
+**Solomon Mwangi**
+Software Engineer | Full-Stack Development
+
+- **Portfolio:** [solo-portfolio-six.vercel.app](https://solo-portfolio-six.vercel.app/)
+- **GitHub:** [github.com/Losomon](https://github.com/Losomon)
+- **LinkedIn:** [Solomon Mwangi](https://linkedin.com/in/solomon-mwangi-73b217352)
+
+---
+
+*Designed and developed by Solomon Mwangi.*
