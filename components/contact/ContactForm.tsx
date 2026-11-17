@@ -265,10 +265,12 @@ export default function ContactForm() {
                   {...fieldA11y('service', errors)}
                 >
                   <option value="">Choose a service (optional)</option>
-                  <option value="Web design">Web design</option>
-                  <option value="Web development">Web development</option>
-                  <option value="Design and development">Design and development</option>
-                  <option value="Something else">Something else</option>
+                  <option value="Full-stack development">Full-stack development</option>
+                  <option value="Backend and API development">Backend and API development</option>
+                  <option value="Business systems and automation">Business systems and automation</option>
+                  <option value="Database and systems management">Database and systems management</option>
+                  <option value="Website development">Website development</option>
+                  <option value="Other / General inquiry">Other / General inquiry</option>
                 </select>
                 {errors.service ? (
                   <p className="contact-inquiry__error" id="contact-service-error" role="alert">
