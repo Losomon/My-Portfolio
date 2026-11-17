@@ -67,7 +67,7 @@ export default function LazyParticleField({
     if (isVisible && !hasLoaded) {
       const timer = setTimeout(() => {
         setHasLoaded(true);
-      }, 2000);
+      }, 150);
       return () => clearTimeout(timer);
     }
   }, [isVisible, hasLoaded]);

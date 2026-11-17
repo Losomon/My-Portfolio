@@ -2,9 +2,19 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import Silhouette from '@/components/ui/Silhouette';
 import FluidBackground from '@/components/ui/FluidBackground';
+
+const subscribeNoop = () => () => {};
+
+function useHydrated() {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+}
 
 type HeroMode = 'editorial' | 'brutalism';
 
@@ -19,14 +29,17 @@ const DEVELOPMENT_PATH =
 
 export default function Hero() {
   const [mode, setMode] = useState<HeroMode>('editorial');
+  const hydrated = useHydrated();
   const isBold = mode === 'brutalism';
 
   return (
     <section className={`home-hero${isBold ? ' is-brutalism' : ''}`} aria-label="Introduction" data-home-hero>
       <div className="home-hero__panel home-hero__panel--editorial" data-editorial-panel>
-        <div className="home-hero__fluid" data-home-fluid aria-hidden="true">
-          <FluidBackground className="home-hero__ink-canvas" />
-        </div>
+        {hydrated && (
+          <div className="home-hero__fluid" data-home-fluid aria-hidden="true">
+            <FluidBackground className="home-hero__ink-canvas" />
+          </div>
+        )}
         <div className="home-hero__static-bg" aria-hidden="true">
           <Image
             className="home-hero__static-image"

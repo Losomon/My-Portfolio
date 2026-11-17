@@ -4,9 +4,11 @@ import { useEffect, useRef } from 'react';
 import { createTimeline, waapi } from 'animejs';
 import TEMPLATE from '@/lib/motion-templates/cover-ring';
 
-const DPR_CAP = 2;
+const DPR_CAP = 1.25;
 const LOOP_SECONDS = 14.0;
 const SLOT_COUNT = 8;
+const TARGET_FPS = 24;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 const IMAGE_SRC = ['/images/01.webp', '/images/02.webp', '/images/03.webp', '/images/04.webp'];
 
 const PARAMS = {
@@ -151,6 +153,8 @@ export default function Capabilities() {
 
       for (let i = 0; i < SLOT_COUNT; i++) {
         const img = new Image();
+        img.decoding = 'async';
+        img.fetchPriority = 'low';
         img.onload = () => {
           images[i] = img;
           draw();
@@ -187,11 +191,13 @@ export default function Capabilities() {
         return;
       }
 
+      rafRef.current = requestAnimationFrame(tick);
+      if (now - last < FRAME_INTERVAL) return;
+
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       t = (t + dt / LOOP_SECONDS) % 1;
       draw();
-      rafRef.current = requestAnimationFrame(tick);
     };
 
     resize();

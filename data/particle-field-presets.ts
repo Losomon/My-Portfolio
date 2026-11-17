@@ -21,11 +21,11 @@ export interface ParticleFormField {
 }
 
 const BASE_SETTINGS: ParticleFieldSettings = {
-  count: 60000,
-  size: 1.95,
-  speed: 0.45,
-  opacity: 0.7,
-  bloomStrength: 0.75,
+  count: 36000,
+  size: 1.8,
+  speed: 0.4,
+  opacity: 0.65,
+  bloomStrength: 0.65,
   bloomRadius: 0.08,
   bloomThreshold: 0.21,
   colorA: "#25b8ff",
@@ -46,11 +46,11 @@ export const GALAXY_B_FORM: ParticleFormField = { kind: "galaxy", seed: 13100991
 // mobile-friendly (see `ParticleField`'s `light` prop for mobile reduction).
 export const GALAXY_A_LIGHT_SETTINGS: ParticleFieldSettings = {
   ...BASE_SETTINGS,
-  count: 30000,
-  size: 1.7,
-  speed: 0.3,
+  count: 18000,
+  size: 1.6,
+  speed: 0.28,
   opacity: 0.45,
-  bloomStrength: 0.45,
+  bloomStrength: 0.4,
   bloomRadius: 0.1,
   bloomThreshold: 0.3,
 };

@@ -1,9 +1,10 @@
-'use client'
+'use client';
 
 import { useEffect, useRef } from 'react'
 
 interface SoffitProps {
   className?: string
+  active?: boolean
 }
 
 const CONFIG = {
@@ -84,7 +85,7 @@ uniform float uGrain, uDither, uVignette;
 uniform float uSteer, uLift, uSweep, uParallax;
 uniform float uGrainAnim;
 
-#define OCTAVES 4
+#define OCTAVES 3
 
 vec2 hash2(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -127,18 +128,6 @@ float triDither(vec2 fc) {
   return (a + b - 1.0) / 255.0;
 }
 
-// ---- house grain. ONE look across the collection: an integer hash (no sin() streaks),
-// triangular so it reads as film rather than static, weighted into the midtones so it
-// never crusts a black or a white. Static by default; uGrainAnim re-seeds it 24x/s.
-float houseGrain(vec2 fc) {
-  uvec2 q = uvec2(fc) * uvec2(1597334677u, 3812015801u)
-          + uint(floor(iTime * 24.0 * uGrainAnim)) * 2654435769u;
-  uint n = q.x ^ q.y; n = n * 1664525u + 1013904223u; n ^= n >> 16u; n *= 2246822519u; n ^= n >> 13u;
-  float a = float(n & 0xffffu) / 65535.0;
-  n *= 3266489917u; n ^= n >> 16u;
-  float b = float(n & 0xffffu) / 65535.0;
-  return a + b - 1.0;
-}
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution) / iResolution.y;
   uv *= uScale;
@@ -147,17 +136,11 @@ void main() {
 
   vec2 p = uv - iM * uParallax;
 
-  // THE LIGHT HAS A DIRECTION and the picture is that direction, not a pattern. Everything
-  // below is a function of ONE number: how far along the light axis this pixel is. The noise
-  // is only allowed to perturb that number, which is the difference between a lit surface
-  // and a noise field with a nice palette on it.
   float tilt = uTilt + sin(t * 0.13) * uRock + iM.x * uSteer;
   vec2 dir = vec2(cos(tilt), sin(tilt));
   float axis = dot(p, dir);
   float across = dot(p, vec2(-dir.y, dir.x));
 
-  // the air the light crosses, as a domain-warped field. Held to uAmount: past about a third
-  // it stops perturbing the light and starts being the subject, and the direction dissolves.
   vec2 q = vec2(fbm(p * uWarpScale + vec2(0.0, t * uFlow)),
                 fbm(p * uWarpScale + vec2(5.2, 1.3) - t * uFlow * 0.7));
   float air = fbm(p + uWarp * q + vec2(t * 0.12, -t * 0.09)) * 0.5 + 0.5;
@@ -165,40 +148,30 @@ void main() {
   float horizon = uHorizon + sin(t * 0.09 + 2.1) * uBreathe - iM.y * uLift;
   float alt = clamp(0.5 + (axis - horizon) * uSpread + (air - 0.5) * uAmount, 0.0, 1.0);
 
-  // THE OPENING IS NOT INFINITELY WIDE. A band across the light axis — never a disc — so the
-  // brightest part of the frame sits off to one side and the composition has a long empty end.
   float ac = (across - uSpillCentre - iM.x * uSweep) / max(0.05, uSpillWidth);
   float spill = mix(uSpillFloor, 1.0, exp(-ac * ac));
 
   float direct = pow(alt, max(0.05, uCurve)) * uDirect * spill;
-
-  // THE BOUNCE. Light that has already been in the shade and come back out of it: it falls off
-  // the OTHER way, so the deep end lifts off the floor instead of dying to a flat black. This
-  // is the whole reason a shadow can be a subject rather than an absence.
   float bounce = uBounce * pow(1.0 - alt, max(0.05, uBounceCurve));
 
   float f = uAmbient + direct + bounce;
-  f += uMotes * snoise(p * uMoteScale + vec2(-t * 0.5, t * 0.35)) * 0.5 * alt;
-
   f = clamp((f - uMidpoint) * uContrast + 0.5, 0.0, 1.0);
 
   vec3 col = ramp4(f);
   col += uColorD * uGlow * pow(f, 4.0);
   col = mix(uBg, col, smoothstep(0.0, max(0.01, uSink), f) * 0.90 + 0.10);
-
   col *= 1.0 - uVignette * dot(uv, uv);
-  { float hgL = clamp(dot(col, vec3(0.299, 0.587, 0.114)), 0.0, 1.0);
-    col += houseGrain(gl_FragCoord.xy) * uGrain * mix(1.0, 4.0 * hgL * (1.0 - hgL), 0.6); }
   col += triDither(gl_FragCoord.xy) * uDither;
 
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`
 
-export default function Soffit({ className }: SoffitProps) {
+export default function Soffit({ className, active = true }: SoffitProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
 
   useEffect(() => {
+    if (!active) return undefined
     const canvasEl = canvasRef.current
     if (!canvasEl) return undefined
 
@@ -207,7 +180,7 @@ export default function Soffit({ className }: SoffitProps) {
       antialias: false,
       depth: false,
       stencil: false,
-      powerPreference: 'high-performance',
+      powerPreference: 'low-power',
     })
     if (!glCtx) {
       console.warn('WebGL2 is not available in this browser.')
@@ -273,7 +246,7 @@ export default function Soffit({ className }: SoffitProps) {
       u1f('uFlow', CONFIG.flow)
       u1f('uRoughness', CONFIG.roughness)
       u1f('uLacunarity', CONFIG.lacunarity)
-      u1f('uMotes', CONFIG.motes)
+      u1f('uMotes', 0.0)
       u1f('uMoteScale', CONFIG.moteScale)
       u1f('uAmbient', CONFIG.ambient)
       u1f('uContrast', CONFIG.contrast)
@@ -293,7 +266,7 @@ export default function Soffit({ className }: SoffitProps) {
 
     let dpr = 1
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxDpr)
+      dpr = Math.min(window.devicePixelRatio || 1, 0.75)
       const w = Math.max(1, Math.round(innerWidth * dpr))
       const h = Math.max(1, Math.round(innerHeight * dpr))
       if (canvas.width !== w || canvas.height !== h) {
@@ -316,24 +289,6 @@ export default function Soffit({ className }: SoffitProps) {
     }
     window.addEventListener('resize', onResize, { passive: true })
 
-    const mouse = {
-      x: 0,
-      y: 0,
-      ax: 0,
-      ay: 0,
-      tx: 0,
-      ty: 0,
-    } as { x: number; y: number; ax: number; ay: number; tx: number; ty: number; rest?: { x: number; y: number } }
-
-    const onAim = (e: PointerEvent) => {
-      const a = innerWidth / innerHeight
-      mouse.tx = (e.clientX / innerWidth - 0.5) * a
-      mouse.ty = (0.5 - e.clientY / innerHeight)
-    }
-
-    window.addEventListener('pointermove', onAim, { passive: true })
-    window.addEventListener('pointerdown', onAim, { passive: true })
-
     let visible = true
     const observer = new IntersectionObserver(
       (es) => {
@@ -344,66 +299,37 @@ export default function Soffit({ className }: SoffitProps) {
     observer.observe(canvas)
 
     const t0 = performance.now()
-    let prevT = t0
-    let clock = 0
-    let fpsT = t0
-    let _fpsN = 0
+    let lastDraw = 0
+    const clockStart = 0.0
 
     function frame(now: number) {
       rafRef.current = requestAnimationFrame(frame)
-
-      const raw = now - prevT
-      prevT = now
       if (!visible || document.hidden) return
-      const ms = raw > 50 ? 50 : raw < 4.167 ? 4.167 : raw
-      const s = ms > 36.7 ? 2.2 : ms * 0.06
-      clock += ms * 0.001
+      if (now - lastDraw < 66) return
+      lastDraw = now
 
-      const kLead = 0.105 * s
-      const kBody = 0.043 * s
-      mouse.ax += (mouse.tx - mouse.ax) * kLead
-      mouse.ay += (mouse.ty - mouse.ay) * kLead
-      mouse.x += (mouse.ax - mouse.x) * kBody
-      mouse.y += (mouse.ay - mouse.y) * kBody
-
+      const clock = clockStart + (now - t0) * 0.001
       u1f('iTime', clock)
-      if (mouse.rest === undefined) mouse.rest = { x: mouse.tx, y: mouse.ty }
-      if (!CONFIG.cursor) {
-        mouse.tx = mouse.rest.x
-        mouse.ty = mouse.rest.y
-      }
-      u2f('iMouse', mouse.x, mouse.y)
+      u2f('iMouse', 0.0, 0.0)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
-
-      _fpsN++
-      if (now - fpsT > 500) {
-        fpsT = now
-        _fpsN = 0
-      }
     }
 
     applyConfig()
     gl.drawArrays(gl.TRIANGLES, 0, 3)
 
-    let rafStarted = false
-    const startRaf = () => {
-      if (rafStarted) return
-      rafStarted = true
+    const rafTimer = setTimeout(() => {
       rafRef.current = requestAnimationFrame(frame)
-    }
-    const rafTimer = setTimeout(startRaf, 800)
+    }, 100)
 
     return () => {
       clearTimeout(rafTimer)
       cancelAnimationFrame(rafRef.current)
       observer.disconnect()
       window.removeEventListener('resize', onResize)
-      window.removeEventListener('pointermove', onAim)
-      window.removeEventListener('pointerdown', onAim)
       gl.useProgram(null)
       gl.deleteProgram(program)
     }
-  }, [])
+  }, [active])
 
   return (
     <canvas

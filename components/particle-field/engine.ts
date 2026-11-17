@@ -24,7 +24,6 @@ import type { ParticleFieldSettings } from "@/data/particle-field-presets";
  * viewer's pickers rather than a per-form palette.
  */
 
-const DPR_CAP = 2;
 const MORPH_TIME = 2.6;
 
 const NOISE_GLSL = /* glsl */ `
@@ -319,7 +318,7 @@ export class ParticleStudio {
         uTime: { value: 0 },
         uScale: { value: 1 },
         uColor: { value: new THREE.Color("#9a9ab8") },
-        uOpacity: { value: 0.7 },
+        uOpacity: { value: 0.5 },
       },
       vertexShader: /* glsl */ `
         uniform float uTime, uScale;
@@ -332,8 +331,8 @@ export class ParticleStudio {
           p.y += cos(t * 0.8 + aSeed * 7.0) * 0.3;
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           gl_Position = projectionMatrix * mv;
-          float px = (0.6 + aSeed * 1.4) * uScale / -mv.z;
-          vA = clamp(px * px * 0.25, 0.0, 1.0) * (0.35 + 0.5 * aSeed);
+          float px = (0.6 + aSeed * 1.2) * uScale / -mv.z;
+          vA = clamp(px * px * 0.2, 0.0, 1.0) * (0.35 + aSeed * 0.4);
           gl_PointSize = max(px, 2.0);
         }
       `,
@@ -354,7 +353,7 @@ export class ParticleStudio {
       blending: THREE.AdditiveBlending,
     });
     {
-      const DUST = 2600;
+      const DUST = 1200;
       let a = 4242;
       const rng = () => {
         a |= 0;
@@ -689,7 +688,7 @@ export class ParticleStudio {
     this.renderer.setSize(width, height, false);
     this.composer.setPixelRatio(dpr);
     this.composer.setSize(width, height);
-    this.bloom.resolution.set(width, height);
+    this.bloom.resolution.set(Math.round(width * 0.6), Math.round(height * 0.6));
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     const scale = dpr * height * 0.0045;

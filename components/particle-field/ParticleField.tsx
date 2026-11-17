@@ -17,20 +17,11 @@ interface ParticleFieldProps {
   light?: boolean;
 }
 
-function isMobile(): boolean {
-  if (typeof window === 'undefined') return false;
-  return (
-    window.matchMedia('(pointer: coarse)').matches ||
-    window.matchMedia('(hover: none)').matches ||
-    window.innerWidth < 768
-  );
-}
-
 /** Scale a settings object down for low-end / mobile devices. */
 function reduceSettings(s: ParticleFieldSettings): ParticleFieldSettings {
   return {
     ...s,
-    count: Math.round(s.count * 0.12),
+    count: Math.round(s.count * 0.25),
     size: s.size * 0.85,
     speed: s.speed * 0.55,
     opacity: s.opacity * 0.5,
@@ -38,6 +29,23 @@ function reduceSettings(s: ParticleFieldSettings): ParticleFieldSettings {
     bloomRadius: 0,
     bloomThreshold: 1,
   };
+}
+
+function shouldReduceForDevice(settings: ParticleFieldSettings, light?: boolean): boolean {
+  if (typeof window === 'undefined') return false;
+  const coarse = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+  if (light && coarse) return true;
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 4;
+  return cores <= 4 || mem <= 4 || settings.count > 25000;
+}
+
+function getDprCap(light?: boolean): number {
+  if (typeof window === 'undefined') return 1.25;
+  const coarse = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+  if (coarse) return 1;
+  if (light) return 1.1;
+  return 1.25;
 }
 
 /**
@@ -63,9 +71,9 @@ export default function ParticleField({ settings, form, className, overlay, ligh
 
       // Mobile / low-end: drop the bloom pass and particle count so the
       // section stays responsive and cool on phones.
-      const activeSettings = light && isMobile() ? reduceSettings(settings) : settings;
+      const activeSettings = shouldReduceForDevice(settings, light) ? reduceSettings(settings) : settings;
       const studio = new ParticleStudio(canvas, { ...activeSettings });
-      const DPR_CAP = light && isMobile() ? 1 : 1.5;
+      const DPR_CAP = getDprCap(light);
 
       const resize = () => {
         const w = container.clientWidth;
@@ -96,12 +104,22 @@ export default function ParticleField({ settings, form, className, overlay, ligh
       );
       io.observe(container);
 
-      let raf = requestAnimationFrame(function tick(now: number) {
+      let raf = 0;
+      let lastRender = 0;
+      const targetInterval = light ? 1000 / 30 : 1000 / 45;
+      const tick = (now: number) => {
+        raf = requestAnimationFrame(tick);
+        if (!playing || document.hidden) {
+          last = now;
+          return;
+        }
+        if (now - lastRender < targetInterval) return;
         const dt = Math.min(0.05, (now - last) / 1000);
         last = now;
-        if (playing) studio.renderFrame(dt);
-        raf = requestAnimationFrame(tick);
-      });
+        lastRender = now;
+        studio.renderFrame(dt);
+      };
+      raf = requestAnimationFrame(tick);
 
       cleanup = () => {
         cancelAnimationFrame(raf);
