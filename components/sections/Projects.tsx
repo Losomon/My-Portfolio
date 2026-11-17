@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { projects } from '@/lib/projects';
-import ParticleField from '@/components/particle-field/ParticleField';
+import LazyParticleField from '@/components/particle-field/LazyParticleField';
 import { GALAXY_A_LIGHT_FORM, GALAXY_A_LIGHT_SETTINGS } from '@/data/particle-field-presets';
 
 const HOME_PROJECT_SLUGS = ['vet-claim', 'solomon', '01', 'pulse'] as const;
@@ -24,7 +24,7 @@ export default function Projects() {
 
   return (
     <section id="work" className="projects-section">
-      <ParticleField settings={GALAXY_A_LIGHT_SETTINGS} form={GALAXY_A_LIGHT_FORM} overlay light />
+      <LazyParticleField settings={GALAXY_A_LIGHT_SETTINGS} form={GALAXY_A_LIGHT_FORM} overlay light />
       <div className="content-wrap">
         <div className="projects-head">
           <div>

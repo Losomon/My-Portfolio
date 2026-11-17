@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
-import ContactStage from '@/components/contact/ContactStage';
-import ContactForm from '@/components/contact/ContactForm';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
+import ContactStageWrapper from '@/components/contact/ContactStageWrapper';
+import ContactFormWrapper from '@/components/contact/ContactFormWrapper';
 import { seoMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = seoMetadata({
@@ -17,8 +17,8 @@ export default function ContactPage() {
     <>
       <Navigation />
       <main className="contact-page" id="top">
-        <ContactStage />
-        <ContactForm />
+        <ContactStageWrapper />
+        <ContactFormWrapper />
         <div className="contact-transition-veil" aria-hidden="true" />
       </main>
       <Footer />

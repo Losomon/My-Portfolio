@@ -4,10 +4,15 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import dynamic from 'next/dynamic';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
-import DragStage from '@/components/playground/DragStage';
 import { waitFrames, waitForImage } from '@/lib/ready';
+
+const DragStage = dynamic(() => import('@/components/playground/DragStage'), {
+  ssr: false,
+  loading: () => <div className="pgs" aria-hidden="true" />,
+});
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Navigation from '@/components/layout/Navigation';
-import AboutMotion from '@/components/about/AboutMotion';
+import AboutMotionWrapper from '@/components/about/AboutMotionWrapper';
 import { seoMetadata } from '@/lib/seo';
 import Image from 'next/image';
 
@@ -386,7 +386,7 @@ export default function AboutPage() {
           </div>
         </footer>
 
-        <AboutMotion />
+        <AboutMotionWrapper />
       </main>
     </>
   );

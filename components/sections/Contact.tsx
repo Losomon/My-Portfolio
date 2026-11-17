@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { waapi } from 'animejs';
-import ParticleField from '@/components/particle-field/ParticleField';
+import LazyParticleField from '@/components/particle-field/LazyParticleField';
 import { GALAXY_B_FORM, GALAXY_B_SETTINGS } from '@/data/particle-field-presets';
 
 export default function Contact() {
@@ -45,7 +45,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="contact-section" ref={sectionRef}>
-      <ParticleField settings={GALAXY_B_SETTINGS} form={GALAXY_B_FORM} overlay />
+      <LazyParticleField settings={GALAXY_B_SETTINGS} form={GALAXY_B_FORM} overlay />
       <div className="content-wrap contact-shell">
         <div className="contact-intro" ref={introRef}>
           <p className="eyebrow eyebrow-light reveal-char">Get in touch</p>

@@ -1,11 +1,38 @@
-import Hero from '@/components/sections/Hero';
-import Capabilities from '@/components/sections/Capabilities';
-import Projects from '@/components/sections/Projects';
-import About from '@/components/sections/About';
-import Contact from '@/components/sections/Contact';
+'use client';
+
+import dynamic from 'next/dynamic';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
-import Preloader from '@/components/ui/Preloader';
+
+const Hero = dynamic(() => import('@/components/sections/Hero'), {
+  ssr: false,
+  loading: () => <div className="home-hero" aria-hidden="true" />,
+});
+
+const About = dynamic(() => import('@/components/sections/About'), {
+  ssr: false,
+  loading: () => <section id="about" className="about-section" aria-hidden="true" />,
+});
+
+const Projects = dynamic(() => import('@/components/sections/Projects'), {
+  ssr: false,
+  loading: () => <section id="work" className="projects-section" aria-hidden="true" />,
+});
+
+const Capabilities = dynamic(() => import('@/components/sections/Capabilities'), {
+  ssr: false,
+  loading: () => <section id="capabilities" className="capabilities-section" aria-hidden="true" />,
+});
+
+const Contact = dynamic(() => import('@/components/sections/Contact'), {
+  ssr: false,
+  loading: () => <section id="contact" className="contact-section" aria-hidden="true" />,
+});
+
+const Preloader = dynamic(() => import('@/components/ui/Preloader'), {
+  ssr: false,
+  loading: () => <div className="preloader" aria-hidden="true" />,
+});
 
 export default function Home() {
   return (
