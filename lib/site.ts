@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = 'https://solo-portfolio-six.vercel.app';
+const DEFAULT_SITE_URL = 'https://solointech.co.ke';
 
 function normalizeUrl(value: string): string {
   return value.trim().replace(/\/+$/, '');
