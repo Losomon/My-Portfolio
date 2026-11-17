@@ -16,7 +16,7 @@ export default function Preloader() {
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const duration = reduced ? 400 : 2200;
+    const duration = reduced ? 400 : 1500;
     const start = performance.now();
     let exitTimer: number | null = null;
     let intervalId: number | null = null;
@@ -34,7 +34,7 @@ export default function Preloader() {
       }
     };
 
-    intervalId = window.setInterval(updateProgress, 16);
+    intervalId = window.setInterval(updateProgress, 33);
     updateProgress();
 
     return () => {

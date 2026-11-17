@@ -65,7 +65,7 @@ export default function ParticleField({ settings, form, className, overlay, ligh
       // section stays responsive and cool on phones.
       const activeSettings = light && isMobile() ? reduceSettings(settings) : settings;
       const studio = new ParticleStudio(canvas, { ...activeSettings });
-      const DPR_CAP = light && isMobile() ? 1 : 2;
+      const DPR_CAP = light && isMobile() ? 1 : 1.5;
 
       const resize = () => {
         const w = container.clientWidth;

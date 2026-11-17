@@ -10,7 +10,7 @@ interface LazyParticleFieldProps {
   className?: string;
   overlay?: boolean;
   light?: boolean;
-  /** Distance in pixels before the viewport to start loading (default: 300) */
+  /** Distance in pixels before the viewport to start loading (default: 1000) */
   rootMargin?: string;
 }
 
@@ -36,7 +36,7 @@ export default function LazyParticleField({
   className,
   overlay,
   light,
-  rootMargin = '300px',
+  rootMargin = '1000px',
 }: LazyParticleFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -67,7 +67,7 @@ export default function LazyParticleField({
     if (isVisible && !hasLoaded) {
       const timer = setTimeout(() => {
         setHasLoaded(true);
-      }, 0);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [isVisible, hasLoaded]);

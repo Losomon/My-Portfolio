@@ -21,7 +21,7 @@ export interface ParticleFormField {
 }
 
 const BASE_SETTINGS: ParticleFieldSettings = {
-  count: 250000,
+  count: 60000,
   size: 1.95,
   speed: 0.45,
   opacity: 0.7,
@@ -46,7 +46,7 @@ export const GALAXY_B_FORM: ParticleFormField = { kind: "galaxy", seed: 13100991
 // mobile-friendly (see `ParticleField`'s `light` prop for mobile reduction).
 export const GALAXY_A_LIGHT_SETTINGS: ParticleFieldSettings = {
   ...BASE_SETTINGS,
-  count: 90000,
+  count: 30000,
   size: 1.7,
   speed: 0.3,
   opacity: 0.45,

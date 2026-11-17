@@ -300,9 +300,9 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     void linearExt; // just need to activate it
 
     /* ---- config ---- */
-    const SIM_RES = lowPower ? 64 : 128;
-    const DYE_RES = lowPower ? 256 : 512;
-    const PRESSURE_ITERATIONS = lowPower ? 8 : 20;
+    const SIM_RES = lowPower ? 64 : 96;
+    const DYE_RES = lowPower ? 256 : 384;
+    const PRESSURE_ITERATIONS = lowPower ? 8 : 15;
     const CURL_STRENGTH = 30;
     const SPLAT_RADIUS = 0.55;
     const VELOCITY_DISSIPATION = 0.99;
@@ -421,7 +421,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
     /* ---- resize ---- */
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.25);
       const w = Math.round(canvas!.clientWidth * dpr);
       const h = Math.round(canvas!.clientHeight * dpr);
       const sizeChanged = canvas!.width !== w || canvas!.height !== h;
