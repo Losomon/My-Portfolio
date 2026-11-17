@@ -189,20 +189,34 @@ export default function AboutMotion() {
     const root = document.documentElement;
     root.classList.add('motion-on');
 
-    const disposeReveals = observeReveals();
-    const disposeMedia = observeMedia();
-    const disposeCircle = createCircularList();
-    const disposeShade = createServiceShade();
+    let disposed = false;
+    let cleanup: (() => void) | null = null;
 
-    const refresh = () => ScrollTrigger.refresh();
-    window.addEventListener('load', refresh);
+    const deferred = () => {
+      if (disposed) return;
+      const disposeReveals = observeReveals();
+      const disposeMedia = observeMedia();
+      const disposeCircle = createCircularList();
+      const disposeShade = createServiceShade();
+
+      const refresh = () => ScrollTrigger.refresh();
+      window.addEventListener('load', refresh);
+
+      cleanup = () => {
+        window.removeEventListener('load', refresh);
+        disposeReveals();
+        disposeMedia();
+        disposeCircle();
+        disposeShade();
+      };
+    };
+
+    const id = requestIdleCallback(deferred, { timeout: 1500 });
 
     return () => {
-      window.removeEventListener('load', refresh);
-      disposeReveals();
-      disposeMedia();
-      disposeCircle();
-      disposeShade();
+      disposed = true;
+      cancelIdleCallback(id);
+      if (cleanup) cleanup();
       root.classList.remove('motion-on');
     };
   }, []);

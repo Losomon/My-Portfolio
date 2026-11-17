@@ -384,9 +384,17 @@ export default function Soffit({ className }: SoffitProps) {
 
     applyConfig()
     gl.drawArrays(gl.TRIANGLES, 0, 3)
-    rafRef.current = requestAnimationFrame(frame)
+
+    let rafStarted = false
+    const startRaf = () => {
+      if (rafStarted) return
+      rafStarted = true
+      rafRef.current = requestAnimationFrame(frame)
+    }
+    const rafTimer = setTimeout(startRaf, 800)
 
     return () => {
+      clearTimeout(rafTimer)
       cancelAnimationFrame(rafRef.current)
       observer.disconnect()
       window.removeEventListener('resize', onResize)

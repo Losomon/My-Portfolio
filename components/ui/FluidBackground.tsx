@@ -673,6 +673,14 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       }
     };
 
+    let rafStarted = false
+    const deferredUpdate = () => {
+      if (rafStarted) return
+      rafStarted = true
+      updateAnimation()
+    }
+    const rafTimer = setTimeout(deferredUpdate, 800)
+
     const visibilityObserver =
       typeof IntersectionObserver === 'undefined'
         ? null
@@ -711,6 +719,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
     window.addEventListener('resize', resize);
 
     return () => {
+      clearTimeout(rafTimer);
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       visibilityObserver?.disconnect();
