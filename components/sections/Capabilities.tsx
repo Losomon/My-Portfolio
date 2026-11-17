@@ -125,23 +125,10 @@ export default function Capabilities() {
     if (!ctx) return;
 
     const images = imagesRef.current;
-    for (let i = 0; i < SLOT_COUNT; i++) {
-      const img = new Image();
-      img.src = IMAGE_SRC[i % IMAGE_SRC.length];
-      img.onload = () => {
-        images[i] = img;
-      };
-    }
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
-      canvas.width = Math.round(stage.clientWidth * dpr);
-      canvas.height = Math.round(stage.clientHeight * dpr);
-      draw();
-    };
-
     let t = 0.12;
     let last = performance.now();
+    let isInViewport = false;
+    let imagesStartedLoading = false;
 
     const draw = () => {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -158,7 +145,48 @@ export default function Capabilities() {
       paintBehind(ctx, BACKGROUND, canvas.width, canvas.height);
     };
 
+    const loadImages = () => {
+      if (imagesStartedLoading) return;
+      imagesStartedLoading = true;
+
+      for (let i = 0; i < SLOT_COUNT; i++) {
+        const img = new Image();
+        img.onload = () => {
+          images[i] = img;
+          draw();
+        };
+        img.src = IMAGE_SRC[i % IMAGE_SRC.length];
+      }
+    };
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      canvas.width = Math.round(stage.clientWidth * dpr);
+      canvas.height = Math.round(stage.clientHeight * dpr);
+      draw();
+    };
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const syncAnimation = () => {
+      const shouldAnimate =
+        isInViewport && document.visibilityState === 'visible' && !reduced.matches;
+
+      if (shouldAnimate && rafRef.current === null) {
+        last = performance.now();
+        rafRef.current = requestAnimationFrame(tick);
+      } else if (!shouldAnimate && rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+
     const tick = (now: number) => {
+      if (!isInViewport || document.visibilityState !== 'visible' || reduced.matches) {
+        rafRef.current = null;
+        return;
+      }
+
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       t = (t + dt / LOOP_SECONDS) % 1;
@@ -167,26 +195,26 @@ export default function Capabilities() {
     };
 
     resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(stage);
-    resizeObserverRef.current = observer;
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(stage);
+    resizeObserverRef.current = resizeObserver;
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (reduced.matches) {
-      draw();
-      const reducedObserver = new ResizeObserver(draw);
-      reducedObserver.observe(stage);
-      return () => {
-        observer.disconnect();
-        reducedObserver.disconnect();
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      };
-    }
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isInViewport = entry.isIntersecting;
+      if (isInViewport) loadImages();
+      syncAnimation();
+    });
+    visibilityObserver.observe(stage);
+    document.addEventListener('visibilitychange', syncAnimation);
+    reduced.addEventListener('change', syncAnimation);
 
-    rafRef.current = requestAnimationFrame(tick);
     return () => {
-      observer.disconnect();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      resizeObserver.disconnect();
+      visibilityObserver.disconnect();
+      document.removeEventListener('visibilitychange', syncAnimation);
+      reduced.removeEventListener('change', syncAnimation);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     };
   }, []);
 

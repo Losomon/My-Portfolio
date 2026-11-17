@@ -2045,10 +2045,10 @@ button:focus-visible, a:focus-visible {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(254, 255, 248, 0.45);
+  color: rgba(254, 255, 248, 0.7);
 }
 
-.site-footer-credit { color: rgba(254, 255, 248, 0.35); }
+.site-footer-credit { color: rgba(254, 255, 248, 0.7); }
 
 .site-footer-top-link {
   color: rgba(254, 255, 248, 0.7);

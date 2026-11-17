@@ -3,11 +3,7 @@
 import dynamic from 'next/dynamic';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
-
-const Hero = dynamic(() => import('@/components/sections/Hero'), {
-  ssr: false,
-  loading: () => <div className="home-hero" aria-hidden="true" />,
-});
+import Hero from '@/components/sections/Hero';
 
 const About = dynamic(() => import('@/components/sections/About'), {
   ssr: false,
