@@ -4,7 +4,7 @@ A modern, interactive developer portfolio showcasing my work, technical capabili
 
 Built with **Next.js, React, TypeScript, and Tailwind CSS**, the portfolio combines modern web technologies, immersive 3D visuals, custom animations, and a server-side contact system with distributed rate limiting and spam protection.
 
-**Live Website:** [solo-portfolio-six.vercel.app](https://solo-portfolio-six.vercel.app/)
+**Live Website:** [solointech.co.ke](https://solointech.co.ke/)
 
 ---
 
@@ -267,7 +267,7 @@ I continue to improve the portfolio as I explore new technologies and build soft
 **Solomon Mwangi**
 Software Engineer | Full-Stack Development
 
-- **Portfolio:** [solo-portfolio-six.vercel.app](https://solo-portfolio-six.vercel.app/)
+- **Portfolio:** [solointech.co.ke](https://solointech.co.ke/)
 - **GitHub:** [github.com/Losomon](https://github.com/Losomon)
 - **LinkedIn:** [Solomon Mwangi](https://linkedin.com/in/solomon-mwangi-73b217352)
 
