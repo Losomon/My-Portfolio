@@ -2937,7 +2937,7 @@ button:focus-visible, a:focus-visible {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url('/images/moon-walk.jpg');
+  background-image: url('/images/moon-walk.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

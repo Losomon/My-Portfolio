@@ -13,7 +13,7 @@ const imageBySlug: Record<string, string> = {
   'vet-claim': '/images/vet-claim.webp',
   'solomon': '/images/folio-v1.webp',
   '01': '/images/01.webp',
-  pulse: '/images/pulse.jpg',
+  pulse: '/images/pulse.webp',
 };
 
 export default function Projects() {

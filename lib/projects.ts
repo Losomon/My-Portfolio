@@ -112,7 +112,7 @@ export const projects: Project[] = [
     category: 'SaaS Dashboard',
     role: 'Design, Development',
     description: 'A real-time analytics dashboard concept focused on clarity, speed, and actionable product metrics.',
-    image: '/images/pulse.jpg',
+    image: '/images/pulse.webp',
     stack: ['Next.js', 'TypeScript', 'Tailwind CSS', 'D3.js'],
     status: 'Prototype',
     statusNote: 'Concept prototype exploring data visualization and dashboard interaction patterns.',
