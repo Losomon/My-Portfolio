@@ -259,6 +259,9 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
   const pointerRef = useRef({ x: 0.5, y: 0.5, dx: 0, dy: 0, moved: false, firstMove: true });
   const lastTimeRef = useRef(0);
   const splatStackRef = useRef<number>(0);
+  const settleRef = useRef(false);
+  const settleTimerRef = useRef<number | null>(null);
+  const wakeAnimationRef = useRef<() => void>(() => {});
 
   /* Splat a random burst of colour for ambient motion */
   const randomSplats = useCallback((count: number) => {
@@ -638,6 +641,11 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
         isInViewport && document.visibilityState === 'visible';
 
       function frame(t: number) {
+        if (settleRef.current) {
+          rafRef.current = 0;
+          return;
+        }
+
         if (!isAnimationActive()) {
           rafRef.current = 0;
           return;
@@ -672,15 +680,40 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
       const updateAnimation = () => {
         if (isAnimationActive()) {
+          if (settleRef.current) return;
           if (!rafRef.current) {
             lastTimeRef.current = performance.now();
             rafRef.current = requestAnimationFrame(frame);
           }
-        } else if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current);
-          rafRef.current = 0;
+          if (!settleTimerRef.current) {
+            settleTimerRef.current = window.setTimeout(() => {
+              settleRef.current = true;
+              settleTimerRef.current = null;
+              cancelAnimationFrame(rafRef.current);
+              rafRef.current = 0;
+            }, 5000);
+          }
+        } else {
+          if (settleTimerRef.current) {
+            window.clearTimeout(settleTimerRef.current);
+            settleTimerRef.current = null;
+          }
+          if (rafRef.current) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = 0;
+          }
         }
       };
+
+      const wakeAnimation = () => {
+        settleRef.current = false;
+        if (settleTimerRef.current) {
+          window.clearTimeout(settleTimerRef.current);
+          settleTimerRef.current = null;
+        }
+        updateAnimation();
+      };
+      wakeAnimationRef.current = wakeAnimation;
 
       let rafStarted = false
       const deferredUpdate = () => {
@@ -707,6 +740,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
 
       /* ---- pointer events ---- */
       function onPointerMove(e: PointerEvent) {
+        wakeAnimation();
         const rect = canvas!.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width;
         const y = 1.0 - (e.clientY - rect.top) / rect.height;
@@ -728,9 +762,11 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
       window.addEventListener('resize', resize);
 
       return () => {
+        wakeAnimationRef.current = () => {};
         clearTimeout(rafTimer);
         cancelAnimationFrame(rafRef.current);
         rafRef.current = 0;
+        if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current);
         visibilityObserver?.disconnect();
         document.removeEventListener('visibilitychange', updateAnimation);
         canvas.removeEventListener('pointermove', onPointerMove);
@@ -748,6 +784,7 @@ export default function FluidBackground({ className }: FluidBackgroundProps) {
   // Trigger ambient splats on click for extra interactivity
   const handleClick = useCallback(() => {
     randomSplats(Math.floor(Math.random() * 3) + 3);
+    wakeAnimationRef.current();
   }, [randomSplats]);
 
   return (
